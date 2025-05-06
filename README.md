@@ -1,12 +1,11 @@
-# React + Vite
+# data-monitor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> [!WARNING]
+> This repository is currently under heavy development and currently this readme file documentation presents only the idea of the logic in the wish-list form.
 
-Currently, two official plugins are available:
+This single page application is used to display the data provided by the [scraper backend service](https://github.com/piopon/web-scraper) in a minimalist form factor.
+When needed it can also be configured to use the predefined notifiers and send a message when the received data values meet the defined criterias. For example: when the received data represent a price value then we can send a notification message when this price is lower than a specific threshold.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+<p align="center">Created by PNK with ❤ @ 2025</p>
