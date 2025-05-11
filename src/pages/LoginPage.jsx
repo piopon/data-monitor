@@ -1,6 +1,9 @@
-import React from "react";
+import { useState } from "react";
 
 const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const tileStyle = "mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900";
   const inputContainerStyle =
     "w-75 rounded-md m-3 pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:outline-indigo-600";
@@ -15,10 +18,24 @@ const LoginPage = () => {
       <form className="flex items-center justify-center">
         <div>
           <div className={inputContainerStyle}>
-            <input type="email" placeholder="email" className={inputFieldStyle} required />
+            <input
+              required
+              type="email"
+              placeholder="email"
+              className={inputFieldStyle}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
           <div className={inputContainerStyle}>
-            <input type="password" placeholder="password" className={inputFieldStyle} required />
+            <input
+              required
+              type="password"
+              placeholder="password"
+              className={inputFieldStyle}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
           <div className={submitContainerStyle}>
             <button type="submit" className={submitButtonStyle}>
