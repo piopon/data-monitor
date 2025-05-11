@@ -4,6 +4,10 @@ section#login-section h2.login-title {
   @apply mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900;
 }
 
+section#login-section form.login-form {
+  @apply flex items-center justify-center;
+}
+
 section#login-section div.login-field-div {
   @apply w-75 rounded-md m-3 pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:outline-indigo-600;
 }

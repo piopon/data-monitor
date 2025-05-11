@@ -7,7 +7,7 @@ const LoginPage = () => {
   return (
     <section id="login-section">
       <h2 className="login-title">Log in to your account</h2>
-      <form className="flex items-center justify-center">
+      <form className="login-form">
         <div>
           <div className="login-field-div">
             <input
