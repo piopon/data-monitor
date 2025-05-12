@@ -6,6 +6,13 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: 3000
+    port: 3000,
+    proxy: {
+      '/scraper': {
+        target: 'http://192.168.0.103:5000',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/scraper/, '')
+      }
+    }
   }
 })

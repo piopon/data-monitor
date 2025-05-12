@@ -6,7 +6,7 @@ const LoginPage = () => {
   const userLogin = async (event) => {
     event.preventDefault();
     try {
-      const res = await fetch("http://192.168.0.103:5000/auth/token", {
+      const res = await fetch("/scraper/auth/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
