@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -17,11 +18,12 @@ const LoginPage = () => {
       const responseCode = res.status;
       const data = await res.json();
       if (200 !== responseCode) {
-        console.error(data.error);
+        toast.error(data.error);
         return;
       }
       localStorage.setItem("token", data.token);
       navigate("/data");
+      toast.success("Login successful!");
     } catch (e) {
       console.error(`Error: ${e.message}`);
     }
