@@ -38,6 +38,7 @@ const LoginPage = () => {
               required
               type="email"
               placeholder="email"
+              autoComplete="email"
               className="login-field"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -48,6 +49,7 @@ const LoginPage = () => {
               required
               type="password"
               placeholder="password"
+              autoComplete="current-password"
               className="login-field"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
