@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
   const userLogin = async (event) => {
     event.preventDefault();
     try {
@@ -13,6 +16,7 @@ const LoginPage = () => {
       });
       const data = await res.json();
       localStorage.setItem("token", data.token);
+      navigate("/data");
     } catch (e) {
       console.error(`Error: ${e.message}`);
     }
