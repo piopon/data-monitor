@@ -14,7 +14,12 @@ const LoginPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+      const responseCode = res.status;
       const data = await res.json();
+      if (200 !== responseCode) {
+        console.error(data.error);
+        return;
+      }
       localStorage.setItem("token", data.token);
       navigate("/data");
     } catch (e) {
