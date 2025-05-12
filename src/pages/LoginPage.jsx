@@ -10,14 +10,13 @@ const LoginPage = () => {
   const userLogin = async (event) => {
     event.preventDefault();
     try {
-      const res = await fetch("/scraper/auth/token", {
+      const response = await fetch("/scraper/auth/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const responseCode = res.status;
-      const data = await res.json();
-      if (200 !== responseCode) {
+      const data = await response.json();
+      if (!response.ok) {
         toast.error(data.error);
         return;
       }
