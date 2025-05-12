@@ -3,11 +3,21 @@ import { useState } from "react";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const userLogin = async (event) => {
+    event.preventDefault();
+    const res = await fetch("http://192.168.0.103:5000/auth/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    console.log(data);
+  };
 
   return (
     <section id="login-section">
       <h2 className="login-title">Log in to your account</h2>
-      <form className="login-form">
+      <form className="login-form" onSubmit={userLogin}>
         <div>
           <div className="login-field-div">
             <input
