@@ -12,7 +12,7 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      console.log(`Token: ${data.token}`);
+      localStorage.setItem("token", data.token);
     } catch (e) {
       console.error(`Error: ${e.message}`);
     }
