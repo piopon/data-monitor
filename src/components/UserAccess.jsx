@@ -1,7 +1,11 @@
 import { Navigate } from "react-router-dom";
 
-const UserAccess = () => {
-  return <Navigate to="/" replace />;
-}
+const UserAccess = ({ children }) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 export default UserAccess
