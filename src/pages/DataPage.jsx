@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 const DataPage = () => {
   const navigate = useNavigate();
 
-  const userLogout = async () => {
+  const userLogout = async (event) => {
+    event.preventDefault();
     localStorage.removeItem("token");
     navigate("/", { replace: true });
     toast.success("Logout successful!");
