@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const DataPage = () => {
   const navigate = useNavigate();
@@ -6,6 +7,7 @@ const DataPage = () => {
   const userLogout = async () => {
     localStorage.removeItem("token");
     navigate("/", { replace: true });
+    toast.success("Logout successful!");
   };
 
   return (
