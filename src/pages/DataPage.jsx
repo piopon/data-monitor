@@ -5,15 +5,21 @@ const DataPage = () => {
 
   const userLogout = async () => {
     localStorage.removeItem("token");
-    navigate("/", { replace: true })
+    navigate("/", { replace: true });
   };
 
   return (
-    <div>
-      <button onClick={userLogout}>logout</button>
+    <>
+      <section id="logout-section">
+        <form onSubmit={userLogout}>
+          <div>
+            <button type="submit">logout</button>
+          </div>
+        </form>
+      </section>
       <p>DataPage</p>
-    </div>
-  )
-}
+    </>
+  );
+};
 
-export default DataPage
+export default DataPage;
