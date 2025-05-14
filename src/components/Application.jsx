@@ -11,7 +11,7 @@ const Application = () => {
     createRoutesFromElements(
       <Route path="/" element={<PageLayout />}>
         <Route
-          index
+          path="/"
           element={
             <GuestAccess>
               <LoginPage />
