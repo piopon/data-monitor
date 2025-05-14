@@ -11,9 +11,9 @@ const DataPage = () => {
   return (
     <>
       <section id="logout-section">
-        <form onSubmit={userLogout}>
-          <div>
-            <button type="submit">logout</button>
+        <form className="logout-form" onSubmit={userLogout}>
+          <div className="logout-submit-div">
+            <button type="submit" className="logout-submit">logout</button>
           </div>
         </form>
       </section>
