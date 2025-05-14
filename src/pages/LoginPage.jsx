@@ -17,6 +17,7 @@ const LoginPage = () => {
       });
       const data = await response.json();
       if (!response.ok) {
+        localStorage.removeItem("token");
         toast.error(data.error);
         return;
       }
