@@ -19,7 +19,7 @@ const DataPage = () => {
           </div>
         </form>
       </section>
-      <p>DataPage</p>
+      <section id="data-section">DataPage</section>
     </>
   );
 };
