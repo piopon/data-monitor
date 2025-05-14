@@ -10,7 +10,14 @@ const Application = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<PageLayout />}>
-        <Route index element={<GuestAccess><LoginPage /></GuestAccess>} />
+        <Route
+          index
+          element={
+            <GuestAccess>
+              <LoginPage />
+            </GuestAccess>
+          }
+        />
         <Route
           path="/data"
           element={

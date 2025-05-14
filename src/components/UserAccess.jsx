@@ -8,4 +8,4 @@ const UserAccess = ({ children }) => {
   return children;
 };
 
-export default UserAccess
+export default UserAccess;

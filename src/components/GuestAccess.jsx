@@ -1,11 +1,11 @@
-import { Navigate } from "react-router-dom"
+import { Navigate } from "react-router-dom";
 
 const GuestAccess = ({ children }) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      return <Navigate to="/data" replace />;
-    }
-    return children;
-}
+  const token = localStorage.getItem("token");
+  if (token) {
+    return <Navigate to="/data" replace />;
+  }
+  return children;
+};
 
-export default GuestAccess
+export default GuestAccess;
