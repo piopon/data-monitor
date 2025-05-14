@@ -1,3 +1,5 @@
+import { Navigate } from "react-router-dom"
+
 const GuestAccess = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token) {
