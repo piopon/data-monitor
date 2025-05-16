@@ -4,11 +4,11 @@ import logo from "../assets/images/logo-64_outline.png";
 
 const PageHeader = () => {
   return (
-    <nav className="page-header">
-      <div className="flex h-20 items-center justify-between mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-        <Link className="flex flex-shrink-0 items-center mr-4" to="/">
-          <img className="h-10 w-auto" src={logo} alt="data-monitor logo" />
-          <span className="hidden md:block text-white text-2xl font-bold ml-2">data-monitor</span>
+    <nav className="page-nav">
+      <div className="page-nav-logo-div">
+        <Link className="page-nav-logo-link" to="/">
+          <img className="page-nav-logo-img" src={logo} alt="data-monitor logo" />
+          <span className="page-nav-logo-text">data-monitor</span>
         </Link>
       </div>
     </nav>
