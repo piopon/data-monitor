@@ -1,11 +1,18 @@
 @import "tailwindcss";
 
+/* COMMON */
+
+nav.page-header {
+  @apply bg-indigo-600 border-b border-indigo-500;
+}
+
+/* LOGIN PAGE */
+
 section#login-section h2.login-title {
   @apply mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900;
 }
 
-section#login-section form.login-form,
-section#logout-section form.logout-form {
+section#login-section form.login-form {
   @apply flex items-center justify-center;
 }
 
@@ -17,12 +24,24 @@ section#login-section input.login-field {
   @apply block py-1.5 pl-1 text-gray-900 focus:outline-none sm:text-sm/6;
 }
 
-section#login-section div.login-submit-div,
+section#login-section div.login-submit-div {
+  @apply mt-5 mb-5 flex items-center justify-center gap-x-6;
+}
+
+section#login-section button.login-submit {
+  @apply rounded-md w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+}
+
+/* DATA PAGE */
+
+section#logout-section form.logout-form {
+  @apply flex items-center justify-center;
+}
+
 section#logout-section div.logout-submit-div {
   @apply mt-5 mb-5 flex items-center justify-center gap-x-6;
 }
 
-section#login-section button.login-submit,
 section#logout-section button.logout-submit {
   @apply rounded-md w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
 }
