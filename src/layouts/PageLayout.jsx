@@ -12,7 +12,6 @@ const PageLayout = () => {
         </div>
       </nav>
       <Outlet />
-      <div>FOOTER</div>
       <ToastContainer position="bottom-right" />
     </>
   );
