@@ -28,21 +28,12 @@ span.page-head-logo-text {
 /* LOGIN PAGE */
 
 section#login-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
+  @apply flex items-center justify-center h-full w-full;
 }
 
 section#login-section div.login-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 30%;
-  height: 30%;
-  border: 1px solid black;
-  box-shadow: 10px 10px black;
+  @apply flex flex-col justify-center w-1/3 h-1/3;
+  @apply border border-black [box-shadow:10px_10px_black];
 }
 
 section#login-section h2.login-title {
