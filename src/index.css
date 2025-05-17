@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 /* COMMON */
+div.page-container {
+  @apply h-screen;
+}
 
 nav.page-nav {
   @apply bg-indigo-600 border-b border-indigo-500;
