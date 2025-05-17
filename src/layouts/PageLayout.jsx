@@ -6,7 +6,9 @@ const PageLayout = () => {
   return (
     <div className="page-container">
       <PageHeader />
-      <Outlet />
+      <div className="page-content">
+        <Outlet />
+      </div>
       <ToastContainer position="bottom-right" />
     </div>
   );
