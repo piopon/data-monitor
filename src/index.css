@@ -5,23 +5,23 @@ div.page-container {
   @apply h-screen overflow-hidden;
 }
 
-nav.page-nav {
+nav.page-head {
   @apply bg-indigo-600 border-b border-indigo-500;
 }
 
-div.page-nav-logo-div {
+div.page-head-logo-div {
   @apply flex h-20 mx-auto max-w-7xl lg:px-8;
 }
 
-a.page-nav-logo-link {
+a.page-head-logo-link {
   @apply flex flex-shrink-0 items-center mr-4;
 }
 
-img.page-nav-logo-img {
+img.page-head-logo-img {
   @apply h-10 w-auto;
 }
 
-span.page-nav-logo-text {
+span.page-head-logo-text {
   @apply md:block text-white text-2xl font-bold ml-2;
 }
 
