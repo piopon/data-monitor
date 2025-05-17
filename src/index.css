@@ -2,7 +2,7 @@
 
 /* COMMON */
 div.page-container {
-  @apply h-screen;
+  @apply h-screen overflow-hidden;
 }
 
 nav.page-nav {
@@ -43,7 +43,7 @@ section#login-section div.login-card {
 }
 
 section#login-section h2.login-title {
-  @apply mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900;
+  @apply text-center text-2xl/9 font-bold tracking-tight text-gray-900;
 }
 
 section#login-section form.login-form {
