@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-/* COMMON */
+/******************************* COMMON *******************************/
+
 div.page-container {
   @apply h-screen overflow-hidden;
 }
@@ -25,14 +26,16 @@ span.page-head-logo-text {
   @apply md:block text-white text-2xl font-bold ml-2;
 }
 
-/* LOGIN PAGE */
+/***************************** LOGIN PAGE *****************************/
 
 section#login-section {
   @apply flex items-center justify-center h-full w-full;
+  @apply bg-black/30;
 }
 
 section#login-section div.login-card {
   @apply flex flex-col justify-center w-1/3 h-1/3;
+  @apply bg-white;
   @apply border border-black [box-shadow:10px_10px_black];
 }
 
@@ -60,7 +63,7 @@ section#login-section button.login-submit {
   @apply rounded-md w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
 }
 
-/* DATA PAGE */
+/***************************** DATA PAGE ******************************/
 
 section#logout-section form.logout-form {
   @apply flex items-center justify-center;
