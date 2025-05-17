@@ -31,6 +31,7 @@ const LoginPage = () => {
 
   return (
     <section id="login-section">
+    <div className="login-card">
       <h2 className="login-title">Log in to your account</h2>
       <form className="login-form" onSubmit={userLogin}>
         <div>
@@ -63,6 +64,7 @@ const LoginPage = () => {
           </div>
         </div>
       </form>
+    </div>
     </section>
   );
 };
