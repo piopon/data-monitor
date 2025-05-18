@@ -4,6 +4,8 @@
 
 div.page-container {
   @apply h-screen overflow-hidden;
+  @apply flex flex-col items-center;
+  @apply bg-amber-500
 }
 
 div.page-content {
