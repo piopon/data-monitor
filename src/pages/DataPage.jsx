@@ -1,12 +1,15 @@
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../context/Contexts";
 import { toast } from "react-toastify";
 
 const DataPage = () => {
   const navigate = useNavigate();
+  const { logout } = useContext(LoginContext);
 
   const userLogout = async (event) => {
     event.preventDefault();
-    localStorage.removeItem("token");
+    logout();
     navigate("/", { replace: true });
     toast.success("Logout successful!");
   };
