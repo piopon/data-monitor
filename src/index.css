@@ -29,7 +29,7 @@ span.page-head-logo-text {
 }
 
 div.page-content {
-  @apply static flex items-center justify-center h-full w-[80%];
+  @apply static flex items-center justify-center h-full w-full sm:w-[80%];
   @apply bg-white;
 }
 
@@ -42,7 +42,8 @@ section#login-section {
 }
 
 section#login-section div.login-card {
-  @apply flex flex-col justify-center w-1/2 h-2/5 mb-20;
+  @apply flex flex-col justify-center;
+  @apply w-7/8 sm:w-1/2 h-2/5 mb-20;
   @apply bg-white;
   @apply border border-black [box-shadow:10px_10px_black];
 }
@@ -68,7 +69,7 @@ section#login-section div.login-submit-div {
 }
 
 section#login-section button.login-submit {
-  @apply rounded-md w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+  @apply rounded-md w-65 sm:w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
 }
 
 /***************************** DATA PAGE ******************************/
