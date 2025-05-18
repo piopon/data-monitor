@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import MenuBar from "./MenuBar";
 
 import logo from "../assets/images/logo-64_outline.png";
 
 const PageHeader = () => {
+  const hasToken = !!localStorage.getItem("token");
   return (
     <nav className="page-head">
       <div className="page-head-logo-div">
@@ -11,6 +13,7 @@ const PageHeader = () => {
           <span className="page-head-logo-text">data-monitor</span>
         </Link>
       </div>
+      {hasToken && (<MenuBar />)}
     </nav>
   );
 };
