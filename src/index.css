@@ -36,6 +36,7 @@ span.page-head-logo-text {
 /***************************** LOGIN PAGE *****************************/
 
 section#login-section {
+  @apply absolute top-0;
   @apply flex items-center justify-center h-full w-full;
   @apply bg-black/30;
 }
