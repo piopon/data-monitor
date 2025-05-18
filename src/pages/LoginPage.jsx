@@ -31,40 +31,40 @@ const LoginPage = () => {
 
   return (
     <section id="login-section">
-    <div className="login-card">
-      <h2 className="login-title">Log in to your account</h2>
-      <form className="login-form" onSubmit={userLogin}>
-        <div>
-          <div className="login-field-div">
-            <input
-              required
-              type="email"
-              placeholder="email"
-              autoComplete="email"
-              className="login-field"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+      <div className="login-card">
+        <h2 className="login-title">Log in to your account</h2>
+        <form className="login-form" onSubmit={userLogin}>
+          <div>
+            <div className="login-field-div">
+              <input
+                required
+                type="email"
+                placeholder="email"
+                autoComplete="email"
+                className="login-field"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="login-field-div">
+              <input
+                required
+                type="password"
+                placeholder="password"
+                autoComplete="current-password"
+                className="login-field"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="login-submit-div">
+              <button type="submit" className="login-submit">
+                login
+              </button>
+            </div>
           </div>
-          <div className="login-field-div">
-            <input
-              required
-              type="password"
-              placeholder="password"
-              autoComplete="current-password"
-              className="login-field"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="login-submit-div">
-            <button type="submit" className="login-submit">
-              login
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
     </section>
   );
 };

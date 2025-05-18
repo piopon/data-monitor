@@ -57,11 +57,14 @@ section#login-section form.login-form {
 }
 
 section#login-section div.login-field-div {
-  @apply flex items-center rounded-md my-3 pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:outline-indigo-600;
+  @apply flex items-center rounded-md my-3 pl-3;
+  @apply outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:outline-indigo-600;
 }
 
 section#login-section input.login-field {
-  @apply block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6;
+  @apply block min-w-0 grow py-1.5 pr-3 pl-1;
+  @apply sm:text-sm/6 text-base text-gray-900 placeholder:text-gray-400;
+  @apply focus:outline-none;
 }
 
 section#login-section div.login-submit-div {
@@ -69,7 +72,9 @@ section#login-section div.login-submit-div {
 }
 
 section#login-section button.login-submit {
-  @apply rounded-md w-65 sm:w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+  @apply rounded-md w-65 sm:w-75 px-3 py-2 shadow-md;
+  @apply text-sm font-semibold text-white;
+  @apply bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
 }
 
 /***************************** DATA PAGE ******************************/
@@ -83,5 +88,7 @@ section#logout-section div.logout-submit-div {
 }
 
 section#logout-section button.logout-submit {
-  @apply rounded-md w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+  @apply rounded-md w-75 px-3 py-2 shadow-md;
+  @apply text-sm font-semibold text-white;
+  @apply bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
 }
