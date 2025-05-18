@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../context/Contexts";
 import { toast } from "react-toastify";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { login, logout } = useContext(LoginContext);
 
   const userLogin = async (event) => {
     event.preventDefault();
@@ -17,11 +19,11 @@ const LoginPage = () => {
       });
       const data = await response.json();
       if (!response.ok) {
-        localStorage.removeItem("token");
+        logout();
         toast.error(data.error);
         return;
       }
-      localStorage.setItem("token", data.token);
+      login(data.token);
       navigate("/data");
       toast.success("Login successful!");
     } catch (e) {
