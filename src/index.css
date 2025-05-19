@@ -16,6 +16,11 @@ div.page-head-logo-div {
   @apply flex h-20 mx-auto max-w-7xl px-8;
 }
 
+div.page-head-menu-div {
+  @apply flex items-center justify-end;
+  @apply h-10 mx-auto max-w-7xl;
+}
+
 a.page-head-logo-link {
   @apply flex flex-shrink-0 items-center mr-4;
 }
