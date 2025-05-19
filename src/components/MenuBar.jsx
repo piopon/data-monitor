@@ -14,15 +14,19 @@ const MenuBar = () => {
     toast.success("Logout successful!");
   };
 
-  return <div className="page-head-menu-div">
+  return (
+    <div className="page-head-menu-div">
       <section id="logout-section">
         <form className="logout-form" onSubmit={userLogout}>
           <div className="logout-submit-div">
-            <button type="submit" className="logout-submit">logout</button>
+            <button type="submit" className="logout-submit">
+              logout
+            </button>
           </div>
         </form>
       </section>
-  </div>;
+    </div>
+  );
 };
 
 export default MenuBar;
