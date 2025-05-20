@@ -14,12 +14,11 @@ nav.page-head {
 }
 
 div.page-head-logo-div {
-  @apply flex w-full sm:w-[80%] h-20 ml-2 sm:ml-3;
+  @apply flex w-full sm:w-[80%] h-20;
 }
 
 div.page-head-menu-div {
-  @apply flex items-center justify-end;
-  @apply h-10 mx-auto max-w-7xl;
+  @apply flex w-full sm:w-[80%] h-10;
 }
 
 a.page-head-logo-link {
