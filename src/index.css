@@ -84,12 +84,16 @@ section#login-section button.login-submit {
 
 /***************************** DATA PAGE ******************************/
 
+section#logout-section {
+  @apply w-full;
+}
+
 section#logout-section form.logout-form {
-  @apply flex items-center justify-center;
+  @apply flex items-center justify-end;
 }
 
 section#logout-section div.logout-submit-div {
-  @apply mt-5 mb-5 flex items-center justify-center gap-x-6;
+  @apply flex items-center justify-center gap-x-6;
 }
 
 section#logout-section button.logout-submit {
