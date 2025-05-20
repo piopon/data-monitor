@@ -9,11 +9,12 @@ div.page-container {
 }
 
 nav.page-head {
-  @apply w-full bg-indigo-600 border-b border-indigo-500;
+  @apply flex items-center justify-center w-full;
+  @apply bg-indigo-600 border-b border-indigo-500;
 }
 
 div.page-head-logo-div {
-  @apply flex h-20 mx-auto max-w-7xl px-8;
+  @apply flex w-full sm:w-[80%] h-20;
 }
 
 div.page-head-menu-div {
