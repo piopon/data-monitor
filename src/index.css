@@ -9,7 +9,7 @@ div.page-container {
 }
 
 nav.page-head {
-  @apply flex flex-col items-center justify-center w-full;
+  @apply flex flex-row sm:flex-col items-center justify-center w-full;
   @apply bg-indigo-600 border-b border-indigo-500;
 }
 
@@ -22,7 +22,7 @@ div.page-head-menu-div {
 }
 
 a.page-head-logo-link {
-  @apply flex flex-shrink-0 items-center;
+  @apply flex flex-shrink-0 items-center ml-1 sm:ml-0;
 }
 
 img.page-head-logo-img {
