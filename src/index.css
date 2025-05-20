@@ -9,7 +9,7 @@ div.page-container {
 }
 
 nav.page-head {
-  @apply flex items-center justify-center w-full;
+  @apply flex flex-col items-center justify-center w-full;
   @apply bg-indigo-600 border-b border-indigo-500;
 }
 
