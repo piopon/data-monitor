@@ -14,7 +14,7 @@ nav.page-head {
 }
 
 div.page-head-logo-div {
-  @apply flex w-full sm:w-[80%] h-20;
+  @apply flex w-full sm:w-[80%] h-20 ml-2 sm:ml-3;
 }
 
 div.page-head-menu-div {
@@ -23,7 +23,7 @@ div.page-head-menu-div {
 }
 
 a.page-head-logo-link {
-  @apply flex flex-shrink-0 items-center mr-4;
+  @apply flex flex-shrink-0 items-center;
 }
 
 img.page-head-logo-img {
