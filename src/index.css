@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --animate-drop-down: drop-down 0.3s ease-in-out;
-  @keyframes drop-down {
+  --animate-menu-drop-down: menu-drop-down 0.3s ease-in-out;
+  @keyframes menu-drop-down {
     0% {
       opacity: 0;
       height: 0;
@@ -33,6 +33,7 @@ div.page-head-logo-div {
 
 div.page-head-menu-div {
   @apply flex w-full sm:w-[80%] h-10;
+  @apply animate-menu-drop-down;
 }
 
 a.page-head-logo-link {
