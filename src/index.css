@@ -1,28 +1,129 @@
 @import "tailwindcss";
 
-section#login-section h2.login-title {
-  @apply mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900;
+@theme {
+  --animate-menu-drop-down: menu-drop-down 0.3s ease-in-out;
+  @keyframes menu-drop-down {
+    0% {
+      opacity: 0;
+      height: 0;
+    }
+    100% {
+      opacity: 1;
+      height: calc(var(--spacing) * 10);
+    }
+  }
+
+  --animate-login-fade-in: login-fade-in 0.5s ease-out;
+  @keyframes login-fade-in {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 }
 
-section#login-section form.login-form,
-section#logout-section form.logout-form {
+/******************************* COMMON *******************************/
+
+div.page-container {
+  @apply h-screen overflow-hidden;
+  @apply flex flex-col items-center;
+  @apply bg-white;
+}
+
+nav.page-head {
+  @apply flex flex-row sm:flex-col items-center justify-center w-full;
+  @apply bg-indigo-600 border-b border-indigo-500;
+}
+
+div.page-head-logo-div {
+  @apply flex w-full sm:w-[80%] h-20;
+}
+
+div.page-head-menu-div {
+  @apply flex w-full sm:w-[80%] h-10;
+  @apply animate-menu-drop-down;
+}
+
+a.page-head-logo-link {
+  @apply flex flex-shrink-0 items-center ml-1 sm:ml-0;
+}
+
+img.page-head-logo-img {
+  @apply h-10 w-auto;
+}
+
+span.page-head-logo-text {
+  @apply md:block text-white text-2xl font-bold ml-2;
+}
+
+div.page-content {
+  @apply static flex items-center justify-center h-full w-full sm:w-[80%];
+  @apply bg-white;
+}
+
+/***************************** LOGIN PAGE *****************************/
+
+section#login-section {
+  @apply absolute top-0;
+  @apply flex items-center justify-center h-full w-full;
+  @apply bg-black/30;
+  @apply animate-login-fade-in;
+}
+
+section#login-section div.login-card {
+  @apply flex flex-col justify-center;
+  @apply w-7/8 sm:w-1/2 h-2/5 mb-20;
+  @apply bg-white;
+  @apply border border-black [box-shadow:10px_10px_black];
+}
+
+section#login-section h2.login-title {
+  @apply mb-5 text-center text-2xl/9 font-bold tracking-tight text-gray-900;
+}
+
+section#login-section form.login-form {
   @apply flex items-center justify-center;
 }
 
 section#login-section div.login-field-div {
-  @apply w-75 rounded-md m-3 pl-3 outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:outline-indigo-600;
+  @apply flex items-center rounded-md my-3 pl-3;
+  @apply outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:outline-indigo-600;
 }
 
 section#login-section input.login-field {
-  @apply block py-1.5 pl-1 text-gray-900 focus:outline-none sm:text-sm/6;
+  @apply block min-w-0 grow py-1.5 pr-3 pl-1;
+  @apply sm:text-sm/6 text-base text-gray-900 placeholder:text-gray-400;
+  @apply focus:outline-none;
 }
 
-section#login-section div.login-submit-div,
+section#login-section div.login-submit-div {
+  @apply mt-7 flex items-center justify-center gap-x-6;
+}
+
+section#login-section button.login-submit {
+  @apply rounded-md w-65 sm:w-75 px-3 py-2 shadow-md;
+  @apply text-sm font-semibold text-white;
+  @apply bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+}
+
+/***************************** DATA PAGE ******************************/
+
+section#logout-section {
+  @apply w-full;
+}
+
+section#logout-section form.logout-form {
+  @apply flex items-center justify-end;
+}
+
 section#logout-section div.logout-submit-div {
-  @apply mt-5 mb-5 flex items-center justify-center gap-x-6;
+  @apply flex items-center justify-center gap-x-6;
 }
 
-section#login-section button.login-submit,
 section#logout-section button.logout-submit {
-  @apply rounded-md w-75 bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+  @apply rounded-md w-20 sm:w-30 px-3 py-2 shadow-md mx-1 sm:mx-0;
+  @apply text-sm font-semibold bg-indigo-600;
+  @apply bg-indigo-100 hover:bg-indigo-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-100;
 }
