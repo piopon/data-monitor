@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --animate-drop-down: drop-down 0.3s ease-in-out;
+  @keyframes drop-down {
+    0% {
+      opacity: 0;
+      height: 0;
+    }
+    100% {
+      opacity: 1;
+      height: calc(var(--spacing) * 10);
+    }
+  }
+}
+
 /******************************* COMMON *******************************/
 
 div.page-container {
