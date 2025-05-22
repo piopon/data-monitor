@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 const DataPage = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getData = async () => {
@@ -14,6 +15,8 @@ const DataPage = () => {
         setData(data);
       } catch (error) {
         console.error(`Failed to get data: ${error.message}`);
+      } finally {
+        setLoading(false);
       }
     };
     getData();
@@ -22,7 +25,7 @@ const DataPage = () => {
   return (
     <section id="data-section">
       <div>
-        {data.map((item) => <p>{item.name} - {item.category} - {item.items.length} item(s)</p>)}
+        { loading ? <div>loading...</div> : data.map((item) => <p>{item.name} - {item.category} - {item.items.length} item(s)</p>) }
       </div>
     </section>
   );
