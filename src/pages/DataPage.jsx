@@ -5,12 +5,16 @@ const DataPage = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await fetch("/scraper/api/v1/data", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      const data = await response.json();
-      setData(data);
+      try {
+        const response = await fetch("/scraper/api/v1/data", {
+          method: "GET",
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const data = await response.json();
+        setData(data);
+      } catch (error) {
+        console.error(`Failed to get data: ${error.message}`);
+      }
     };
     getData();
   }, []);
