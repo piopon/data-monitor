@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const DataPage = () => {
+  const [data, setData] = useState([]);
+
   useEffect(() => {
     const getData = async () => {
       const response = await fetch("/scraper/api/v1/data", {
@@ -8,7 +10,7 @@ const DataPage = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       const data = await response.json();
-      console.log(data)
+      setData(data);
     };
     getData();
   }, []);
@@ -16,6 +18,9 @@ const DataPage = () => {
   return (
     <section id="data-section">
       <p>DataPage</p>
+      <div>
+        {data.map((item) => <p>{item.name} - {item.category} - {item.items.length} item(s)</p>)}
+      </div>
     </section>
   );
 };
