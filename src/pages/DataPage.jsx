@@ -26,7 +26,15 @@ const DataPage = () => {
   return (
     <section id="data-section">
       <div>
-        { loading ? <div>loading...</div> : data.map((item) => <p>{item.name} - {item.category} - {item.items.length} item(s)</p>) }
+        {loading ? (
+          <div>loading...</div>
+        ) : (
+          data.map((item) => (
+            <p>
+              {item.name} - {item.category} - {item.items.length} item(s)
+            </p>
+          ))
+        )}
       </div>
     </section>
   );
