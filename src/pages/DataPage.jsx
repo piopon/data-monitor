@@ -14,6 +14,11 @@ const DataPage = () => {
           method: "GET",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
+        if (!response.ok) {
+          const message = await response.text();
+          toast.error(message);
+          return;
+        }
         const data = await response.json();
         setData(data);
       } catch (error) {
@@ -29,7 +34,7 @@ const DataPage = () => {
     <section id="data-section">
       <div>
         {loading ? (
-          <Spinner/>
+          <Spinner />
         ) : (
           data.map((item) => (
             <p>
