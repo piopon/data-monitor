@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 
 const DataPage = () => {
   const [data, setData] = useState([]);
@@ -14,7 +15,7 @@ const DataPage = () => {
         const data = await response.json();
         setData(data);
       } catch (error) {
-        console.error(`Failed to get data: ${error.message}`);
+        toast.error(`Failed to get data: ${error.message}`);
       } finally {
         setLoading(false);
       }
