@@ -1,16 +1,16 @@
 const DataCards = ({ data }) => {
   return (
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
       {data.map((item) => (
-        <div class="bg-white rounded-xl shadow-lg relative">
-          <div class="p-4">
-            <div class="mb-2">
-              <div class="text-gray-400 my-2">category: {item.category}</div>
-              <h3 class="text-xl font-bold">{item.name}</h3>
+        <div className="bg-white rounded-xl shadow-lg relative">
+          <div className="p-4">
+            <div className="mb-2">
+              <div className="text-gray-400 my-2">category: {item.category}</div>
+              <h3 className="text-xl font-bold">{item.name}</h3>
             </div>
-            <div class="mb-6">
+            <div className="mb-6">
               {item.items.map((element) => (
-                <p class="text-md">{element.name}: {element.price} {element.currency}</p>
+                <p className="text-md">{element.name}: {element.price} {element.currency}</p>
               ))}
             </div>
           </div>
