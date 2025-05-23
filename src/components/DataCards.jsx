@@ -10,7 +10,12 @@ const DataCards = ({ data }) => {
             </div>
             <div className="mb-6">
               {item.items.map((element) => (
-                <p className="text-md">{element.name}: {element.price} {element.currency}</p>
+                <div>
+                  <img src={element.icon} alt={element.name+" logo"}/>
+                  <p className="text-md">
+                    {element.name}: {element.price} {element.currency}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
