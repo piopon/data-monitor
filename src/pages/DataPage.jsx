@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 import Spinner from "../components/Spinner";
+import DataCard from "../components/DataCard";
 
 const DataPage = () => {
   const [data, setData] = useState([]);
@@ -36,11 +37,7 @@ const DataPage = () => {
         {loading ? (
           <Spinner />
         ) : (
-          data.map((item) => (
-            <p>
-              {item.name} - {item.category} - {item.items.length} item(s)
-            </p>
-          ))
+          data.map((item) => <DataCard data={item}/>)
         )}
       </div>
     </section>
