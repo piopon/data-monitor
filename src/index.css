@@ -128,6 +128,10 @@ section#logout-section button.logout-submit {
   @apply bg-indigo-100 hover:bg-indigo-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-100;
 }
 
+section#data-section {
+  @apply w-full h-full;
+}
+
 section#data-section p.spinner-loading {
   @apply mt-1;
   @apply text-sm font-semibold text-indigo-600;
