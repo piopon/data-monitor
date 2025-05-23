@@ -31,11 +31,7 @@ const DataPage = () => {
     getData();
   }, []);
 
-  return (
-    <section id="data-section">
-      <div>{loading ? <Spinner /> : <DataCards data={data} />}</div>
-    </section>
-  );
+  return <section id="data-section">{loading ? <Spinner /> : <DataCards data={data} />}</section>;
 };
 
 export default DataPage;
