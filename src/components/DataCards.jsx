@@ -11,9 +11,7 @@ const DataCards = ({ data }) => {
             {item.items.map((element) => (
               <div>
                 <img src={element.icon} alt={element.name+" logo"}/>
-                <p className="text-md">
-                  {element.name}: {element.price} {element.currency}
-                </p>
+                <p>{element.name}: {element.price} {element.currency}</p>
               </div>
             ))}
           </div>
