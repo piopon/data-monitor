@@ -139,10 +139,11 @@ section#data-section p.spinner-loading {
 
 section#data-section div.data-cards-div {
   @apply grid grid-cols-1 md:grid-cols-3 gap-10;
+  @apply my-2;
 }
 
 section#data-section div.data-card {
-  @apply bg-white p-4 rounded-xl shadow-lg relative;
+  @apply bg-gray-200 p-5 rounded-xl shadow-lg relative;
 }
 
 section#data-section h3.data-card-title {
@@ -150,5 +151,5 @@ section#data-section h3.data-card-title {
 }
 
 section#data-section div.data-card-items {
-  @apply mb-6;
+  @apply my-2;
 }
