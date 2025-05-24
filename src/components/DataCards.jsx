@@ -1,13 +1,13 @@
 const DataCards = ({ data }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+    <div className="data-cards-div">
       {data.map((item) => (
-        <div className="bg-white p-4 rounded-xl shadow-lg relative">
-          <div className="mb-2">
-            <div className="text-gray-400 my-2">category: {item.category}</div>
-            <h3 className="text-xl font-bold">{item.name}</h3>
+        <div className="data-card">
+          <div className="data-card-header">
+            <div className="data-card-category">category: {item.category}</div>
+            <h3 className="data-card-title">{item.name}</h3>
           </div>
-          <div className="mb-6">
+          <div className="data-card-items">
             {item.items.map((element) => (
               <div>
                 <img src={element.icon} alt={element.name+" logo"}/>
