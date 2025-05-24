@@ -153,3 +153,7 @@ section#data-section h3.data-card-title {
 section#data-section div.data-card-items {
   @apply my-2;
 }
+
+section#data-section div.data-card-item {
+  @apply flex flex-row justify-start items-center;
+}
