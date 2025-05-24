@@ -145,16 +145,8 @@ section#data-section div.data-card {
   @apply bg-white p-4 rounded-xl shadow-lg relative;
 }
 
-section#data-section div.data-card-header {
-  @apply mb-2;
-}
-
-section#data-section div.data-card-category {
-  @apply text-gray-400 my-2;
-}
-
 section#data-section h3.data-card-title {
-  @apply text-xl font-bold;
+  @apply text-xl font-bold my-2;
 }
 
 section#data-section div.data-card-items {

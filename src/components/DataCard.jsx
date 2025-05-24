@@ -1,10 +1,7 @@
 const DataCard = ({ data }) => {
   return (
     <div className="data-card">
-      <div className="data-card-header">
-        <div className="data-card-category">category: {data.category}</div>
-        <h3 className="data-card-title">{data.name}</h3>
-      </div>
+      <h3 className="data-card-title">{data.category} {data.name}</h3>
       <div className="data-card-items">
         {data.items.map((element) => (
           <div>
