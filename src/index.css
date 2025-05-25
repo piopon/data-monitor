@@ -156,4 +156,13 @@ section#data-section div.data-card-items {
 
 section#data-section div.data-card-item {
   @apply flex flex-row justify-start items-center;
+  @apply mt-7;
+}
+
+section#data-section div.data-card-item img {
+  @apply h-[50px] rounded-2xl;
+}
+
+section#data-section div.data-card-item p {
+  @apply ml-2 text-lg;
 }
