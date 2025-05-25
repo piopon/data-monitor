@@ -4,7 +4,7 @@ const DataCards = ({ data }) => {
   return (
     <div className="data-cards-div">
       {data.map((item) => (
-        <DataCard data={item} />
+        <DataCard key={item.name} data={item} />
       ))}
     </div>
   );

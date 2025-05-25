@@ -8,7 +8,7 @@ const DataCard = ({ data }) => {
       </h3>
       <div className="data-card-items">
         {data.items.map((element) => (
-          <DataItem item={element} />
+          <DataItem key={element.name} item={element} />
         ))}
       </div>
     </div>

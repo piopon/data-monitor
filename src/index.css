@@ -147,7 +147,7 @@ section#data-section div.data-card {
 }
 
 section#data-section h3.data-card-title {
-  @apply text-xl font-bold my-2;
+  @apply text-center text-2xl uppercase font-bold my-2;
 }
 
 section#data-section div.data-card-items {
