@@ -160,9 +160,13 @@ section#data-section div.data-card-item {
 }
 
 section#data-section div.data-card-item img {
-  @apply h-[50px] rounded-2xl;
+  @apply h-[50px] rounded-2xl mr-3;
 }
 
 section#data-section div.data-card-item p {
-  @apply ml-2 text-lg;
+  @apply text-lg;
+}
+
+section#data-section div.data-card-item span {
+  @apply font-bold;
 }
