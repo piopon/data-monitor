@@ -15,7 +15,7 @@ const PageHeader = () => {
           <span className="page-head-logo-text">data-monitor</span>
         </Link>
       </div>
-      {userLogged && (<MenuBar />)}
+      {userLogged && <MenuBar />}
     </nav>
   );
 };

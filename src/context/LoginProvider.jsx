@@ -14,11 +14,7 @@ const LoginProvider = ({ children }) => {
     setUserLogged(false);
   };
 
-  return (
-    <LoginContext.Provider value={{ userLogged, login, logout }}>
-      {children}
-    </LoginContext.Provider>
-  );
-}
+  return <LoginContext.Provider value={{ userLogged, login, logout }}>{children}</LoginContext.Provider>;
+};
 
-export default LoginProvider
+export default LoginProvider;
