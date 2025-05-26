@@ -27,7 +27,7 @@ const LoginPage = () => {
       navigate("/data");
       toast.success("Login successful!");
     } catch (e) {
-      console.error(`Error: ${e.message}`);
+      toast.error(`Error: ${e.message}`);
     }
   };
 
