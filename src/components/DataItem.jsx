@@ -8,15 +8,18 @@ const DataItem = ({ item }) => {
         <p>
           ✔️<span>{item.name}</span>: {item.price} {item.currency}
         </p>
-        <div>TRESHOLD SETTINGS...</div>
+        <div>THRESHOLD SETTINGS...</div>
       </div>
     </div>
   ) : (
     <div className="data-card-item">
       <img src={unknown} alt="Unknown logo" />
-      <p>
-        ❌<span>{item.name}</span>: {item.reason}
-      </p>
+      <div>
+        <p>
+          ❌<span>{item.name}</span>: {item.reason}
+        </p>
+        <div>FIX SETTINGS TO CONFIG THRESHOLD</div>
+      </div>
     </div>
   );
 };
