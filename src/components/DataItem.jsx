@@ -1,24 +1,20 @@
 import unknown from "../assets/images/unknown.png";
 
 const DataItem = ({ item }) => {
-  return "OK" === item.status ? (
+  const valid = "OK" === item.status;
+  const state = valid ? `✔️` : `❌`;
+  const image = valid ? {src: item.icon, alt: `${item.name} logo`} : {src: unknown, alt: `Unknown logo`};
+  const detail = valid ? `${item.price} ${item.currency}` : item.reason;
+  const config = valid ? `THRESHOLD SETTINGS...` : `FIX ITEM CONFIG...`;
+
+  return (
     <div className="data-card-item">
-      <img src={item.icon} alt={item.name + " logo"} />
+      <img src={image.src} alt={image.alt} />
       <div>
         <p>
-          ✔️<span>{item.name}</span>: {item.price} {item.currency}
+          {state}<span>{item.name}</span>: {detail}
         </p>
-        <div>THRESHOLD SETTINGS...</div>
-      </div>
-    </div>
-  ) : (
-    <div className="data-card-item">
-      <img src={unknown} alt="Unknown logo" />
-      <div>
-        <p>
-          ❌<span>{item.name}</span>: {item.reason}
-        </p>
-        <div>FIX SETTINGS TO CONFIG THRESHOLD</div>
+        <div>{config}</div>
       </div>
     </div>
   );
