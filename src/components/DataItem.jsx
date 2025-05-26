@@ -1,3 +1,5 @@
+import unknown from "../assets/images/unknown.png";
+
 const DataItem = ({ item }) => {
   return "OK" === item.status ? (
     <div className="data-card-item">
@@ -11,6 +13,7 @@ const DataItem = ({ item }) => {
     </div>
   ) : (
     <div className="data-card-item">
+      <img src={unknown} alt="Unknown logo" />
       <p>
         ❌<span>{item.name}</span>: {item.reason}
       </p>
