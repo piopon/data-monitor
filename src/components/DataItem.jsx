@@ -11,6 +11,9 @@ const DataItem = ({ item }) => {
     </div>
   ) : (
     <div className="data-card-item">
+      <p>
+        ❌<span>{item.name}</span>: {item.reason}
+      </p>
     </div>
   );
 };
