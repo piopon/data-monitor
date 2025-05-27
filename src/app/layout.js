@@ -7,6 +7,9 @@ import LoginProvider from "@/context/LoginProvider";
 export const metadata = {
   title: "data-monitor",
   description: "Service to monitor data received from scraper",
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 export default function RootLayout({ children }) {
