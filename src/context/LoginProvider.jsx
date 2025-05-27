@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from 'react';
 import { LoginContext } from "./Contexts";
 
 const LoginProvider = ({ children }) => {
-  const [userLogged, setUserLogged] = useState(() => !!localStorage.getItem("token"));
+  const [userLogged, setUserLogged] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setUserLogged(!!token);
+  }, []);
 
   const login = (token) => {
     localStorage.setItem("token", token);
