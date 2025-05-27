@@ -1,3 +1,9 @@
+import GuestAccess from "@/components/GuestAccess";
+
 export default function Home() {
-  return <div>HOME PAGE</div>;
+  return (
+    <GuestAccess>
+      <div>HOME PAGE</div>
+    </GuestAccess>
+  );
 }
