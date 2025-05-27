@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useContext, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useContext, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { LoginContext } from "../context/Contexts";
 
 const GuestAccess = ({ children }) => {
@@ -10,7 +10,7 @@ const GuestAccess = ({ children }) => {
 
   useEffect(() => {
     if (userLogged) {
-      router.replace('/data');
+      router.replace("/data");
     }
   }, [userLogged, router]);
 

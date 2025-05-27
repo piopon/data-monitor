@@ -1,13 +1,13 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { LoginContext } from "./Contexts";
 
 const LoginProvider = ({ children }) => {
   const [userLogged, setUserLogged] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     setUserLogged(!!token);
   }, []);
 
