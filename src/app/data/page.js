@@ -35,7 +35,7 @@ export default function Data() {
 
   return (
     <UserAccess>
-      <section id="data-section">{loading ? <Spinner /> : <DataCards data={data} />}</section>;
+      <section id="data-section">{loading ? <Spinner /> : <DataCards data={data} />}</section>
     </UserAccess>
   );
 }
