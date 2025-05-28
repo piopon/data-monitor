@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import unknown from "@/assets/images/unknown.png";
 
 const DataItem = ({ item }) => {
@@ -10,7 +12,7 @@ const DataItem = ({ item }) => {
 
   return (
     <div className="data-card-item">
-      <img src={image.src} alt={image.alt} />
+      <Image src={image.src} alt={image.alt} />
       <div>
         <p>
           {state}
