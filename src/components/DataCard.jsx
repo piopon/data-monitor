@@ -1,4 +1,4 @@
-import DataItem from "./DataItem";
+import DataItem from "@/components/DataItem";
 
 const DataCard = ({ data }) => {
   return (

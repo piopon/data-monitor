@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LoginContext } from "./Contexts";
+import { LoginContext } from "@/context/Contexts";
 
 const LoginProvider = ({ children }) => {
   const [userLogged, setUserLogged] = useState(false);

@@ -1,4 +1,4 @@
-import unknown from "../assets/images/unknown.png";
+import unknown from "@/assets/images/unknown.png";
 
 const DataItem = ({ item }) => {
   const valid = "OK" === item.status;

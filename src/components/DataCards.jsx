@@ -1,4 +1,4 @@
-import DataCard from "./DataCard";
+import DataCard from "@/components/DataCard";
 
 const DataCards = ({ data }) => {
   return (

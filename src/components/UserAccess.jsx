@@ -2,7 +2,7 @@
 
 import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LoginContext } from "../context/Contexts";
+import { LoginContext } from "@/context/Contexts";
 
 const UserAccess = ({ children }) => {
   const { userLogged } = useContext(LoginContext);
