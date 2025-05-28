@@ -13,7 +13,7 @@ export default function Data() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch("http://192.168.0.103:5000/api/v1/data", {
+        const response = await fetch("/api/data", {
           method: "GET",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
