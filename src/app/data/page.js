@@ -13,7 +13,7 @@ export default function Data() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const response = await fetch("/api/data", {
+        const response = await fetch("/api/scraper/data", {
           method: "GET",
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });

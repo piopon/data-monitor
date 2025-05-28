@@ -15,7 +15,7 @@ export default function Home() {
   const userLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch("/api/jwt", {
+      const response = await fetch("/api/scraper/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
