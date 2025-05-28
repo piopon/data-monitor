@@ -15,7 +15,7 @@ export default function Home() {
   const userLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await fetch("/scraper/auth/token", {
+      const response = await fetch("http://192.168.0.103:5000/auth/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
