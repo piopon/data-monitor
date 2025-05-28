@@ -8,7 +8,7 @@ export const metadata = {
   title: "data-monitor",
   description: "Service to monitor data received from scraper",
   icons: {
-    icon: '/icon.png',
+    icon: "/icon.png",
   },
 };
 

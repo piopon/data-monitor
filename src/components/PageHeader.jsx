@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useContext } from 'react';
-import { LoginContext } from "@/context/Contexts";
-import Link from 'next/link'
-import Image from 'next/image'
+import { useContext } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import MenuBar from "@/components/MenuBar";
+import { LoginContext } from "@/context/Contexts";
 
 import logo from "@/assets/images/logo-64_outline.png";
 

@@ -164,7 +164,7 @@ section#data-section div.data-card-item img {
 }
 
 section#data-section div.data-card-item p {
-  @apply sm:text-lg
+  @apply sm:text-lg;
 }
 
 section#data-section div.data-card-item span {

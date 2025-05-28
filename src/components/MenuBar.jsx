@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useContext } from 'react';
+import { useContext } from "react";
 import { useRouter } from "next/navigation";
-import { LoginContext } from "@/context/Contexts";
 import { toast } from "react-toastify";
+import { LoginContext } from "@/context/Contexts";
 
 const MenuBar = () => {
   const router = useRouter();

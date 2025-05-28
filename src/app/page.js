@@ -2,15 +2,15 @@
 
 import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoginContext } from "@/context/Contexts";
 import { toast } from "react-toastify";
+import { LoginContext } from "@/context/Contexts";
 import GuestAccess from "@/components/GuestAccess";
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
   const { login, logout } = useContext(LoginContext);
+  const router = useRouter();
 
   const userLogin = async (event) => {
     event.preventDefault();
