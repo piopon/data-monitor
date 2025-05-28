@@ -1,6 +1,7 @@
 export async function GET(req) {
+  const scraperUrl = `http://${process.env.SCRAPER_IP || "127.0.0.1"}:${process.env.SCRAPER_PORT || 5000}`;
   const authHeader = req.headers.get("authorization");
-  const response = await fetch("http://192.168.0.103:5000/api/v1/data", {
+  const response = await fetch(`${scraperUrl}/api/v1/data`, {
     method: "GET",
     headers: { Authorization: authHeader || "" },
   });
