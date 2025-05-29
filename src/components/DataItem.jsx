@@ -12,7 +12,7 @@ const DataItem = ({ item }) => {
 
   return (
     <div className="data-card-item">
-      <Image src={image.src} alt={image.alt} />
+      <Image src={image.src} alt={image.alt} height={50} width={50} />
       <div>
         <p>
           {state}
