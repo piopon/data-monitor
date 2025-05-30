@@ -4,6 +4,10 @@ export class AppConfig {
       scraper: {
         host: process.env.SCRAPER_HOST || "localhost",
         port: parseInt(process.env.SCRAPER_PORT) || 5000,
+        endpoints: {
+          login: process.env.SCRAPER_URL_LOGIN || "/auth/token",
+          data: process.env.SCRAPER_URL_DATA || "/api/v1/data",
+        },
       },
       database: {
         host: process.env.DB_HOST || "localhost",
