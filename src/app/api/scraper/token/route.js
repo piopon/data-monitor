@@ -1,5 +1,8 @@
+import { AppConfig } from "@/config/AppConfig";
+
 export async function POST(req) {
-  const scraperUrl = `http://${process.env.SCRAPER_IP || "127.0.0.1"}:${process.env.SCRAPER_PORT || 5000}`;
+  const appConfig = AppConfig.getConfig();
+  const scraperUrl = `http://${appConfig.scraper.host}:${appConfig.scraper.port}`;
   const response = await fetch(`${scraperUrl}/auth/token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
