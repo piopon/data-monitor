@@ -4,24 +4,27 @@ import { useEffect, useState } from "react";
 import { LoginContext } from "@/context/Contexts";
 
 const LoginProvider = ({ children }) => {
-  const [userLogged, setUserLogged] = useState(false);
+  const [token, setToken] = useState(null);
+  const userLogged = !!token;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    setUserLogged(!!token);
+    if (token) {
+      setToken(token);
+    }
   }, []);
 
   const login = (token) => {
     localStorage.setItem("token", token);
-    setUserLogged(true);
+    setToken(token);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
-    setUserLogged(false);
+    setToken(null);
   };
 
-  return <LoginContext.Provider value={{ userLogged, login, logout }}>{children}</LoginContext.Provider>;
+  return <LoginContext.Provider value={{ userLogged, token, login, logout }}>{children}</LoginContext.Provider>;
 };
 
 export default LoginProvider;
