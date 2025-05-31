@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import UserAccess from "@/components/UserAccess";
 import Spinner from "@/components/Spinner";
 import DataCards from "@/components/DataCards";
+import { LoginContext } from "@/context/Contexts";
 
 export default function Data() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { token } = useContext(LoginContext);
 
   useEffect(() => {
     const getData = async () => {
       try {
         const response = await fetch("/api/scraper/data", {
           method: "GET",
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {
           const message = await response.text();
@@ -31,7 +33,7 @@ export default function Data() {
       }
     };
     getData();
-  }, []);
+  }, [token]);
 
   return (
     <UserAccess>
