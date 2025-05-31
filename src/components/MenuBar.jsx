@@ -1,16 +1,18 @@
+"use client";
+
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { LoginContext } from "../context/Contexts";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { LoginContext } from "@/context/Contexts";
 
 const MenuBar = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { logout } = useContext(LoginContext);
 
   const userLogout = async (event) => {
     event.preventDefault();
     logout();
-    navigate("/", { replace: true });
+    router.replace("/");
     toast.success("Logout successful!");
   };
 

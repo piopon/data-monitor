@@ -1,4 +1,6 @@
-import unknown from "../assets/images/unknown.png";
+import Image from "next/image";
+
+import unknown from "@/assets/images/unknown.png";
 
 const DataItem = ({ item }) => {
   const valid = "OK" === item.status;
@@ -10,7 +12,7 @@ const DataItem = ({ item }) => {
 
   return (
     <div className="data-card-item">
-      <img src={image.src} alt={image.alt} />
+      <Image src={image.src} alt={image.alt} height={50} width={50} />
       <div>
         <p>
           {state}

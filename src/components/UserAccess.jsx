@@ -1,10 +1,21 @@
-import { Navigate } from "react-router-dom";
+"use client";
+
+import { useContext, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { LoginContext } from "@/context/Contexts";
 
 const UserAccess = ({ children }) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    return <Navigate to="/" replace />;
-  }
+  const { userLogged } = useContext(LoginContext);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!userLogged) {
+      router.replace("/");
+    }
+  }, [userLogged, router]);
+
+  if (!userLogged) return null;
+
   return children;
 };
 
