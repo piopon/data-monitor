@@ -1,22 +1,18 @@
 import { AppConfig } from "@/config/AppConfig";
 
 export class ScraperRequest {
-  #scraperUrl = undefined;
+  static #config = AppConfig.getConfig();
+  static #scraperUrl = `http://${this.#config.scraper.host}:${this.#config.scraper.port}`;
 
-  constructor() {
-    const appConfig = AppConfig.getConfig();
-    this.#scraperUrl = `http://${appConfig.scraper.host}:${appConfig.scraper.port}`;
-  }
-
-  post(endpoint, headers, body) {
+  static post(endpoint, headers, body) {
     return this.#sendRequest(`${this.#scraperUrl}${endpoint}`, "POST", headers, body);
   }
 
-  get(endpoint, headers) {
+  static get(endpoint, headers) {
     return this.#sendRequest(`${this.#scraperUrl}${endpoint}`, "GET", headers);
   }
 
-  async #sendRequest(url, method, headers, body = undefined) {
+  static async #sendRequest(url, method, headers, body = undefined) {
     const response = await fetch(url, {
       method: method,
       headers: headers,
