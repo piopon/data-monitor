@@ -1,8 +1,11 @@
+import { AppConfig } from "@/config/AppConfig";
+
 export class ScraperRequest {
   #scraperUrl = undefined;
 
-  constructor(scraperUrl) {
-    this.#scraperUrl = scraperUrl;
+  constructor() {
+    const appConfig = AppConfig.getConfig();
+    this.#scraperUrl = `http://${appConfig.scraper.host}:${appConfig.scraper.port}`;
   }
 
   post(endpoint, headers, body) {
