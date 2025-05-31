@@ -1,4 +1,8 @@
 export class AppConfig {
+  /**
+   * Method used to receive the application config object
+   * @returns Application configuration object
+   */
   static getConfig() {
     return {
       scraper: {
