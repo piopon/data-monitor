@@ -1,14 +1,10 @@
 import { AppConfig } from "@/config/AppConfig";
+import { ScraperRequest } from "@/lib/ScraperRequest";
 
 export async function GET(req) {
   const appConfig = AppConfig.getConfig();
   const scraperUrl = `http://${appConfig.scraper.host}:${appConfig.scraper.port}`;
-  const response = await fetch(`${scraperUrl}${appConfig.scraper.endpoints.data}`, {
-    method: "GET",
-    headers: { Authorization: req.headers.get("authorization") || "" },
-  });
-  return new Response(JSON.stringify(await response.json()), {
-    status: response.status,
-    headers: response.headers,
-  });
+  const scraper = new ScraperRequest(scraperUrl);
+
+  return scraper.get(appConfig.scraper.endpoints.data, { Authorization: req.headers.get("authorization") || "" });
 }
