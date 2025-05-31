@@ -14,6 +14,7 @@ export default function Data() {
 
   useEffect(() => {
     const getData = async () => {
+      if (!token) return;
       try {
         const response = await fetch("/api/scraper/data", {
           method: "GET",
