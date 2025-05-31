@@ -39,7 +39,8 @@ export class ScraperRequest {
       headers: headers,
       ...(body && { body }),
     });
-    return new Response(JSON.stringify(await response.json()), {
+    const responseContent = response.ok ? JSON.stringify(await response.json()) : await response.text();
+    return new Response(responseContent, {
       status: response.status,
       headers: response.headers,
     });
