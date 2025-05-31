@@ -4,11 +4,11 @@ export class ScraperRequest {
   static #config = AppConfig.getConfig();
   static #scraperUrl = `http://${this.#config.scraper.host}:${this.#config.scraper.port}`;
 
-  static post(endpoint, headers, body) {
+  static POST(endpoint, headers, body) {
     return this.#sendRequest(`${this.#scraperUrl}${endpoint}`, "POST", headers, body);
   }
 
-  static get(endpoint, headers) {
+  static GET(endpoint, headers) {
     return this.#sendRequest(`${this.#scraperUrl}${endpoint}`, "GET", headers);
   }
 
@@ -16,7 +16,7 @@ export class ScraperRequest {
     const response = await fetch(url, {
       method: method,
       headers: headers,
-      ...body && {body},
+      ...(body && { body }),
     });
     return new Response(JSON.stringify(await response.json()), {
       status: response.status,
