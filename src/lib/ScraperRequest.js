@@ -45,6 +45,11 @@ export class ScraperRequest {
     });
   }
 
+  /**
+   * Method used to receive response content based on content-type from input object
+   * @param {Object} response Input object with values received from scraper
+   * @returns response content value (JSON for application/json content, text for other types)
+   */
   static async #getResponseContent(response) {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
