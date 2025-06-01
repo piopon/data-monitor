@@ -18,6 +18,15 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
+      <section>
+        <form>
+          <div >
+            <button type="submit">
+              config
+            </button>
+          </div>
+        </form>
+      </section>
       <section id="logout-section">
         <form className="logout-form" onSubmit={userLogout}>
           <div className="logout-submit-div">
