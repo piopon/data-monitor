@@ -3,15 +3,17 @@
 import { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { AppConfig } from "@/config/AppConfig";
 import { LoginContext } from "@/context/Contexts";
 
 const MenuBar = () => {
+  const config = AppConfig.getConfig();
   const router = useRouter();
   const { logout } = useContext(LoginContext);
 
   const viewConfig = async (event) => {
     event.preventDefault();
-    router.replace(process.env.NEXT_PUBLIC_SCRAPER);
+    router.replace(`${config.scraper.public}`);
   };
 
   const userLogout = async (event) => {
