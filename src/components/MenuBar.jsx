@@ -23,10 +23,10 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
-      <section>
-        <form onSubmit={viewConfig}>
-          <div >
-            <button type="submit">
+      <section id="logout-section">
+        <form className="logout-form" onSubmit={viewConfig}>
+          <div className="logout-submit-div">
+            <button type="submit" className="logout-submit">
               config
             </button>
           </div>
