@@ -13,7 +13,7 @@ const MenuBar = () => {
 
   const viewConfig = async (event) => {
     event.preventDefault();
-    router.replace(`${config.scraper.public}`);
+    router.push(config.scraper.public);
   };
 
   const userLogout = async (event) => {
