@@ -23,19 +23,19 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
-      <section class="logout-section">
-        <form className="logout-form" onSubmit={viewConfig}>
-          <div className="logout-submit-div">
-            <button type="submit" className="logout-submit">
+      <section class="menu-section">
+        <form className="menu-item-form" onSubmit={viewConfig}>
+          <div className="menu-item-div">
+            <button type="submit" className="menu-item-button">
               config
             </button>
           </div>
         </form>
       </section>
-      <section class="logout-section">
-        <form className="logout-form" onSubmit={userLogout}>
-          <div className="logout-submit-div">
-            <button type="submit" className="logout-submit">
+      <section class="menu-section">
+        <form className="menu-item-form" onSubmit={userLogout}>
+          <div className="menu-item-div">
+            <button type="submit" className="menu-item-button">
               logout
             </button>
           </div>
