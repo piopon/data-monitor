@@ -39,10 +39,17 @@ export class ScraperRequest {
       headers: headers,
       ...(body && { body }),
     });
-    const responseContent = response.ok ? JSON.stringify(await response.json()) : await response.text();
-    return new Response(responseContent, {
+    return new Response(await this.#getResponseContent(response), {
       status: response.status,
       headers: response.headers,
     });
+  }
+
+  static async #getResponseContent(response) {
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return response.ok ? JSON.stringify(await response.json()) : await response.text();
+    }
+    return await response.text();
   }
 }
