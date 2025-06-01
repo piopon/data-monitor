@@ -4,10 +4,17 @@ import { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
+import { AppConfig } from "@/config/AppConfig";
 
 const MenuBar = () => {
   const router = useRouter();
+  const config = AppConfig.getConfig();
   const { logout } = useContext(LoginContext);
+
+  const viewConfig = async (event) => {
+    event.preventDefault();
+    router.replace(`http://${config.scraper.host}:${config.scraper.port}`);
+  };
 
   const userLogout = async (event) => {
     event.preventDefault();
@@ -19,7 +26,7 @@ const MenuBar = () => {
   return (
     <div className="page-head-menu-div">
       <section>
-        <form>
+        <form onSubmit={viewConfig}>
           <div >
             <button type="submit">
               config
