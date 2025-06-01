@@ -25,15 +25,17 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
-      <section class="menu-section">
-        <form className="menu-item-form" onSubmit={viewConfig}>
-          <div className="menu-item-div">
-            <button type="submit" className="menu-item-button">
-              config
-            </button>
-          </div>
-        </form>
-      </section>
+      {config.scraper.public && (
+        <section class="menu-section">
+          <form className="menu-item-form" onSubmit={viewConfig}>
+            <div className="menu-item-div">
+              <button type="submit" className="menu-item-button">
+                config
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
       <section class="menu-section">
         <form className="menu-item-form" onSubmit={userLogout}>
           <div className="menu-item-div">
