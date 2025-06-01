@@ -4,16 +4,14 @@ import { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
-import { AppConfig } from "@/config/AppConfig";
 
 const MenuBar = () => {
   const router = useRouter();
-  const config = AppConfig.getConfig();
   const { logout } = useContext(LoginContext);
 
   const viewConfig = async (event) => {
     event.preventDefault();
-    router.replace(`http://${config.scraper.host}:${config.scraper.port}`);
+    router.replace(process.env.NEXT_PUBLIC_SCRAPER);
   };
 
   const userLogout = async (event) => {
