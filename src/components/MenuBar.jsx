@@ -9,11 +9,11 @@ import { LoginContext } from "@/context/Contexts";
 const MenuBar = () => {
   const config = AppConfig.getConfig();
   const router = useRouter();
-  const { logout } = useContext(LoginContext);
+  const { challenge, logout } = useContext(LoginContext);
 
   const viewConfig = async (event) => {
     event.preventDefault();
-    router.push(config.scraper.public);
+    router.push(`${config.scraper.public}${config.scraper.endpoints.edit}${challenge}`);
   };
 
   const userLogout = async (event) => {
