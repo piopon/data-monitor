@@ -25,7 +25,7 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
-      {config.scraper.public && (
+      {config.scraper.public && challenge && (
         <section className="menu-section">
           <form className="menu-item-form" onSubmit={viewConfig}>
             <div className="menu-item-div">
