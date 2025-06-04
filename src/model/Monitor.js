@@ -1,6 +1,8 @@
 import { ModelUtils } from "@/lib/ModelUtils";
 
 export class Monitor {
+  static #DB_TABLE_NAME = "monitor";
+
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
     this.parent = ModelUtils.getValueOrDefault(input.parent, "");
@@ -17,5 +19,9 @@ export class Monitor {
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL,
             notifier TEXT NOT NULL`;
+  }
+
+  static getTableName() {
+    return Monitor.#DB_TABLE_NAME;
   }
 }
