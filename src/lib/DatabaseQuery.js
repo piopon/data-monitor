@@ -1,6 +1,6 @@
-import pg from "pg";
+import { Pool } from "pg";
 
-const database = new pg.Client({
+const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   database: process.env.DB_NAME,
@@ -8,10 +8,4 @@ const database = new pg.Client({
   password: process.env.DB_PASS,
 });
 
-database.connect();
-database.on("error", (err) => {
-  console.error("Unexpected error on idle client", err);
-  process.exit(-1);
-});
-
-export const DatabaseQuery = (text, params) => database.query(text, params);
+export const DatabaseQuery = (text, params) => pool.query(text, params);
