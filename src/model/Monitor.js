@@ -9,4 +9,13 @@ export class Monitor {
     this.condition = ModelUtils.getValueOrDefault(input.condition, undefined);
     this.notifier = ModelUtils.getValueOrDefault(input.notifier, undefined);
   }
+
+  static getDatabaseSchema() {
+    return `id SERIAL PRIMARY KEY,
+            parent TEXT NOT NULL,
+            enable BOOLEAN DEFAULT false,
+            threshold NUMERIC NOT NULL,
+            condition TEXT NOT NULL,
+            notifier TEXT NOT NULL`;
+  }
 }
