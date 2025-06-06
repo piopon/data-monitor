@@ -40,4 +40,14 @@ export class MonitorService {
 
     return rows[0];
   }
+
+  static async updateMonitor(id, data) {
+    const { parent, enable, threshold, condition, notifier } = data;
+    const { rows } = await DatabaseQuery(
+      `UPDATE monitor SET parent = $1, enable = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
+      [parent, enable, threshold, condition, notifier, id]
+    );
+
+    return rows[0];
+  }
 }
