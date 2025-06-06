@@ -19,7 +19,7 @@ export class MonitorService {
   }
 
   static async getMonitors() {
-    const { rows } = await DatabaseQuery("SELECT * FROM monitor");
+    const { rows } = await DatabaseQuery(`SELECT * FROM monitor`);
     return rows;
   }
 
@@ -37,7 +37,6 @@ export class MonitorService {
       `INSERT INTO monitor (parent, enable, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [parent, enable, threshold, condition, notifier]
     );
-
     return rows[0];
   }
 
@@ -47,7 +46,6 @@ export class MonitorService {
       `UPDATE monitor SET parent = $1, enable = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
       [parent, enable, threshold, condition, notifier, id]
     );
-
     return rows[0];
   }
 
