@@ -17,4 +17,16 @@ export class MonitorService {
       return { result: false, message: `Cannot initialize '${tableName}' table: ${error.message}`};
     }
   }
+
+  static async getMonitors() {
+    const { rows } = await DatabaseQuery("SELECT * FROM monitor");
+    return rows;
+  }
+
+  static async getMonitor(searchTerm) {
+    const { rows } = await query(`SELECT * FROM monitor WHERE name ILIKE $1 OR email ILIKE $1 OR job ILIKE $1`, [
+      `%${searchTerm}%`,
+    ]);
+    return rows;
+  }
 }
