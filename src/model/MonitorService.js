@@ -50,4 +50,9 @@ export class MonitorService {
 
     return rows[0];
   }
+
+  static async deleteMonitor(id) {
+    const { rowCount } = await DatabaseQuery(`DELETE FROM monitor WHERE id = $1`, [id]);
+    return rowCount > 0;
+  }
 }
