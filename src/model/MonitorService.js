@@ -29,4 +29,14 @@ export class MonitorService {
     ]);
     return rows;
   }
+
+  static async createMonitor(data) {
+    const { parent, enable, threshold, condition, notifier } = data;
+    const { rows } = await DatabaseQuery(
+      `INSERT INTO monitor (parent, enable, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [parent, enable, threshold, condition, notifier]
+    );
+
+    return rows[0];
+  }
 }
