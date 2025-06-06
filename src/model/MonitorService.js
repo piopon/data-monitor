@@ -23,9 +23,9 @@ export class MonitorService {
     return rows;
   }
 
-  static async getMonitor(searchTerm) {
+  static async getMonitors(searchTerm) {
     const { rows } = await DatabaseQuery(
-      `SELECT * FROM monitor WHERE name ILIKE $1 OR email ILIKE $1 OR job ILIKE $1`,
+      `SELECT * FROM monitor WHERE parent ILIKE $1 OR threshold ILIKE $1 OR condition ILIKE $1 OR notifier ILIKE $1`,
       [`%${searchTerm}%`]
     );
     return rows;
