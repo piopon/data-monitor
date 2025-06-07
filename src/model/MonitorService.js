@@ -2,30 +2,33 @@ import { DatabaseQuery } from "@/lib/DatabaseQuery";
 import { Monitor } from "./Monitor";
 
 export class MonitorService {
+  static #DB_TABLE_NAME = Monitor.getTableName();
+
   /**
    * Method used to initialize database table for monitor data
    */
   static async initializeDbTable() {
-    const tableName = Monitor.getTableName();
     try {
       await DatabaseQuery(`
-      CREATE TABLE IF NOT EXISTS ${tableName} (
+      CREATE TABLE IF NOT EXISTS ${MonitorService.#DB_TABLE_NAME} (
         ${Monitor.getDatabaseSchema()}
       );`);
-      return { result: true, message: `Initialized '${tableName}' table.` };
+      return { result: true, message: `Initialized '${MonitorService.#DB_TABLE_NAME}' table.` };
     } catch (error) {
-      return { result: false, message: `Cannot initialize '${tableName}' table: ${error.message}` };
+      return { result: false, message: `Cannot initialize '${MonitorService.#DB_TABLE_NAME}' table: ${error.message}` };
     }
   }
 
   static async getMonitors() {
-    const { rows } = await DatabaseQuery(`SELECT * FROM monitor`);
+    const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME}`);
     return rows;
   }
 
   static async getMonitors(searchTerm) {
     const { rows } = await DatabaseQuery(
-      `SELECT * FROM monitor WHERE parent ILIKE $1 OR threshold ILIKE $1 OR condition ILIKE $1 OR notifier ILIKE $1`,
+      `SELECT * FROM ${
+        MonitorService.#DB_TABLE_NAME
+      } WHERE parent ILIKE $1 OR threshold ILIKE $1 OR condition ILIKE $1 OR notifier ILIKE $1`,
       [`%${searchTerm}%`]
     );
     return rows;
@@ -34,7 +37,9 @@ export class MonitorService {
   static async createMonitor(data) {
     const { parent, enable, threshold, condition, notifier } = data;
     const { rows } = await DatabaseQuery(
-      `INSERT INTO monitor (parent, enable, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      `INSERT INTO ${
+        MonitorService.#DB_TABLE_NAME
+      } (parent, enable, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [parent, enable, threshold, condition, notifier]
     );
     return rows[0];
@@ -43,14 +48,16 @@ export class MonitorService {
   static async updateMonitor(id, data) {
     const { parent, enable, threshold, condition, notifier } = data;
     const { rows } = await DatabaseQuery(
-      `UPDATE monitor SET parent = $1, enable = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
+      `UPDATE ${
+        MonitorService.#DB_TABLE_NAME
+      } SET parent = $1, enable = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
       [parent, enable, threshold, condition, notifier, id]
     );
     return rows[0];
   }
 
   static async deleteMonitor(id) {
-    const { rowCount } = await DatabaseQuery(`DELETE FROM monitor WHERE id = $1`, [id]);
+    const { rowCount } = await DatabaseQuery(`DELETE FROM ${MonitorService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
     return rowCount > 0;
   }
 }
