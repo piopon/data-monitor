@@ -34,3 +34,22 @@ export async function POST(request) {
     });
   }
 }
+
+export async function PUT(request) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
+    const monitorData = request.body;
+    const monitor = await MonitorService.editMonitor(id, monitorData);
+    new Response(monitor, {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const errorOutput = { message: `Cannot update monitor: ${error.message}` };
+    new Response(errorOutput, {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
