@@ -7,7 +7,7 @@ export class MonitorService {
   /**
    * Method used to initialize database table for monitor data
    */
-  static async initializeDbTable() {
+  static async initializeTable() {
     try {
       await DatabaseQuery(`
       CREATE TABLE IF NOT EXISTS ${MonitorService.#DB_TABLE_NAME} (
@@ -24,17 +24,17 @@ export class MonitorService {
     return rows;
   }
 
-  static async getMonitors(searchTerm) {
+  static async getMonitors(filter) {
     const { rows } = await DatabaseQuery(
       `SELECT * FROM ${
         MonitorService.#DB_TABLE_NAME
-      } WHERE parent ILIKE $1 OR threshold ILIKE $1 OR condition ILIKE $1 OR notifier ILIKE $1`,
-      [`%${searchTerm}%`]
+      } WHERE parent ILIKE $1 OR enable ILIKE $1 OR threshold ILIKE $1 OR condition ILIKE $1 OR notifier ILIKE $1`,
+      [`%${filter}%`]
     );
     return rows;
   }
 
-  static async createMonitor(data) {
+  static async addMonitor(data) {
     const { parent, enable, threshold, condition, notifier } = data;
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${
@@ -45,7 +45,7 @@ export class MonitorService {
     return rows[0];
   }
 
-  static async updateMonitor(id, data) {
+  static async editMonitor(id, data) {
     const { parent, enable, threshold, condition, notifier } = data;
     const { rows } = await DatabaseQuery(
       `UPDATE ${
