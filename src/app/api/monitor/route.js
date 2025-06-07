@@ -3,7 +3,8 @@ import { MonitorService } from "@/model/MonitorService";
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const monitors = MonitorService.getMonitors(searchParams ? searchParams : undefined);
+    const filter = searchParams.get("filter");
+    const monitors = await MonitorService.getMonitors(filter ? filter : undefined);
     new Response(monitors, {
       status: 200,
       headers: { "Content-Type": "application/json" },
