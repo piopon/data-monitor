@@ -1,5 +1,10 @@
 import { MonitorService } from "@/model/MonitorService";
 
+/**
+ * Method used to send the monitor GET request to retrieve monitor data
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing monitors data
+ */
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -18,6 +23,11 @@ export async function GET(request) {
   }
 }
 
+/**
+ * Method used to send the monitor POST request to add new monitor
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing added monitor data
+ */
 export async function POST(request) {
   try {
     const monitorData = request.body;
@@ -35,6 +45,11 @@ export async function POST(request) {
   }
 }
 
+/**
+ * Method used to send the monitor PUT request to edit monitor specified by ID
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing edited monitor data
+ */
 export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -54,6 +69,11 @@ export async function PUT(request) {
   }
 }
 
+/**
+ * Method used to send the monitor DELETE request to delete monitor specified by ID
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing number of deleted monitors
+ */
 export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
