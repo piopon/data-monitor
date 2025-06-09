@@ -1,4 +1,5 @@
 import Image from "next/image";
+import DataMonitor from "./DataMonitor";
 
 import unknown from "@/assets/images/unknown.png";
 
@@ -18,7 +19,9 @@ const DataItem = ({ item }) => {
           {state}
           <span>{item.name}</span>: {value.data}
         </p>
-        <div>{value.threshold}</div>
+        <div>
+          <DataMonitor />
+        </div>
       </div>
     </div>
   );
