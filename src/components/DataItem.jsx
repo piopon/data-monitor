@@ -7,9 +7,7 @@ const DataItem = ({ item }) => {
   const valid = "OK" === item.status;
   const state = valid ? `✔️` : `❌`;
   const image = valid ? { src: item.icon, alt: `${item.name} logo` } : { src: unknown, alt: `Unknown logo` };
-  const value = valid
-    ? { data: `${item.price} ${item.currency}`, threshold: `THRESHOLD SETTINGS...` }
-    : { data: item.reason, threshold: `FIX ITEM CONFIG...` };
+  const value = valid ? `${item.price} ${item.currency}` : item.reason;
 
   return (
     <div className="data-card-item">
@@ -17,7 +15,7 @@ const DataItem = ({ item }) => {
       <div>
         <p>
           {state}
-          <span>{item.name}</span>: {value.data}
+          <span>{item.name}</span>: {value}
         </p>
         <div>
           <DataMonitor />
