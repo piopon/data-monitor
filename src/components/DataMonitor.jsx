@@ -1,7 +1,7 @@
-const DataMonitor = () => {
+const DataMonitor = ({parent}) => {
   return (
     <div className="data-card-monitor">
-      <input type="checkbox" name="enabled" />
+      <input type="checkbox" name={`${parent}-enabled`} />
       <select name="condition">
         <option value="<">&lt;</option>
         <option value="<=">&le;</option>

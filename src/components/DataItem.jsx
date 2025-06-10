@@ -17,7 +17,7 @@ const DataItem = ({ item }) => {
           {state}
           <span>{item.name}</span>: {value}
         </p>
-        <DataMonitor />
+        <DataMonitor parent={item.name.toLowerCase().replace(/\s+/g, '-')} />
       </div>
     </div>
   );
