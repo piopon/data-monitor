@@ -1,6 +1,8 @@
 const DataMonitor = () => {
   return (
-    <div>THRESHOLD SETTINGS...</div>
+    <div className="data-card-monitor">
+      THRESHOLD SETTINGS...
+    </div>
   )
 }
 

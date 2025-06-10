@@ -17,9 +17,7 @@ const DataItem = ({ item }) => {
           {state}
           <span>{item.name}</span>: {value}
         </p>
-        <div>
-          <DataMonitor />
-        </div>
+        <DataMonitor />
       </div>
     </div>
   );
