@@ -12,8 +12,8 @@ const DataItem = ({ item }) => {
   return (
     <div className="data-card-item">
       <Image src={image.src} alt={image.alt} height={50} width={50} />
-      <div>
-        <p>
+      <div className="data-card-content">
+        <p className="data-card-value">
           {state}
           <span>{item.name}</span>: {value}
         </p>
