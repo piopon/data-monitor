@@ -1,4 +1,4 @@
-const DataMonitor = ({parent}) => {
+const DataMonitor = ({ parent }) => {
   return (
     <div className="data-card-monitor">
       <form>
@@ -9,7 +9,7 @@ const DataMonitor = ({parent}) => {
           <option value=">">&gt;</option>
           <option value=">=">&ge;</option>
         </select>
-        <input type="text" placeholder="threshold"/>
+        <input type="text" placeholder="threshold" />
         <select name="notifier">
           <option value="email">email</option>
           <option value="discord">discord</option>
@@ -17,7 +17,7 @@ const DataMonitor = ({parent}) => {
         <button type="submit">save</button>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default DataMonitor
+export default DataMonitor;
