@@ -1,7 +1,18 @@
 const DataMonitor = () => {
   return (
     <div className="data-card-monitor">
-      THRESHOLD SETTINGS...
+      <input type="checkbox" name="enabled" />
+      <select name="condition">
+        <option value="<">&lt;</option>
+        <option value="<=">&le;</option>
+        <option value=">">&gt;</option>
+        <option value=">=">&ge;</option>
+      </select>
+      <input type="text" placeholder="threshold"/>
+      <select name="notifier">
+        <option value="email">email</option>
+        <option value="discord">discord</option>
+      </select>
     </div>
   )
 }
