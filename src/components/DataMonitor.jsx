@@ -6,9 +6,17 @@ const DataMonitor = ({ parent }) => {
   const [condition, setCondition] = useState("<");
   const [notifier, setNotifier] = useState("discord");
 
+  const saveMonitor = (event) => {
+    event.preventDefault();
+    console.warn(`enabled: ${enabled}`);
+    console.log(`condition: ${condition}`);
+    console.log(`threshold: ${threshold}`);
+    console.log(`notifier: ${notifier}`);
+  };
+
   return (
     <div className="data-card-monitor">
-      <form>
+      <form onSubmit={saveMonitor}>
         <input type="checkbox" name={`${parent}-enabled`} checked={enabled} />
         <select name="condition" value={condition}>
           <option value="<">&lt;</option>
