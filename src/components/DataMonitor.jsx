@@ -11,6 +11,7 @@ const DataMonitor = ({ parent }) => {
   const saveMonitor = (event) => {
     event.preventDefault();
     console.warn(`enabled: ${enabled}`);
+    console.log(`parent: ${parent}`);
     console.log(`condition: ${condition}`);
     console.log(`threshold: ${threshold}`);
     console.log(`notifier: ${notifier}`);
