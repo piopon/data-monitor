@@ -6,7 +6,7 @@ const DataMonitor = ({ parent }) => {
   const [enabled, setEnabled] = useState(false);
   const [threshold, setThreshold] = useState("");
   const [condition, setCondition] = useState("<");
-  const [notifier, setNotifier] = useState("discord");
+  const [notifier, setNotifier] = useState("email");
 
   const saveMonitor = (event) => {
     event.preventDefault();
@@ -33,7 +33,7 @@ const DataMonitor = ({ parent }) => {
           <option value=">=">&ge;</option>
         </select>
         <input type="text" placeholder="threshold" value={threshold} />
-        <select name="notifier" value={notifier}>
+        <select name="notifier" value={notifier} onChange={(event) => setNotifier(event.target.value)}>
           <option value="email">email</option>
           <option value="discord">discord</option>
         </select>
