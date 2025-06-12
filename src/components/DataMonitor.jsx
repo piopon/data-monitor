@@ -26,7 +26,7 @@ const DataMonitor = ({ parent }) => {
           checked={enabled}
           onChange={(event) => setEnabled(event.target.checked)}
         />
-        <select name="condition" value={condition}>
+        <select name="condition" value={condition} onChange={(event) => setCondition(event.target.value)}>
           <option value="<">&lt;</option>
           <option value="<=">&le;</option>
           <option value=">">&gt;</option>
