@@ -19,7 +19,12 @@ const DataMonitor = ({ parent }) => {
   return (
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
-        <input type="checkbox" name={`${parent}-enabled`} checked={enabled} />
+        <input
+          type="checkbox"
+          name={`${parent}-enabled`}
+          checked={enabled}
+          onChange={(event) => setEnabled(event.target.checked)}
+        />
         <select name="condition" value={condition}>
           <option value="<">&lt;</option>
           <option value="<=">&le;</option>
