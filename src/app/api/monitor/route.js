@@ -30,7 +30,7 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
-    const monitorData = request.body;
+    const monitorData = await request.json();
     const monitor = await MonitorService.addMonitor(monitorData);
     return new Response(monitor, {
       status: 200,
@@ -54,7 +54,7 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const monitorData = request.body;
+    const monitorData = await request.json();
     const monitor = await MonitorService.editMonitor(id, monitorData);
     return new Response(monitor, {
       status: 200,
