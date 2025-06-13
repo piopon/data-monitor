@@ -34,12 +34,12 @@ export class MonitorService {
    * @param {String} filter expression used to filter monitor objects
    * @returns array of monitor objects matching filter expression
    */
-  static async getMonitors(filter) {
+  static async filterMonitors(query) {
     const { rows } = await DatabaseQuery(
       `SELECT * FROM ${
         MonitorService.#DB_TABLE_NAME
       } WHERE parent ILIKE $1 OR enable ILIKE $1 OR threshold ILIKE $1 OR condition ILIKE $1 OR notifier ILIKE $1`,
-      [`%${filter}%`]
+      [`%${query}%`]
     );
     return rows;
   }

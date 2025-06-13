@@ -9,7 +9,7 @@ export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const filter = searchParams.get("filter");
-    const monitors = await MonitorService.getMonitors(filter ? filter : undefined);
+    const monitors = filter === null ? await MonitorService.getMonitors() : await MonitorService.filterMonitors(filter);
     new Response(monitors, {
       status: 200,
       headers: { "Content-Type": "application/json" },
