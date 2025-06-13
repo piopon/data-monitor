@@ -12,13 +12,13 @@ const DataMonitor = ({ parentName }) => {
 
   const saveMonitor = async (event) => {
     event.preventDefault();
-    const monitorToSave = { parentId, enabled, threshold, condition, notifier };
-    console.log("monitorToSave: ", monitorToSave);
+    const monitor = { parent: parentId, enabled, threshold, condition, notifier };
+    console.log("monitor: ", monitor);
     try {
       const response = await fetch("/api/monitor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(monitorToSave),
+        body: JSON.stringify(monitor),
       });
       const data = await response.json();
       if (!response.ok) {
