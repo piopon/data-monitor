@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const DataMonitor = ({ parent }) => {
+const DataMonitor = ({ parentName }) => {
+  const parentId = parentName.toLowerCase().replace(/\s+/g, "-");
   const [enabled, setEnabled] = useState(false);
   const [threshold, setThreshold] = useState("");
   const [condition, setCondition] = useState("<");
@@ -12,7 +13,7 @@ const DataMonitor = ({ parent }) => {
   const saveMonitor = async (event) => {
     event.preventDefault();
     console.warn(`enabled: ${enabled}`);
-    console.log(`parent: ${parent}`);
+    console.log(`parent: ${parentId}`);
     console.log(`condition: ${condition}`);
     console.log(`threshold: ${threshold}`);
     console.log(`notifier: ${notifier}`);
@@ -21,7 +22,7 @@ const DataMonitor = ({ parent }) => {
       const response = await fetch("/api/monitor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ parent, enabled, threshold, condition, notifier }),
+        body: JSON.stringify({ parentId, enabled, threshold, condition, notifier }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -39,7 +40,7 @@ const DataMonitor = ({ parent }) => {
       <form onSubmit={saveMonitor}>
         <input
           type="checkbox"
-          name={`${parent}-enabled`}
+          name={`${parentId}-enabled`}
           checked={enabled}
           onChange={(event) => setEnabled(event.target.checked)}
         />
