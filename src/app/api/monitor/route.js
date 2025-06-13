@@ -31,7 +31,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const monitorData = request.body;
-    const monitor = await MonitorService.createClient(monitorData);
+    const monitor = await MonitorService.addMonitor(monitorData);
     return new Response(monitor, {
       status: 200,
       headers: { "Content-Type": "application/json" },
