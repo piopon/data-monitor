@@ -78,8 +78,9 @@ export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const monitor = await MonitorService.deleteMonitor(id);
-    return new Response(JSON.stringify(monitor), {
+    const deletedNo = await MonitorService.deleteMonitor(id);
+    const response = { message: `Deleted ${deletedNo} monitor(s)` };
+    return new Response(JSON.stringify(response), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
