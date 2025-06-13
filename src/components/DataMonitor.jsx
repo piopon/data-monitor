@@ -25,7 +25,7 @@ const DataMonitor = ({ parentName }) => {
         toast.error(data.message);
         return;
       }
-      toast.success("Monitor saved!");
+      toast.success(`Saved ${parentName} monitor!`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
     }
