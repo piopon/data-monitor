@@ -32,7 +32,12 @@ const DataMonitor = ({ parent }) => {
           <option value=">">&gt;</option>
           <option value=">=">&ge;</option>
         </select>
-        <input type="text" placeholder="threshold" value={threshold} />
+        <input
+          type="text"
+          placeholder="threshold"
+          value={threshold}
+          onChange={(event) => setThreshold(event.target.value)}
+        />
         <select name="notifier" value={notifier} onChange={(event) => setNotifier(event.target.value)}>
           <option value="email">email</option>
           <option value="discord">discord</option>
