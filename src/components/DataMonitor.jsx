@@ -8,13 +8,24 @@ const DataMonitor = ({ parent }) => {
   const [condition, setCondition] = useState("<");
   const [notifier, setNotifier] = useState("email");
 
-  const saveMonitor = (event) => {
+  const saveMonitor = async (event) => {
     event.preventDefault();
     console.warn(`enabled: ${enabled}`);
     console.log(`parent: ${parent}`);
     console.log(`condition: ${condition}`);
     console.log(`threshold: ${threshold}`);
     console.log(`notifier: ${notifier}`);
+
+    const response = await fetch("/api/monitor", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ parent, enabled, threshold, condition, notifier }),
+    });
+    if (!response.ok) {
+      toast.error("Error while saving monitor");
+      return;
+    }
+    toast.success("Monitor saved!");
   };
 
   return (
