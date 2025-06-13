@@ -17,16 +17,21 @@ const DataMonitor = ({ parent }) => {
     console.log(`threshold: ${threshold}`);
     console.log(`notifier: ${notifier}`);
 
-    const response = await fetch("/api/monitor", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ parent, enabled, threshold, condition, notifier }),
-    });
-    if (!response.ok) {
-      toast.error("Error while saving monitor");
-      return;
+    try {
+      const response = await fetch("/api/monitor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parent, enabled, threshold, condition, notifier }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.message);
+        return;
+      }
+      toast.success("Monitor saved!");
+    } catch (e) {
+      toast.error(`Error: ${e.message}`);
     }
-    toast.success("Monitor saved!");
   };
 
   return (
