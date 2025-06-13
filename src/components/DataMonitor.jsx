@@ -23,7 +23,7 @@ const DataMonitor = ({ parent }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ parent, enabled, threshold, condition, notifier }),
       });
-      const data = await response.text();
+      const data = await response.json();
       if (!response.ok) {
         toast.error(data.message);
         return;

@@ -10,13 +10,13 @@ export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
     const filter = searchParams.get("filter");
     const monitors = filter === null ? await MonitorService.getMonitors() : await MonitorService.filterMonitors(filter);
-    return new Response(monitors, {
+    return new Response(JSON.stringify(monitors), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     const errorOutput = { message: `Cannot get monitors: ${error.message}` };
-    return new Response(errorOutput, {
+    return new Response(JSON.stringify(errorOutput), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
@@ -32,13 +32,13 @@ export async function POST(request) {
   try {
     const monitorData = await request.json();
     const monitor = await MonitorService.addMonitor(monitorData);
-    return new Response(monitor, {
+    return new Response(JSON.stringify(monitor), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     const errorOutput = { message: `Cannot add new monitor: ${error.message}` };
-    return new Response(errorOutput, {
+    return new Response(JSON.stringify(errorOutput), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
@@ -56,13 +56,13 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const monitorData = await request.json();
     const monitor = await MonitorService.editMonitor(id, monitorData);
-    return new Response(monitor, {
+    return new Response(JSON.stringify(monitor), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     const errorOutput = { message: `Cannot update monitor: ${error.message}` };
-    return new Response(errorOutput, {
+    return new Response(JSON.stringify(errorOutput), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
@@ -79,13 +79,13 @@ export async function DELETE(request) {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
     const monitor = await MonitorService.deleteMonitor(id);
-    return new Response(monitor, {
+    return new Response(JSON.stringify(monitor), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     const errorOutput = { message: `Cannot delete monitor: ${error.message}` };
-    return new Response(errorOutput, {
+    return new Response(JSON.stringify(errorOutput), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
