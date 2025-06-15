@@ -13,7 +13,7 @@ const DataMonitor = ({ parentName }) => {
   useEffect(() => {
     const initialize = async () => {
       try {
-        const response = await fetch(`/api/monitor?filter=${parentId}`);
+        const response = await fetch(`/api/monitor?parent=${parentId}`);
         if (!response.ok) {
           const err = await response.json();
           toast.error(err.message);

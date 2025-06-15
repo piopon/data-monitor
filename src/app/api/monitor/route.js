@@ -15,8 +15,8 @@ export async function GET(request) {
         headers: { "Content-Type": "application/json" },
       });
     }
-    const filter = searchParams.get("filter");
-    const monitors = await MonitorService.filterMonitors({filter});
+    const parent = searchParams.get("parent");
+    const monitors = await MonitorService.filterMonitors({parent});
     return new Response(JSON.stringify(monitors), {
       status: 200,
       headers: { "Content-Type": "application/json" },
