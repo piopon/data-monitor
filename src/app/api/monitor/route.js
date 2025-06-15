@@ -8,8 +8,15 @@ import { MonitorService } from "@/model/MonitorService";
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
+    if (0 === searchParams.size) {
+      const monitors = await MonitorService.getMonitors();
+      return new Response(JSON.stringify(monitors), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     const filter = searchParams.get("filter");
-    const monitors = filter === null ? await MonitorService.getMonitors() : await MonitorService.filterMonitors(filter);
+    const monitors = await MonitorService.filterMonitors({filter});
     return new Response(JSON.stringify(monitors), {
       status: 200,
       headers: { "Content-Type": "application/json" },
