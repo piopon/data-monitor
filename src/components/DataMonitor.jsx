@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const DataMonitor = ({ parentName }) => {
@@ -9,6 +9,23 @@ const DataMonitor = ({ parentName }) => {
   const [threshold, setThreshold] = useState("");
   const [condition, setCondition] = useState("<");
   const [notifier, setNotifier] = useState("email");
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const response = await fetch(`/api/monitor?filter=${parentId}`);
+        if (!response.ok) {
+          const err = await response.json();
+          toast.error(err.message);
+          return;
+        }
+        console.log(await response.json());
+      } catch (error) {
+        toast.error(`Failed to get monitor: ${error.message}`);
+      }
+    };
+    initialize();
+  }, []);
 
   const saveMonitor = async (event) => {
     event.preventDefault();
