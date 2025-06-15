@@ -34,9 +34,17 @@ export class MonitorService {
    * @param {String} query expression used to filter monitor objects
    * @returns array of monitor objects matching filter expression
    */
-  static async filterMonitors(filter) {
-    const whereClause = filter.parent ? "WHERE parent = $1" : "";
-    const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME} ${whereClause}`, filter.parent);
+  static async filterMonitors(filters) {
+    const values = [];
+    const conditions = [];
+
+    if (filters.parent) {
+      values.push(filters.parent);
+      conditions.push(`parent = $${values.length}`);
+    }
+
+    const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
+    const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME} ${whereClause}`, values);
     return rows;
   }
 
