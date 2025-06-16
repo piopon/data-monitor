@@ -42,7 +42,22 @@ export class MonitorService {
       values.push(filters.parent);
       conditions.push(`parent = $${values.length}`);
     }
-
+    if (filters.enable) {
+      values.push("true" === filters.enable);
+      conditions.push(`enable = $${values.length}`);
+    }
+    if (filters.threshold) {
+      values.push(filters.threshold);
+      conditions.push(`threshold = $${values.length}`);
+    }
+    if (filters.condition) {
+      values.push(filters.condition);
+      conditions.push(`condition = $${values.length}`);
+    }
+    if (filters.notifier) {
+      values.push(filters.notifier);
+      conditions.push(`notifier = $${values.length}`);
+    }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME} ${whereClause}`, values);
     return rows;

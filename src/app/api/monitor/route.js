@@ -16,7 +16,11 @@ export async function GET(request) {
       });
     }
     const parent = searchParams.get("parent");
-    const monitors = await MonitorService.filterMonitors({parent});
+    const enable = searchParams.get("enable");
+    const threshold = searchParams.get("threshold");
+    const condition = searchParams.get("condition");
+    const notifier = searchParams.get("notifier");
+    const monitors = await MonitorService.filterMonitors({ parent, enable, threshold, condition, notifier });
     return new Response(JSON.stringify(monitors), {
       status: 200,
       headers: { "Content-Type": "application/json" },
