@@ -14,12 +14,12 @@ const DataMonitor = ({ parentName }) => {
     const initialize = async () => {
       try {
         const response = await fetch(`/api/monitor?parent=${parentId}`);
+        const data = await response.json();
         if (!response.ok) {
-          const err = await response.json();
-          toast.error(err.message);
+          toast.error(data.message);
           return;
         }
-        console.log(await response.json());
+        console.log(data);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
