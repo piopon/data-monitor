@@ -20,7 +20,13 @@ export async function GET(request) {
     const threshold = searchParams.get("threshold");
     const condition = searchParams.get("condition");
     const notifier = searchParams.get("notifier");
-    const monitors = await MonitorService.filterMonitors({ parent, enable, threshold, condition, notifier });
+    const monitors = await MonitorService.filterMonitors({
+      ...(parent && { parent }),
+      ...(enable && { enable }),
+      ...(threshold && { threshold }),
+      ...(condition && { condition }),
+      ...(notifier && { notifier }),
+    });
     return new Response(JSON.stringify(monitors), {
       status: 200,
       headers: { "Content-Type": "application/json" },
