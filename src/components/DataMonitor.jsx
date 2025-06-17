@@ -23,7 +23,10 @@ const DataMonitor = ({ parentName }) => {
           toast.error("Error: Received multiple monitor entries...");
           return;
         }
-        console.log(data);
+        setEnabled(data[0].enable);
+        setCondition(data[0].condition);
+        setThreshold(data[0].threshold);
+        setNotifier(data[0].notifier);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
