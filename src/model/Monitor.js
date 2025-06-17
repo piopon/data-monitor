@@ -6,7 +6,7 @@ export class Monitor {
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
     this.parent = ModelUtils.getValueOrDefault(input.parent, "");
-    this.enable = ModelUtils.getValueOrDefault(input.enable, false);
+    this.enabled = ModelUtils.getValueOrDefault(input.enabled, false);
     this.threshold = ModelUtils.getValueOrDefault(input.threshold, undefined);
     this.condition = ModelUtils.getValueOrDefault(input.condition, undefined);
     this.notifier = ModelUtils.getValueOrDefault(input.notifier, undefined);
@@ -15,7 +15,7 @@ export class Monitor {
   static getDatabaseSchema() {
     return `id SERIAL PRIMARY KEY,
             parent TEXT NOT NULL,
-            enable BOOLEAN DEFAULT false,
+            enabled BOOLEAN DEFAULT false,
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL CHECK (condition IN ('<', '<=', '>', '>=')),
             notifier TEXT NOT NULL`;

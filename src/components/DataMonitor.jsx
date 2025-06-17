@@ -23,7 +23,7 @@ const DataMonitor = ({ parentName }) => {
           toast.error("Error: Received multiple monitor entries...");
           return;
         }
-        setEnabled(data[0].enable ?? false);
+        setEnabled(data[0].enabled ?? false);
         setCondition(data[0].condition ?? "<");
         setThreshold(data[0].threshold ?? "");
         setNotifier(data[0].notifier ?? "email");

@@ -42,9 +42,9 @@ export class MonitorService {
       values.push(filters.parent);
       conditions.push(`parent = $${values.length}`);
     }
-    if (filters.enable) {
-      values.push("true" === filters.enable);
-      conditions.push(`enable = $${values.length}`);
+    if (filters.enabled) {
+      values.push("true" === filters.enabled);
+      conditions.push(`enabled = $${values.length}`);
     }
     if (filters.threshold) {
       values.push(filters.threshold);
@@ -69,12 +69,12 @@ export class MonitorService {
    * @returns added monitor object
    */
   static async addMonitor(data) {
-    const { parent, enable, threshold, condition, notifier } = data;
+    const { parent, enabled, threshold, condition, notifier } = data;
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${
         MonitorService.#DB_TABLE_NAME
-      } (parent, enable, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [parent, enable, threshold, condition, notifier]
+      } (parent, enabled, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [parent, enabled, threshold, condition, notifier]
     );
     return rows[0];
   }
@@ -86,12 +86,12 @@ export class MonitorService {
    * @returns updated monitor object
    */
   static async editMonitor(id, data) {
-    const { parent, enable, threshold, condition, notifier } = data;
+    const { parent, enabled, threshold, condition, notifier } = data;
     const { rows } = await DatabaseQuery(
       `UPDATE ${
         MonitorService.#DB_TABLE_NAME
-      } SET parent = $1, enable = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
-      [parent, enable, threshold, condition, notifier, id]
+      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
+      [parent, enabled, threshold, condition, notifier, id]
     );
     return rows[0];
   }
