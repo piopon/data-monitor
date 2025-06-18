@@ -14,7 +14,7 @@ export class Monitor {
 
   static getDatabaseSchema() {
     return `id SERIAL PRIMARY KEY,
-            parent TEXT NOT NULL,
+            parent TEXT NOT NULL UNIQUE,
             enabled BOOLEAN DEFAULT false,
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL CHECK (condition IN ('<', '<=', '>', '>=')),
