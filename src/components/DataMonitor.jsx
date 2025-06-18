@@ -43,7 +43,6 @@ const DataMonitor = ({ parentName }) => {
   const saveMonitor = async (event) => {
     event.preventDefault();
     const monitor = { parent: parentId, enabled, threshold, condition, notifier };
-    console.log("monitor: ", monitor);
     try {
       const getResponse = await fetch(`/api/monitor?parent=${parentId}`);
       const getData = await getResponse.json();
