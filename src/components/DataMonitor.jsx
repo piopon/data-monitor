@@ -46,32 +46,32 @@ const DataMonitor = ({ parentName }) => {
     console.log("monitor: ", monitor);
     try {
       const getResponse = await fetch(`/api/monitor?parent=${parentId}`);
-      const data = await getResponse.json();
+      const getData = await getResponse.json();
       if (!getResponse.ok) {
-        toast.error(data.message);
+        toast.error(getData.message);
         return;
       }
-      if (0 === data.length) {
+      if (0 === getData.length) {
         const postResponse = await fetch("/api/monitor", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(monitor),
         });
-        const data = await postResponse.json();
+        const postData = await postResponse.json();
         if (!postResponse.ok) {
-          toast.error(data.message);
+          toast.error(postData.message);
           return;
         }
         toast.success(`Saved ${parentName} monitor!`);
       } else {
-        const putResponse = await fetch(`/api/monitor?id=${data[0].id}`, {
+        const putResponse = await fetch(`/api/monitor?id=${getData[0].id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(monitor),
         });
-        const data = await putResponse.json();
+        const putData = await putResponse.json();
         if (!putResponse.ok) {
-          toast.error(data.message);
+          toast.error(putData.message);
           return;
         }
         toast.success(`Updated ${parentName} monitor!`);
