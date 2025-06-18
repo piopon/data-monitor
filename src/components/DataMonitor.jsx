@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const DataMonitor = ({ parentName }) => {
+  const defaults = { enabled: false, threshold: "", condition: "<", notifier: "email" };
   const parentId = parentName.toLowerCase().replace(/\s+/g, "-");
-  const [enabled, setEnabled] = useState(false);
-  const [threshold, setThreshold] = useState("");
-  const [condition, setCondition] = useState("<");
-  const [notifier, setNotifier] = useState("email");
+
+  const [enabled, setEnabled] = useState(defaults.enabled);
+  const [threshold, setThreshold] = useState(defaults.threshold);
+  const [condition, setCondition] = useState(defaults.condition);
+  const [notifier, setNotifier] = useState(defaults.notifier);
 
   useEffect(() => {
     const initialize = async () => {
@@ -27,10 +29,10 @@ const DataMonitor = ({ parentName }) => {
           toast.error("Error: Received multiple monitor entries...");
           return;
         }
-        setEnabled(data[0].enabled ?? false);
-        setCondition(data[0].condition ?? "<");
-        setThreshold(data[0].threshold ?? "");
-        setNotifier(data[0].notifier ?? "email");
+        setEnabled(data[0].enabled ?? defaults.enabled);
+        setCondition(data[0].condition ?? defaults.condition);
+        setThreshold(data[0].threshold ?? defaults.threshold);
+        setNotifier(data[0].notifier ?? defaults.notifier);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
