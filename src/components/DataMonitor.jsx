@@ -46,14 +46,8 @@ const DataMonitor = ({ parentName }) => {
     event.preventDefault();
     const monitor = { parent: parentId, enabled, threshold, condition, notifier };
     try {
-      const getResponse = await fetch(`/api/monitor?parent=${parentId}`);
-      const getData = await getResponse.json();
-      if (!getResponse.ok) {
-        toast.error(getData.message);
-        return;
-      }
-      const exists = 1 === getData.length;
-      const idFilter = exists ? `?id=${getData[0].id}` : ``;
+      const exists = defaults.id !== id;
+      const idFilter = exists ? `?id=${id}` : ``;
       const monitorResponse = await fetch(`/api/monitor${idFilter}`, {
         method: exists ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,6 +58,7 @@ const DataMonitor = ({ parentName }) => {
         toast.error(postData.message);
         return;
       }
+      setId(monitorData[0].id);
       toast.success(`${exists ? "Updated" : "Saved"} ${parentName} monitor!`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
