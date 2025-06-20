@@ -30,6 +30,7 @@ const DataMonitor = ({ parentName }) => {
           toast.error("Error: Received multiple monitor entries...");
           return;
         }
+        setId(data[0].id ?? defaults.id);
         setEnabled(data[0].enabled ?? defaults.enabled);
         setCondition(data[0].condition ?? defaults.condition);
         setThreshold(data[0].threshold ?? defaults.threshold);
