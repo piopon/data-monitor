@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 const DataMonitor = ({ parentName }) => {
-  const defaults = { enabled: false, threshold: "", condition: "<", notifier: "email" };
+  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email" };
   const parentId = parentName.toLowerCase().replace(/\s+/g, "-");
 
+  const [id, setId] = useState(defaults.id);
   const [enabled, setEnabled] = useState(defaults.enabled);
   const [threshold, setThreshold] = useState(defaults.threshold);
   const [condition, setCondition] = useState(defaults.condition);
