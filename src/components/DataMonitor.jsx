@@ -50,10 +50,10 @@ const DataMonitor = ({ parentName }) => {
         toast.error(getData.message);
         return;
       }
-      const monitorNew = 0 === getData.length;
-      const monitorUri = monitorNew ? ``:`?id=${getData[0].id}`;
-      const monitorResponse = await fetch(`/api/monitor${monitorUri}`, {
-        method: monitorNew ? "POST":"PUT",
+      const exists = 1 === getData.length;
+      const idFilter = exists ? `?id=${getData[0].id}` : ``;
+      const monitorResponse = await fetch(`/api/monitor${idFilter}`, {
+        method: exists ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(monitor),
       });
@@ -62,7 +62,7 @@ const DataMonitor = ({ parentName }) => {
         toast.error(postData.message);
         return;
       }
-      toast.success(`${monitorNew ? `Saved`:`Updated`} ${parentName} monitor!`);
+      toast.success(`${exists ? "Updated" : "Saved"} ${parentName} monitor!`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
     }
