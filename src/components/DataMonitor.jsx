@@ -58,7 +58,7 @@ const DataMonitor = ({ parentName }) => {
         toast.error(monitorData.message);
         return;
       }
-      setId(monitorData[0].id);
+      setId(monitorData.id);
       toast.success(`${exists ? "Updated" : "Saved"} ${parentName} monitor!`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
