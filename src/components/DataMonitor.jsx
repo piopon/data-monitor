@@ -54,8 +54,8 @@ const DataMonitor = ({ parentName }) => {
         body: JSON.stringify(monitor),
       });
       const monitorData = await monitorResponse.json();
-      if (!monitorData.ok) {
-        toast.error(postData.message);
+      if (!monitorResponse.ok) {
+        toast.error(monitorData.message);
         return;
       }
       setId(monitorData[0].id);
