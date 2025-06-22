@@ -114,7 +114,12 @@ const DataMonitor = ({ parentName }) => {
             </span>
           </label>
         </div>
-        <select name="condition" value={condition} onChange={(event) => setCondition(event.target.value)}>
+        <select
+          class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+          name="condition"
+          value={condition}
+          onChange={(event) => setCondition(event.target.value)}
+        >
           <option value="<">&lt;</option>
           <option value="<=">&le;</option>
           <option value=">">&gt;</option>
@@ -126,7 +131,12 @@ const DataMonitor = ({ parentName }) => {
           value={threshold}
           onChange={(event) => setThreshold(event.target.value)}
         />
-        <select name="notifier" value={notifier} onChange={(event) => setNotifier(event.target.value)}>
+        <select
+          class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600"
+          name="notifier"
+          value={notifier}
+          onChange={(event) => setNotifier(event.target.value)}
+        >
           <option value="email">email</option>
           <option value="discord">discord</option>
         </select>
