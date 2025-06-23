@@ -1,11 +1,11 @@
 const Toggle = ({id, enabled, setter}) => {
   return (
     <div class="flex items-center">
-      <label for="hs-medium-switch-with-icons" class="relative inline-block w-13 h-7 cursor-pointer">
+      <label for={`${id}-toggle`} class="relative inline-block w-13 h-7 cursor-pointer">
         <input
           type="checkbox"
           class="peer sr-only"
-          id="hs-medium-switch-with-icons"
+          id={`${id}-toggle`}
           name={`${id}-enabled`}
           checked={enabled}
           onChange={(event) => setter(event.target.checked)}
