@@ -68,15 +68,16 @@ const DataMonitor = ({ parentName }) => {
   return (
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
-        <input
-          type="checkbox"
-          name={`${parentId}-enabled`}
-          checked={enabled}
-          onChange={(event) => setEnabled(event.target.checked)}
-        />
         <div class="flex items-center">
           <label for="hs-medium-switch-with-icons" class="relative inline-block w-13 h-7 cursor-pointer">
-            <input type="checkbox" id="hs-medium-switch-with-icons" class="peer sr-only" />
+            <input
+              type="checkbox"
+              class="peer sr-only"
+              id="hs-medium-switch-with-icons"
+              name={`${parentId}-enabled`}
+              checked={enabled}
+              onChange={(event) => setEnabled(event.target.checked)}
+            />
             <span class="absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none"></span>
             <span class="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
             <span class="absolute top-1/2 start-1 -translate-y-1/2 flex justify-center items-center size-5 text-gray-500 peer-checked:text-white transition-colors duration-200 dark:text-neutral-500">
