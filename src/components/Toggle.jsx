@@ -1,7 +1,7 @@
 const Toggle = ({id, enabled, setter}) => {
   return (
     <div className="flex items-center">
-      <label for={`${id}-toggle`} className="relative inline-block w-13 h-7 cursor-pointer">
+      <label htmlFor={`${id}-toggle`} className="relative inline-block w-13 h-7 cursor-pointer">
         <input
           type="checkbox"
           className="peer sr-only"
@@ -21,9 +21,9 @@ const Toggle = ({id, enabled, setter}) => {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <path d="M18 6 6 18"></path>
             <path d="m6 6 12 12"></path>
@@ -38,9 +38,9 @@ const Toggle = ({id, enabled, setter}) => {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
