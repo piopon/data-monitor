@@ -171,3 +171,14 @@ section#data-section div.data-card-item p {
 section#data-section div.data-card-item span {
   @apply font-bold;
 }
+
+/***************************** BUILDING BLOCKS ******************************/
+
+div.toggle {
+  @apply flex items-center;
+}
+
+div.toggle label.toggle-root {
+  @apply relative inline-block w-13 h-7 cursor-pointer;
+}
+

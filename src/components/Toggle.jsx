@@ -1,7 +1,7 @@
 const Toggle = ({id, enabled, setter}) => {
   return (
-    <div className="flex items-center">
-      <label htmlFor={`${id}-toggle`} className="relative inline-block w-13 h-7 cursor-pointer">
+    <div className="toggle">
+      <label htmlFor={`${id}-toggle`} className="toggle-root">
         <input
           type="checkbox"
           className="peer sr-only"
