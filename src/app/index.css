@@ -183,11 +183,17 @@ div.toggle label.toggle-root {
 }
 
 div.toggle span.toggle-background {
-  @apply absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none;
+  @apply absolute inset-0 rounded-full;
+  @apply transition-colors duration-500 ease-in-out;
+  @apply peer-disabled:opacity-50 peer-disabled:pointer-events-none;
+  @apply bg-gray-200 peer-checked:bg-indigo-600 dark:bg-neutral-700 dark:peer-checked:bg-indigo-500;
 }
 
 div.toggle span.toggle-button {
-  @apply absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white;
+  @apply absolute top-1/2 start-0.5 -translate-y-1/2 size-6 rounded-full shadow-xs;
+  @apply transition-transform duration-200 ease-in-out;
+  @apply peer-checked:translate-x-full;
+  @apply bg-white dark:bg-neutral-400 dark:peer-checked:bg-white;
 }
 
 div.toggle span.toggle-icon-left {
