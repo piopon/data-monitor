@@ -1,5 +1,5 @@
 const Toggle = ({ id, enabled, setter }) => {
-  const renderIcon = (children) => (
+  const renderSvg = (children) => (
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -14,19 +14,18 @@ const Toggle = ({ id, enabled, setter }) => {
 
   return (
     <div className="toggle">
-      <label htmlFor={`${id}-toggle`} className="toggle-root">
+      <label className="toggle-root" htmlFor={`${id}-toggle`}>
         <input
           type="checkbox"
           className="peer sr-only"
           id={`${id}-toggle`}
-          name={`${id}-enabled`}
           checked={enabled}
           onChange={(event) => setter(event.target.checked)}
         />
         <span className="toggle-background"></span>
         <span className="toggle-button"></span>
-        <span className="toggle-icon-left">{renderIcon(ICON_DISABLED)}</span>
-        <span className="toggle-icon-right">{renderIcon(ICON_ENABLED)}</span>
+        <span className="toggle-icon-left">{renderSvg(ICON_DISABLED)}</span>
+        <span className="toggle-icon-right">{renderSvg(ICON_ENABLED)}</span>
       </label>
     </div>
   );
