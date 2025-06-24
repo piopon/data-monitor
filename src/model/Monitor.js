@@ -17,7 +17,7 @@ export class Monitor {
             parent TEXT NOT NULL UNIQUE,
             enabled BOOLEAN DEFAULT false,
             threshold NUMERIC NOT NULL,
-            condition TEXT NOT NULL CHECK (condition IN ('<', '<=', '>', '>=')),
+            condition TEXT NOT NULL CHECK (condition IN ('<', '≤', '>', '≥')),
             notifier TEXT NOT NULL`;
   }
 
