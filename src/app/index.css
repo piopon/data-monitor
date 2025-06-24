@@ -182,6 +182,14 @@ div.toggle label.toggle-root {
   @apply relative inline-block w-13 h-7 cursor-pointer;
 }
 
+div.toggle span.toggle-background {
+  @apply absolute inset-0 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out peer-checked:bg-blue-600 dark:bg-neutral-700 dark:peer-checked:bg-blue-500 peer-disabled:opacity-50 peer-disabled:pointer-events-none;
+}
+
+div.toggle span.toggle-button {
+  @apply absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white;
+}
+
 div.toggle span.toggle-icon-left {
   @apply absolute flex justify-center items-center size-5 start-1 top-1/2 -translate-y-1/2;
   @apply peer-checked:text-white text-gray-500 dark:text-neutral-500 transition-colors duration-500;
