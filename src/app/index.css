@@ -182,3 +182,13 @@ div.toggle label.toggle-root {
   @apply relative inline-block w-13 h-7 cursor-pointer;
 }
 
+div.toggle span.toggle-icon-left {
+  @apply absolute flex justify-center items-center size-5 start-1 top-1/2 -translate-y-1/2;
+  @apply peer-checked:text-white text-gray-500 dark:text-neutral-500 transition-colors duration-500;
+}
+
+div.toggle span.toggle-icon-right {
+  @apply absolute flex justify-center items-center size-5 end-1 top-1/2 -translate-y-1/2;
+  @apply peer-checked:text-indigo-600 text-gray-500 dark:text-neutral-500 transition-colors duration-500 ;
+}
+
