@@ -1,14 +1,14 @@
-const Toggle = ({id, enabled, setter}) => {
-  const renderIcon = (child) => (
+const Toggle = ({ id, enabled, setter }) => {
+  const renderIcon = (children) => (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.5"
+      strokeWidth="3.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {child}
+      {children}
     </svg>
   );
 
@@ -28,8 +28,8 @@ const Toggle = ({id, enabled, setter}) => {
         <span className="toggle-icon-left">
           {renderIcon(
             <>
-              <path d="M18 6 6 18"></path>
-              <path d="m6 6 12 12"></path>
+              <path d="M18 6 L6 18"></path>
+              <path d="m6 6 l12 12"></path>
             </>
           )}
         </span>
