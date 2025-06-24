@@ -192,3 +192,6 @@ div.toggle span.toggle-icon-right {
   @apply peer-checked:text-indigo-600 text-gray-500 dark:text-neutral-500 transition-colors duration-500 ;
 }
 
+div.toggle span svg {
+  @apply shrink-0 size-3;
+}

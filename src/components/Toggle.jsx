@@ -14,10 +14,6 @@ const Toggle = ({id, enabled, setter}) => {
         <span className="absolute top-1/2 start-0.5 -translate-y-1/2 size-6 bg-white rounded-full shadow-xs transition-transform duration-200 ease-in-out peer-checked:translate-x-full dark:bg-neutral-400 dark:peer-checked:bg-white"></span>
         <span className="toggle-icon-left">
           <svg
-            className="shrink-0 size-3"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -31,10 +27,6 @@ const Toggle = ({id, enabled, setter}) => {
         </span>
         <span className="toggle-icon-right">
           <svg
-            className="shrink-0 size-3"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
