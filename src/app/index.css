@@ -172,8 +172,16 @@ section#data-section div.data-card-item span {
   @apply font-bold;
 }
 
+div.data-card-content {
+  @apply w-full;
+}
+
+div.data-card-monitor form {
+  @apply flex flex-row w-full;
+}
+
 div.data-card-monitor select {
-  @apply m-1 py-2 px-4 pe-9 block w-full rounded-lg text-sm;
+  @apply m-1 py-2 px-4 pe-9 rounded-lg text-sm;
   @apply disabled:opacity-50 disabled:pointer-events-none;
   @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
 }
