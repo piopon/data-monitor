@@ -27,11 +27,15 @@ export class Monitor {
             parent TEXT NOT NULL UNIQUE,
             enabled BOOLEAN DEFAULT false,
             threshold NUMERIC NOT NULL,
-            condition TEXT NOT NULL CHECK (condition IN ('<', '≤', '>', '≥')),
+            condition TEXT NOT NULL CHECK ${Monitor.#getConditionSchema()},
             notifier TEXT NOT NULL`;
   }
 
   static getTableName() {
     return Monitor.#DB_TABLE_NAME;
+  }
+
+  static #getConditionSchema() {
+    return "(condition IN (" + Monitor.CONDITIONS.map(condition => `'${condition.text}'`).join(", ") + "))";
   }
 }
