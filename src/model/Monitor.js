@@ -2,6 +2,16 @@ import { ModelUtils } from "@/lib/ModelUtils";
 
 export class Monitor {
   static #DB_TABLE_NAME = "monitor";
+  static CONDITIONS = [
+    { value: "<", text: "<" },
+    { value: "≤", text: "≤" },
+    { value: ">", text: ">" },
+    { value: "≥", text: "≥" },
+  ];
+  static NOTIFIERS = [
+    { value: "email", text: "email" },
+    { value: "discord", text: "discord" },
+  ];
 
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
