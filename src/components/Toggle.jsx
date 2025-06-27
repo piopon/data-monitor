@@ -1,4 +1,4 @@
-const Toggle = ({ id, enabled, setter }) => {
+const Toggle = ({ id, label, enabled, setter }) => {
   const renderSvg = (children) => (
     <svg
       viewBox="0 0 24 24"
@@ -27,6 +27,7 @@ const Toggle = ({ id, enabled, setter }) => {
         <span className="toggle-icon-left">{renderSvg(ICON_DISABLED)}</span>
         <span className="toggle-icon-right">{renderSvg(ICON_ENABLED)}</span>
       </label>
+      <span className="toggle-label">{label}</span>
     </div>
   );
 };

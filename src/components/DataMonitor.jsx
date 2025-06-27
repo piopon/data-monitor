@@ -71,7 +71,7 @@ const DataMonitor = ({ parentName }) => {
   return (
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
-        <Toggle id={parentId} enabled={enabled} setter={setEnabled} />
+        <Toggle id={parentId} label="enabled" enabled={enabled} setter={setEnabled} />
         <Select options={Monitor.CONDITIONS} value={condition} setter={setCondition} />
         <input
           type="text"
