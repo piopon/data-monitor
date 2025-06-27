@@ -168,7 +168,7 @@ section#data-section div.data-card-item p {
   @apply sm:text-lg;
 }
 
-section#data-section div.data-card-item span {
+section#data-section div.data-card-item span.data-card-name {
   @apply font-bold;
 }
 

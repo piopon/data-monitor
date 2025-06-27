@@ -15,7 +15,7 @@ const DataItem = ({ item }) => {
       <div className="data-card-content">
         <p className="data-card-value">
           {state}
-          <span>{item.name}</span>: {value}
+          <span className="data-card-name">{item.name}</span>: {value}
         </p>
         <DataMonitor parentName={item.name} />
       </div>
