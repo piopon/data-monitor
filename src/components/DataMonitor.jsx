@@ -72,7 +72,7 @@ const DataMonitor = ({ parentName }) => {
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
         <Toggle id={parentId} label="enabled" enabled={enabled} setter={setEnabled} />
-        <Select options={Monitor.CONDITIONS} value={condition} setter={setCondition} />
+        <Select options={Monitor.CONDITIONS} value={condition} disabled={!enabled} setter={setCondition} />
         <input
           type="text"
           className="data-threshold"
@@ -80,7 +80,7 @@ const DataMonitor = ({ parentName }) => {
           value={threshold}
           onChange={(event) => setThreshold(event.target.value)}
         />
-        <Select options={Monitor.NOTIFIERS} value={notifier} setter={setNotifier} />
+        <Select options={Monitor.NOTIFIERS} value={notifier} disabled={!enabled} setter={setNotifier} />
         <button className="save-monitor" type="submit">
           save
         </button>
