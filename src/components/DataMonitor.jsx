@@ -79,6 +79,7 @@ const DataMonitor = ({ parentName }) => {
           placeholder="threshold"
           value={threshold}
           onChange={(event) => setThreshold(event.target.value)}
+          disabled={!enabled}
         />
         <Select options={Monitor.NOTIFIERS} value={notifier} disabled={!enabled} setter={setNotifier} />
         <button className="save-monitor" type="submit">
