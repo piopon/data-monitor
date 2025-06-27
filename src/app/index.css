@@ -201,7 +201,11 @@ div.data-card-monitor button.save-monitor {
 /***************************** BUILDING BLOCKS ******************************/
 
 div.toggle {
-  @apply flex items-center;
+  @apply flex flex-col items-center justify-end;
+}
+
+div.toggle span.toggle-label {
+  @apply text-[10px];
 }
 
 div.toggle label.toggle-root {
