@@ -192,7 +192,7 @@ div.data-card-monitor input.data-threshold {
   @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
 }
 
-div.data-card-monitor button.save-threshold {
+div.data-card-monitor button.save-monitor {
   @apply m-1 py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg;
   @apply disabled:opacity-50 disabled:pointer-events-none;
   @apply bg-red-500 text-white hover:bg-red-600 focus:outline-hidden focus:bg-red-600;

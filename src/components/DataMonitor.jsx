@@ -81,7 +81,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
         />
         <Select options={Monitor.NOTIFIERS} value={notifier} setter={setNotifier} />
-        <button className="save-threshold" type="submit">
+        <button className="save-monitor" type="submit">
           save
         </button>
       </form>
