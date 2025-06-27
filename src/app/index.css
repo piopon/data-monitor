@@ -205,7 +205,7 @@ div.toggle {
 }
 
 div.toggle span.toggle-label {
-  @apply text-[10px];
+  @apply text-[11px];
 }
 
 div.toggle label.toggle-root {
