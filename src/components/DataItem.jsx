@@ -1,4 +1,5 @@
 import Image from "next/image";
+import DataMonitor from "./DataMonitor";
 
 import unknown from "@/assets/images/unknown.png";
 
@@ -6,19 +7,17 @@ const DataItem = ({ item }) => {
   const valid = "OK" === item.status;
   const state = valid ? `✔️` : `❌`;
   const image = valid ? { src: item.icon, alt: `${item.name} logo` } : { src: unknown, alt: `Unknown logo` };
-  const value = valid
-    ? { data: `${item.price} ${item.currency}`, threshold: `THRESHOLD SETTINGS...` }
-    : { data: item.reason, threshold: `FIX ITEM CONFIG...` };
+  const value = valid ? `${item.price} ${item.currency}` : item.reason;
 
   return (
     <div className="data-card-item">
       <Image src={image.src} alt={image.alt} height={50} width={50} />
-      <div>
-        <p>
+      <div className="data-card-content">
+        <p className="data-card-value">
           {state}
-          <span>{item.name}</span>: {value.data}
+          <span className="data-card-name">{item.name}</span>: {value}
         </p>
-        <div>{value.threshold}</div>
+        <DataMonitor parentName={item.name} />
       </div>
     </div>
   );

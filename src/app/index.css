@@ -168,6 +168,74 @@ section#data-section div.data-card-item p {
   @apply sm:text-lg;
 }
 
-section#data-section div.data-card-item span {
+section#data-section div.data-card-item span.data-card-name {
   @apply font-bold;
+}
+
+div.data-card-content {
+  @apply w-full;
+}
+
+div.data-card-monitor form {
+  @apply flex flex-row w-full;
+}
+
+div.data-card-monitor select {
+  @apply m-1 px-4 py-3 pe-9 rounded-lg text-sm;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+  @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
+}
+
+div.data-card-monitor input.data-threshold {
+  @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+  @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
+}
+
+div.data-card-monitor button.save-monitor {
+  @apply m-1 px-4 py-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+  @apply bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-hidden focus:bg-indigo-600;
+}
+
+/***************************** BUILDING BLOCKS ******************************/
+
+div.toggle {
+  @apply flex flex-col items-center justify-end;
+}
+
+div.toggle span.toggle-label {
+  @apply text-[11px];
+}
+
+div.toggle label.toggle-root {
+  @apply relative inline-block w-13 h-7 cursor-pointer;
+}
+
+div.toggle span.toggle-background {
+  @apply absolute inset-0 rounded-full;
+  @apply transition-colors duration-500 ease-in-out;
+  @apply peer-disabled:opacity-50 peer-disabled:pointer-events-none;
+  @apply bg-gray-200 peer-checked:bg-indigo-600 dark:bg-neutral-700 dark:peer-checked:bg-indigo-500;
+}
+
+div.toggle span.toggle-button {
+  @apply absolute top-1/2 start-0.5 -translate-y-1/2 size-6 rounded-full shadow-xs;
+  @apply transition-transform duration-200 ease-in-out;
+  @apply peer-checked:translate-x-full;
+  @apply bg-white dark:bg-neutral-400 dark:peer-checked:bg-white;
+}
+
+div.toggle span.toggle-icon-left {
+  @apply absolute flex justify-center items-center size-5 start-1 top-1/2 -translate-y-1/2;
+  @apply peer-checked:text-white text-gray-500 dark:text-neutral-500 transition-colors duration-500;
+}
+
+div.toggle span.toggle-icon-right {
+  @apply absolute flex justify-center items-center size-5 end-1 top-1/2 -translate-y-1/2;
+  @apply peer-checked:text-indigo-600 text-gray-500 dark:text-neutral-500 transition-colors duration-500 ;
+}
+
+div.toggle span svg {
+  @apply shrink-0 size-3;
 }

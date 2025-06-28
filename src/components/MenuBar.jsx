@@ -36,7 +36,7 @@ const MenuBar = () => {
           </form>
         </section>
       )}
-      <section class="menu-section">
+      <section className="menu-section">
         <form className="menu-item-form" onSubmit={userLogout}>
           <div className="menu-item-div">
             <button type="submit" className="menu-item-button">
