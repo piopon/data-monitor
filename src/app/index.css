@@ -198,6 +198,25 @@ div.data-card-monitor button.save-monitor {
   @apply bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-hidden focus:bg-indigo-600;
 }
 
+/***************************** PAGE NOT FOUND *******************************/
+
+div.page-not-found {
+  @apply flex flex-col w-full justify-center items-center;
+}
+
+div.page-not-found p {
+  @apply text-center text-xl m-5;
+}
+
+div.page-not-found span {
+  @apply block p-0 m-0;
+  @apply text-9xl font-semibold;
+}
+
+div.page-not-found a {
+  @apply text-sm font-bold underline text-indigo-600;
+}
+
 /***************************** BUILDING BLOCKS ******************************/
 
 div.toggle {
