@@ -199,19 +199,13 @@ div.data-card-monitor button.save-monitor {
 }
 
 p.page-not-found {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
+  @apply flex flex-col w-full justify-center items-center;
+  @apply m-0 p-0;
+  @apply text-xl;
 }
 
 p.page-not-found span {
-  font-size: 10rem;
-  display: block;
-  margin-bottom: 0;
+  @apply text-9xl font-semibold;
 }
 
 /***************************** BUILDING BLOCKS ******************************/
