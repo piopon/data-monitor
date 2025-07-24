@@ -198,6 +198,8 @@ div.data-card-monitor button.save-monitor {
   @apply bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-hidden focus:bg-indigo-600;
 }
 
+/***************************** PAGE NOT FOUND *******************************/
+
 div.page-not-found {
   @apply flex flex-col w-full justify-center items-center;
 }
