@@ -212,7 +212,7 @@ div.page-not-found span {
 }
 
 div.page-not-found a {
-  @apply text-sm font-bold;
+  @apply text-sm font-bold underline text-indigo-600;
 }
 
 /***************************** BUILDING BLOCKS ******************************/
