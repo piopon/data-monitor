@@ -7,7 +7,7 @@ async function checkData() {
   const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
   for (const monitor of enabledMonitors) {
     try {
-      const response = await fetch(`http://localhost:3000/api/scraper/data?name=${monitor.parent}`, {
+      const response = await fetch(`http://localhost:3000/api/scraper/data`, {
         method: "GET",
         headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
       });
