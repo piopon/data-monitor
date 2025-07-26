@@ -43,7 +43,7 @@ export class MonitorService {
       conditions.push(`parent = $${values.length}`);
     }
     if (filters.enabled) {
-      values.push("true" === filters.enabled);
+      values.push(filters.enabled);
       conditions.push(`enabled = $${values.length}`);
     }
     if (filters.threshold) {
