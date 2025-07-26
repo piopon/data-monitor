@@ -11,6 +11,10 @@ async function checkData() {
         method: "GET",
         headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
       });
+      if (!response.ok) {
+        console.error("Worker error: ", await response.text());
+        return;
+      }
       const data = await response.json();
       const items = data
         .flatMap((element) => element.items)
