@@ -1,8 +1,18 @@
+import { MonitorService } from "@/model/MonitorService";
+
 const INTERVAL = 60 * 1000;
 
-async function checkPrices() {
-  console.log("worker checking in...");
+async function checkData() {
+  const enabledMonitors = MonitorService.filterMonitors({ enabled: true });
+  for (const monitor of enabledMonitors) {
+    const response = await fetch(`http://localhost:3000/api/scraper/data?name=${monitor.parent}`, {
+      method: "GET",
+    });
+    if (response.items[0].price > monitor.threshold) {
+      console.log(`Sending notification: ${monitor.parent} over threshold!`);
+    }
+  }
 }
 
-setInterval(checkPrices, INTERVAL);
-checkPrices();
+setInterval(checkData, INTERVAL);
+checkData();
