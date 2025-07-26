@@ -15,6 +15,10 @@ async function checkData() {
       const items = data
         .flatMap((element) => element.items)
         .filter((item) => item.name.toLowerCase().replace(/\s+/g, "-") === monitor.parent);
+      if (items.length !== 1) {
+        console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
+        return;
+      }
       if (items[0].price > parseFloat(monitor.threshold)) {
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
       }
