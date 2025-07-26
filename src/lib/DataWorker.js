@@ -1,6 +1,7 @@
 import { MonitorService } from "../model/MonitorService.js";
+import waitOn from "wait-on";
 
-const INTERVAL = 60 * 1000;
+const INTERVAL = 60_000;
 
 async function checkData() {
   const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
@@ -18,6 +19,9 @@ async function checkData() {
     }
   }
 }
+
+//wait for Next.js server to be up and running before getting data
+await waitOn({ delay: 5000, interval: 1000, resources: ["http://localhost:3000"] });
 
 setInterval(checkData, INTERVAL);
 checkData();
