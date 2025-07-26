@@ -19,8 +19,10 @@ async function checkData() {
         console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
         return;
       }
-      if (items[0].price > parseFloat(monitor.threshold)) {
+      if (parseFloat(items[0].price) > parseFloat(monitor.threshold)) {
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
+      } else {
+        console.log(`${monitor.parent} does not meet its threshold yet ...`);
       }
     } catch (err) {
       console.error("Worker error: ", err.message);
