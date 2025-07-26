@@ -1,4 +1,4 @@
-import { MonitorService } from "@/model/MonitorService";
+import { MonitorService } from "../model/MonitorService.js";
 
 const INTERVAL = 60 * 1000;
 

@@ -1,5 +1,5 @@
-import { DatabaseQuery } from "@/lib/DatabaseQuery";
-import { Monitor } from "./Monitor";
+import { DatabaseQuery } from "../lib/DatabaseQuery.js";
+import { Monitor } from "./Monitor.js";
 
 export class MonitorService {
   static #DB_TABLE_NAME = Monitor.getTableName();

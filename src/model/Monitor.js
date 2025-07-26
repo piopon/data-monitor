@@ -1,4 +1,4 @@
-import { ModelUtils } from "@/lib/ModelUtils";
+import { ModelUtils } from "../lib/ModelUtils.js";
 
 export class Monitor {
   static #DB_TABLE_NAME = "monitor";
