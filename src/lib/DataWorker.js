@@ -11,7 +11,11 @@ async function checkData() {
         method: "GET",
         headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
       });
-      if (response.items[0].price > monitor.threshold) {
+      const data = await response.json();
+      const items = data
+        .flatMap((element) => element.items)
+        .filter((item) => item.name.toLowerCase().replace(/\s+/g, "-") === monitor.parent);
+      if (items[0].price > parseFloat(monitor.threshold)) {
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
       }
     } catch (err) {
