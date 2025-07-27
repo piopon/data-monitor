@@ -4,18 +4,18 @@ import waitOn from "wait-on";
 const INTERVAL = 60_000;
 
 async function checkData() {
-  const scraperResponse = await fetch(`http://localhost:3000/api/scraper/data`, {
-    method: "GET",
-    headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
-  });
-  if (!scraperResponse.ok) {
-    console.error("Worker error: ", await scraperResponse.text());
-    return;
-  }
-  const scraperData = await scraperResponse.json();
-  const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
-  for (const monitor of enabledMonitors) {
-    try {
+  try {
+    const scraperResponse = await fetch(`http://localhost:3000/api/scraper/data`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
+    });
+    if (!scraperResponse.ok) {
+      console.error("Worker error: ", await scraperResponse.text());
+      return;
+    }
+    const scraperData = await scraperResponse.json();
+    const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
+    for (const monitor of enabledMonitors) {
       const items = scraperData
         .flatMap((element) => element.items)
         .filter((item) => item.name.toLowerCase().replace(/\s+/g, "-") === monitor.parent);
@@ -28,9 +28,9 @@ async function checkData() {
       } else {
         console.log(`${monitor.parent} does not meet its threshold yet ...`);
       }
-    } catch (err) {
-      console.error("Worker error: ", err.message);
     }
+  } catch (err) {
+    console.error("Worker error: ", err.message);
   }
 }
 
