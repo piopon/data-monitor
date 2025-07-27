@@ -15,7 +15,7 @@ async function checkData() {
     }
     const scraperData = await scraperResponse.json();
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
-    for (const monitor of enabledMonitors) {
+    enabledMonitors.forEach(monitor => {
       const items = scraperData
         .flatMap((element) => element.items)
         .filter((item) => item.name.toLowerCase().replace(/\s+/g, "-") === monitor.parent);
@@ -41,7 +41,7 @@ async function checkData() {
       } else {
         console.log(`${monitor.parent} does not meet its threshold yet ...`);
       }
-    }
+    });
   } catch (err) {
     console.error("Worker error: ", err.message);
   }
