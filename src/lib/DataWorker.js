@@ -19,6 +19,7 @@ function verify(val1, operator, val2) {
 
 async function checkData() {
   try {
+    // get scraper data values for specified user
     const scraperResponse = await fetch(`http://localhost:3000/api/scraper/data`, {
       method: "GET",
       headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
@@ -28,8 +29,9 @@ async function checkData() {
       return;
     }
     const scraperData = await scraperResponse.json();
+    // find and compare threshold values for enabled monitors with scraper data
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
-    enabledMonitors.forEach(monitor => {
+    enabledMonitors.forEach((monitor) => {
       const items = scraperData
         .flatMap((element) => element.items)
         .filter((item) => item.name.toLowerCase().replace(/\s+/g, "-") === monitor.parent);
