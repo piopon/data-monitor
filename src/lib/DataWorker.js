@@ -3,6 +3,20 @@ import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
 
+function verify(val1, operator, val2) {
+  if ("<" === operator) {
+    return val1 < val2;
+  } else if ("≤" === operator) {
+    return val1 <= val2;
+  } else if ("≥" === operator) {
+    return val1 >= val2;
+  } else if (">" === operator) {
+    return val1 > val2;
+  } else {
+    return false;
+  }
+}
+
 async function checkData() {
   try {
     const scraperResponse = await fetch(`http://localhost:3000/api/scraper/data`, {
@@ -23,19 +37,6 @@ async function checkData() {
         console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
         return;
       }
-      const verify = (val1, operator, val2) => {
-        if ("<" === operator) {
-          return val1 < val2;
-        } else if ("≤" === operator) {
-          return val1 <= val2;
-        } else if ("≥" === operator) {
-          return val1 >= val2;
-        } else if (">" === operator) {
-          return val1 > val2;
-        } else {
-          return false;
-        }
-      };
       if (verify(parseFloat(items[0].price), monitor.condition, parseFloat(monitor.threshold))) {
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
       } else {
