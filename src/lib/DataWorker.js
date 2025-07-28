@@ -3,6 +3,13 @@ import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
 
+/**
+ * Method used to verify two input values against each other
+ * @param {Number} val1 First value to be verified
+ * @param {String} operator The operator used to verify both values
+ * @param {Number} val2 Second value to be verified
+ * @returns true of values are metting comparison, false otherwise
+ */
 function verify(val1, operator, val2) {
   if ("<" === operator) {
     return val1 < val2;
@@ -17,6 +24,9 @@ function verify(val1, operator, val2) {
   }
 }
 
+/**
+ * Main worker method used to check scraper data against threshold
+ */
 async function checkData() {
   try {
     // get scraper data values for specified user
