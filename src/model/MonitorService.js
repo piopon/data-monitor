@@ -1,5 +1,5 @@
-import { DatabaseQuery } from "@/lib/DatabaseQuery";
-import { Monitor } from "./Monitor";
+import { DatabaseQuery } from "../lib/DatabaseQuery.js";
+import { Monitor } from "./Monitor.js";
 
 export class MonitorService {
   static #DB_TABLE_NAME = Monitor.getTableName();
@@ -43,7 +43,7 @@ export class MonitorService {
       conditions.push(`parent = $${values.length}`);
     }
     if (filters.enabled) {
-      values.push("true" === filters.enabled);
+      values.push(filters.enabled);
       conditions.push(`enabled = $${values.length}`);
     }
     if (filters.threshold) {
