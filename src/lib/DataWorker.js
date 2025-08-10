@@ -1,4 +1,5 @@
 import { MonitorService } from "../model/MonitorService.js";
+import { DataUtils } from "./DataUtils.js";
 import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
@@ -44,7 +45,7 @@ async function checkData() {
     enabledMonitors.forEach((monitor) => {
       const items = scraperData
         .flatMap((element) => element.items)
-        .filter((item) => item.name.toLowerCase().replace(/\s+/g, "-") === monitor.parent);
+        .filter((item) => DataUtils.nameToId(item.name) === monitor.parent);
       if (items.length !== 1) {
         console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
         return;

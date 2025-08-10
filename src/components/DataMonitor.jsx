@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Monitor } from "@/model/Monitor";
+import { DataUtils } from "@/lib/DataUtils";
 import Toggle from "./Toggle";
 import Select from "./Select";
 
 const DataMonitor = ({ parentName }) => {
   const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email" };
-  const parentId = parentName.toLowerCase().replace(/\s+/g, "-");
+  const parentId = DataUtils.nameToId(parentName);
 
   const [id, setId] = useState(defaults.id);
   const [enabled, setEnabled] = useState(defaults.enabled);
