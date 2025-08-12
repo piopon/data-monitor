@@ -15,4 +15,14 @@ export class UserService {
       return { result: false, message: `Cannot initialize '${UserService.#DB_TABLE_NAME}' table: ${error.message}` };
     }
   }
+
+  static async getUsers() {
+    const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME}`);
+    return rows;
+  }
+
+  static async getUser(id) {
+    const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
+    return rows;
+  }
 }
