@@ -1,7 +1,7 @@
 import { ModelUtils } from "../lib/ModelUtils.js";
 
 export class User {
-  static #DB_TABLE_NAME = "user";
+  static #DB_TABLE_NAME = "users";
 
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});

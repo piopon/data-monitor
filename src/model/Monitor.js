@@ -1,7 +1,7 @@
 import { ModelUtils } from "../lib/ModelUtils.js";
 
 export class Monitor {
-  static #DB_TABLE_NAME = "monitor";
+  static #DB_TABLE_NAME = "monitors";
   static CONDITIONS = [
     { value: "<", text: "<" },
     { value: "≤", text: "≤" },
