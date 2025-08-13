@@ -12,7 +12,7 @@ export class UserService {
       );`);
       return { result: true, message: `Initialized '${UserService.#DB_TABLE_NAME}' table.` };
     } catch (error) {
-      return { result: false, message: `Cannot initialize '${UserService.#DB_TABLE_NAME}' table: ${error.message}` };
+      return { result: false, message: `Cannot initialize '${UserService.#DB_TABLE_NAME}' table: ${error.message}.` };
     }
   }
 
