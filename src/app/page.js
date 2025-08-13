@@ -47,9 +47,9 @@ export default function Home() {
 
       const users = await UserService.filterUsers({ email: email });
       if (users.length === 1) {
-        UserService.editUser(users[0].id, { jwt: data.token });
+        UserService.editUser(users[0].id, { email: email, jwt: data.token });
       } else {
-        UserService.addUser({ jwt: data.token });
+        UserService.addUser({ email: email, jwt: data.token });
       }
 
       router.replace("/data");

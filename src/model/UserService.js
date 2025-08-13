@@ -43,18 +43,19 @@ export class UserService {
   }
 
   static async addUser(data) {
-    const { jwt } = data;
-    const { rows } = await DatabaseQuery(`INSERT INTO ${UserService.#DB_TABLE_NAME} (jwt) VALUES ($1) RETURNING *`, [
-      jwt,
-    ]);
+    const { email, jwt } = data;
+    const { rows } = await DatabaseQuery(
+      `INSERT INTO ${UserService.#DB_TABLE_NAME} (email, jwt) VALUES ($1, $2) RETURNING *`,
+      [email, jwt]
+    );
     return rows[0];
   }
 
   static async editUser(id, data) {
-    const { jwt } = data;
+    const { email, jwt } = data;
     const { rows } = await DatabaseQuery(
-      `UPDATE ${UserService.#DB_TABLE_NAME} SET jwt = $1 WHERE id = $2 RETURNING *`,
-      [jwt, id]
+      `UPDATE ${UserService.#DB_TABLE_NAME} SET email = $1, jwt = $2 WHERE id = $3 RETURNING *`,
+      [email, jwt, id]
     );
     return rows[0];
   }
