@@ -21,8 +21,24 @@ export class UserService {
     return rows;
   }
 
-  static async getUser(id) {
-    const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
+  static async filterUsers(filters) {
+    const values = [];
+    const conditions = [];
+
+    if (filters.id) {
+      values.push(filters.id);
+      conditions.push(`id = $${values.length}`);
+    }
+    if (filters.email) {
+      values.push(filters.email);
+      conditions.push(`email = $${values.length}`);
+    }
+    if (filters.jwt) {
+      values.push(filters.jwt);
+      conditions.push(`jwt = $${values.length}`);
+    }
+    const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
+    const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME} ${whereClause}`, values);
     return rows;
   }
 
