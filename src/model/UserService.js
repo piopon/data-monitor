@@ -8,7 +8,7 @@ export class UserService {
     try {
       await DatabaseQuery(`
       CREATE TABLE IF NOT EXISTS ${UserService.#DB_TABLE_NAME} (
-        ${Monitor.getDatabaseSchema()}
+        ${User.getDatabaseSchema()}
       );`);
       return { result: true, message: `Initialized '${UserService.#DB_TABLE_NAME}' table.` };
     } catch (error) {
