@@ -5,11 +5,13 @@ export class User {
 
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
+    this.email = ModelUtils.getValueOrDefault(input.email, "");
     this.jwt = ModelUtils.getValueOrDefault(input.jwt, "");
   }
 
   static getDatabaseSchema() {
     return `id SERIAL PRIMARY KEY,
+            email TEXT NOT NULL UNIQUE,
             jwt TEXT NOT NULL UNIQUE`;
   }
 
