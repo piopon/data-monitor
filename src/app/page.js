@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import GuestAccess from "@/components/GuestAccess";
+import { UserService } from "@/model/UserService";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -43,6 +44,14 @@ export default function Home() {
         return;
       }
       login(data);
+
+      const users = await UserService.filterUsers({ email: email });
+      if (users.length === 1) {
+        UserService.editUser(users[0].id, { jwt: data.token });
+      } else {
+        UserService.addUser({ jwt: data.token });
+      }
+
       router.replace("/data");
       toast.success("Login successful!");
     } catch (e) {
