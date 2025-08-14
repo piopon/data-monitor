@@ -47,3 +47,22 @@ export async function POST(request) {
     });
   }
 }
+
+export async function PUT(request) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
+    const userData = await request.json();
+    const user = await UserService.editUser(id, userData);
+    return new Response(JSON.stringify(user), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const errorOutput = { message: `Cannot update user: ${error.message}` };
+    return new Response(JSON.stringify(errorOutput), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
