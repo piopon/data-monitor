@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import GuestAccess from "@/components/GuestAccess";
-import { UserService } from "@/model/UserService";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -45,11 +44,28 @@ export default function Home() {
       }
       login(data);
 
-      const users = await UserService.filterUsers({ email: email });
-      if (users.length === 1) {
-        UserService.editUser(users[0].id, { email: email, jwt: data.token });
-      } else {
-        UserService.addUser({ email: email, jwt: data.token });
+      const userResponse = await fetch(`/api/user?email=${email}`);
+      const userData = await userResponse.json();
+      if (!response.ok) {
+        toast.error(userData.message);
+        return;
+      }
+      if (data.length > 1) {
+        toast.error("Error: Received multiple user entries...");
+        return;
+      }
+
+      const exists = data.length === 1;
+      const idFilter = exists ? `?id=${userData[0].id}` : ``;
+      const monitorResponse = await fetch(`/api/user${idFilter}`, {
+        method: exists ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, jwt: data.token }),
+      });
+      const monitorData = await monitorResponse.json();
+      if (!monitorResponse.ok) {
+        toast.error(monitorData.message);
+        return;
       }
 
       router.replace("/data");
