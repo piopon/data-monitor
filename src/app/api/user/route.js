@@ -30,3 +30,20 @@ export async function GET(request) {
     });
   }
 }
+
+export async function POST(request) {
+  try {
+    const userData = await request.json();
+    const user = await UserService.addUser(userData);
+    return new Response(JSON.stringify(user), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const errorOutput = { message: `Cannot add new user: ${error.message}` };
+    return new Response(JSON.stringify(errorOutput), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
