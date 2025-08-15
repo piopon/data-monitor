@@ -44,27 +44,26 @@ export default function Home() {
       }
       login(data);
 
-      const userResponse = await fetch(`/api/user?email=${email}`);
-      const userData = await userResponse.json();
-      if (!response.ok) {
-        toast.error(userData.message);
+      const getUserResponse = await fetch(`/api/user?email=${email}`);
+      const getUserData = await getUserResponse.json();
+      if (!getUserResponse.ok) {
+        toast.error(getUserData.message);
         return;
       }
-      if (data.length > 1) {
+      if (getUserData.length > 1) {
         toast.error("Error: Received multiple user entries...");
         return;
       }
-
-      const exists = data.length === 1;
-      const idFilter = exists ? `?id=${userData[0].id}` : ``;
-      const monitorResponse = await fetch(`/api/user${idFilter}`, {
+      const exists = getUserData.length === 1;
+      const idFilter = exists ? `?id=${getUserData[0].id}` : ``;
+      const addUserResponse = await fetch(`/api/user${idFilter}`, {
         method: exists ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, jwt: data.token }),
       });
-      const monitorData = await monitorResponse.json();
-      if (!monitorResponse.ok) {
-        toast.error(monitorData.message);
+      const addUserData = await addUserResponse.json();
+      if (!addUserResponse.ok) {
+        toast.error(addUserData.message);
         return;
       }
 
