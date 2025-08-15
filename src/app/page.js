@@ -42,7 +42,6 @@ export default function Home() {
         toast.error(data.error);
         return;
       }
-      login(data);
 
       const getUserResponse = await fetch(`/api/user?email=${email}`);
       const getUserData = await getUserResponse.json();
@@ -67,6 +66,7 @@ export default function Home() {
         return;
       }
 
+      login(addUserData.id, data);
       router.replace("/data");
       toast.success("Login successful!");
     } catch (e) {
