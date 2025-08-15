@@ -1,4 +1,5 @@
 import { ModelUtils } from "../lib/ModelUtils.js";
+import { User } from "./User.js";
 
 export class Monitor {
   static #DB_TABLE_NAME = "monitors";
@@ -36,7 +37,8 @@ export class Monitor {
             enabled BOOLEAN DEFAULT false,
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL CHECK ${Monitor.#getConditionSchema()},
-            notifier TEXT NOT NULL`;
+            notifier TEXT NOT NULL,
+            user_id SERIAL REFERENCES ${User.getTableName()}(id)`;
   }
 
   /**
