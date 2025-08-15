@@ -4,6 +4,10 @@ import { User } from "./User.js";
 export class UserService {
   static #DB_TABLE_NAME = User.getTableName();
 
+  /**
+   * Method used to initialize database table for user data
+   * @returns object with initialize result and detailed info message
+   */
   static async initializeTable() {
     try {
       await DatabaseQuery(`
@@ -16,11 +20,20 @@ export class UserService {
     }
   }
 
+  /**
+   * Method used to receive all user saved in database
+   * @returns array of user objects from database
+   */
   static async getUsers() {
     const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME}`);
     return rows;
   }
 
+  /**
+   * Method used to receive users matching provided filter expression
+   * @param {String} query expression used to filter user objects
+   * @returns array of user objects matching filter expression
+   */
   static async filterUsers(filters) {
     const values = [];
     const conditions = [];
@@ -42,6 +55,11 @@ export class UserService {
     return rows;
   }
 
+  /**
+   * Method used to add provided user data to database
+   * @param {Object} data user object which we want to add to database
+   * @returns added user object
+   */
   static async addUser(data) {
     const { email, jwt } = data;
     const { rows } = await DatabaseQuery(
@@ -51,6 +69,12 @@ export class UserService {
     return rows[0];
   }
 
+  /**
+   * Method used to edit user data in the database
+   * @param {Number} id database identifier which we want to edit
+   * @param {Object} data user object which we want to add to database
+   * @returns updated user object
+   */
   static async editUser(id, data) {
     const { email, jwt } = data;
     const { rows } = await DatabaseQuery(
@@ -60,6 +84,11 @@ export class UserService {
     return rows[0];
   }
 
+  /**
+   * Method used to delete user data from the database
+   * @param {Number} id database identifier which we want to remove
+   * @returns number of deleted user object(s)
+   */
   static async deleteUser(id) {
     const { rowCount } = await DatabaseQuery(`DELETE FROM ${UserService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
     return rowCount > 0;

@@ -13,6 +13,10 @@ export class Monitor {
     { value: "discord", text: "discord" },
   ];
 
+  /**
+   * Creates a new monitor from input JS object
+   * @param {Object} object Input object from which to create monitor
+   */
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
     this.parent = ModelUtils.getValueOrDefault(input.parent, "");
@@ -22,6 +26,10 @@ export class Monitor {
     this.notifier = ModelUtils.getValueOrDefault(input.notifier, undefined);
   }
 
+  /**
+   * Method used to retrieve SQL DB schema for monitor object 
+   * @returns string containing SQL schema describing monitor object
+   */
   static getDatabaseSchema() {
     return `id SERIAL PRIMARY KEY,
             parent TEXT NOT NULL UNIQUE,
@@ -31,10 +39,18 @@ export class Monitor {
             notifier TEXT NOT NULL`;
   }
 
+  /**
+   * Method used to retrieve monitor DB table name
+   * @returns string with table name in DB
+   */
   static getTableName() {
     return Monitor.#DB_TABLE_NAME;
   }
 
+  /**
+   * Method used to retrieve monitor conditions in a schema suitable format
+   * @returns string with schema for condition field
+   */
   static #getConditionSchema() {
     return "(condition IN (" + Monitor.CONDITIONS.map(condition => `'${condition.text}'`).join(", ") + "))";
   }
