@@ -69,12 +69,12 @@ export class MonitorService {
    * @returns added monitor object
    */
   static async addMonitor(data) {
-    const { parent, enabled, threshold, condition, notifier } = data;
+    const { parent, enabled, threshold, condition, notifier, user } = data;
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${
         MonitorService.#DB_TABLE_NAME
-      } (parent, enabled, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [parent, enabled, threshold, condition, notifier]
+      } (parent, enabled, threshold, condition, notifier, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [parent, enabled, threshold, condition, notifier, user]
     );
     return rows[0];
   }
@@ -86,12 +86,12 @@ export class MonitorService {
    * @returns updated monitor object
    */
   static async editMonitor(id, data) {
-    const { parent, enabled, threshold, condition, notifier } = data;
+    const { parent, enabled, threshold, condition, notifier, user } = data;
     const { rows } = await DatabaseQuery(
       `UPDATE ${
         MonitorService.#DB_TABLE_NAME
-      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
-      [parent, enabled, threshold, condition, notifier, id]
+      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier = $5, user_id = $6 WHERE id = $7 RETURNING *`,
+      [parent, enabled, threshold, condition, notifier, user, id]
     );
     return rows[0];
   }
