@@ -58,6 +58,10 @@ export class MonitorService {
       values.push(filters.notifier);
       conditions.push(`notifier = $${values.length}`);
     }
+    if (filters.user) {
+      values.push(filters.user);
+      conditions.push(`user_id = $${values.length}`);
+    }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME} ${whereClause}`, values);
     return rows;

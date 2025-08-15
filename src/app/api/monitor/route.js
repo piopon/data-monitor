@@ -20,12 +20,14 @@ export async function GET(request) {
     const threshold = searchParams.get("threshold");
     const condition = searchParams.get("condition");
     const notifier = searchParams.get("notifier");
+    const user = searchParams.get("user");
     const monitors = await MonitorService.filterMonitors({
       ...(parent && { parent }),
       ...(enabled && { enabled }),
       ...(threshold && { threshold }),
       ...(condition && { condition }),
       ...(notifier && { notifier }),
+      ...(user && { user }),
     });
     return new Response(JSON.stringify(monitors), {
       status: 200,
