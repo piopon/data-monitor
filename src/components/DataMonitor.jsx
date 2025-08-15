@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { LoginContext } from "@/context/Contexts";
 import { Monitor } from "@/model/Monitor";
 import { DataUtils } from "@/lib/DataUtils";
 import Toggle from "./Toggle";
@@ -10,6 +11,7 @@ import Select from "./Select";
 const DataMonitor = ({ parentName }) => {
   const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email" };
   const parentId = DataUtils.nameToId(parentName);
+  const { userId } = useContext(LoginContext);
 
   const [id, setId] = useState(defaults.id);
   const [enabled, setEnabled] = useState(defaults.enabled);
@@ -48,7 +50,7 @@ const DataMonitor = ({ parentName }) => {
 
   const saveMonitor = async (event) => {
     event.preventDefault();
-    const monitor = { parent: parentId, enabled, threshold, condition, notifier };
+    const monitor = { parent: parentId, enabled, threshold, condition, notifier, userId };
     try {
       const exists = defaults.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;
