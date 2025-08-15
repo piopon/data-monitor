@@ -66,3 +66,22 @@ export async function PUT(request) {
     });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
+    const deletedNo = await UserService.deleteUser(id);
+    const response = { message: `Deleted ${deletedNo} user(s)` };
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const errorOutput = { message: `Cannot delete user: ${error.message}` };
+    return new Response(JSON.stringify(errorOutput), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
