@@ -30,7 +30,11 @@ const LoginProvider = ({ children }) => {
     setUserId(-1);
   };
 
-  return <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, userId }}>{children}</LoginContext.Provider>;
+  return (
+    <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, userId }}>
+      {children}
+    </LoginContext.Provider>
+  );
 };
 
 export default LoginProvider;
