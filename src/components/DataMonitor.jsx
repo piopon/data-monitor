@@ -50,7 +50,7 @@ const DataMonitor = ({ parentName }) => {
 
   const saveMonitor = async (event) => {
     event.preventDefault();
-    const monitor = { parent: parentId, enabled, threshold, condition, notifier, userId };
+    const monitor = { parent: parentId, enabled, threshold, condition, notifier, user: userId };
     try {
       const exists = defaults.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;
