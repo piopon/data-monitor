@@ -1,9 +1,23 @@
 import { MonitorService } from "@/model/MonitorService";
+import { UserService } from "@/model/UserService";
 
 export async function GET(request) {
+  const userInitResult = await UserService.initializeTable();
+  if (!userInitResult.result) {
+    return new Response(JSON.stringify(userInitResult.message), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
   const monitorInitResult = await MonitorService.initializeTable();
-  return new Response(JSON.stringify(monitorInitResult), {
-    status: monitorInitResult.result ? 200 : 500,
+  if (!monitorInitResult.result) {
+    return new Response(JSON.stringify(monitorInitResult.message), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  return new Response(JSON.stringify("Database initialized correctly."), {
+    status: 200,
     headers: { "Content-Type": "application/json" },
   });
 }

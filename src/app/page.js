@@ -28,6 +28,29 @@ export default function Home() {
     initialize();
   }, []);
 
+  const userSave = async (userData) => {
+    const getUserResponse = await fetch(`/api/user?email=${userData.email}`);
+    const getUserData = await getUserResponse.json();
+    if (!getUserResponse.ok) {
+      return { id: undefined, message: getUserData.message };
+    }
+    if (getUserData.length > 1) {
+      return { id: undefined, message: "Error: Received multiple user entries." };
+    }
+    const exists = getUserData.length === 1;
+    const idFilter = exists ? `?id=${getUserData[0].id}` : ``;
+    const addUserResponse = await fetch(`/api/user${idFilter}`, {
+      method: exists ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    });
+    const addUserData = await addUserResponse.json();
+    if (!addUserResponse.ok) {
+      return { id: undefined, message: addUserData.message };
+    }
+    return { id: addUserData.id, message: `User ${userData.email} saved.` };
+  };
+
   const userLogin = async (event) => {
     event.preventDefault();
     try {
@@ -42,7 +65,12 @@ export default function Home() {
         toast.error(data.error);
         return;
       }
-      login(data);
+      const saveResult = await userSave({ email: email, jwt: data.token });
+      if (saveResult.id == null) {
+        toast.error(saveResult.message);
+        return;
+      }
+      login(saveResult.id, data);
       router.replace("/data");
       toast.success("Login successful!");
     } catch (e) {

@@ -16,7 +16,7 @@ export class MonitorService {
       );`);
       return { result: true, message: `Initialized '${MonitorService.#DB_TABLE_NAME}' table.` };
     } catch (error) {
-      return { result: false, message: `Cannot initialize '${MonitorService.#DB_TABLE_NAME}' table: ${error.message}` };
+      return { result: false, message: `Cannot initialize '${MonitorService.#DB_TABLE_NAME}' table: ${error.message}.` };
     }
   }
 
@@ -58,6 +58,10 @@ export class MonitorService {
       values.push(filters.notifier);
       conditions.push(`notifier = $${values.length}`);
     }
+    if (filters.user) {
+      values.push(filters.user);
+      conditions.push(`user_id = $${values.length}`);
+    }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME} ${whereClause}`, values);
     return rows;
@@ -69,12 +73,12 @@ export class MonitorService {
    * @returns added monitor object
    */
   static async addMonitor(data) {
-    const { parent, enabled, threshold, condition, notifier } = data;
+    const { parent, enabled, threshold, condition, notifier, user } = data;
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${
         MonitorService.#DB_TABLE_NAME
-      } (parent, enabled, threshold, condition, notifier) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [parent, enabled, threshold, condition, notifier]
+      } (parent, enabled, threshold, condition, notifier, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [parent, enabled, threshold, condition, notifier, user]
     );
     return rows[0];
   }
@@ -86,12 +90,12 @@ export class MonitorService {
    * @returns updated monitor object
    */
   static async editMonitor(id, data) {
-    const { parent, enabled, threshold, condition, notifier } = data;
+    const { parent, enabled, threshold, condition, notifier, user } = data;
     const { rows } = await DatabaseQuery(
       `UPDATE ${
         MonitorService.#DB_TABLE_NAME
-      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier = $5 WHERE id = $6 RETURNING *`,
-      [parent, enabled, threshold, condition, notifier, id]
+      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier = $5, user_id = $6 WHERE id = $7 RETURNING *`,
+      [parent, enabled, threshold, condition, notifier, user, id]
     );
     return rows[0];
   }
