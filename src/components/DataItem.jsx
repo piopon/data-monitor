@@ -7,7 +7,7 @@ const DataItem = ({ item }) => {
   const valid = "OK" === item.status;
   const state = valid ? `✔️` : `❌`;
   const image = valid ? { src: item.icon, alt: `${item.name} logo` } : { src: unknown, alt: `Unknown logo` };
-  const value = valid ? `${item.price} ${item.currency}` : item.reason;
+  const value = valid ? `${item.data} ${item.extra}` : item.reason;
 
   return (
     <div className="data-card-item">
