@@ -8,7 +8,7 @@ import { ScraperRequest } from "@/lib/ScraperRequest";
  */
 export async function GET(request) {
   return ScraperRequest.GET(
-    AppConfig.getConfig().scraper.endpoints.items,
+    AppConfig.getConfig().scraper.endpoints.data,
     { Authorization: request.headers.get("authorization") || "" }
   );
 }
