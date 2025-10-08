@@ -7,8 +7,10 @@ import { ScraperRequest } from "@/lib/ScraperRequest";
  * @returns Response object with data items array values
  */
 export async function GET(request) {
+  const searchParams = request.nextUrl.searchParams;
+  const itemName = searchParams.get("name");
   return ScraperRequest.GET(
-    AppConfig.getConfig().scraper.endpoints.items,
+    `${AppConfig.getConfig().scraper.endpoints.items}?name=${itemName}`,
     { Authorization: request.headers.get("authorization") || "" }
   );
 }
