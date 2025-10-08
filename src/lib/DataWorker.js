@@ -30,23 +30,18 @@ function verify(val1, operator, val2) {
  */
 async function checkData() {
   try {
-    // get scraper data values for specified user
-    const scraperResponse = await fetch(`http://localhost:3000/api/scraper/items`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
-    });
-    if (!scraperResponse.ok) {
-      console.error("Worker error: ", await scraperResponse.text());
-      return;
-    }
-    const scraperData = await scraperResponse.json();
-    // find and compare threshold values for enabled monitors with scraper data
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
-    enabledMonitors.forEach((monitor) => {
-      const items = scraperData
-        .flatMap((element) => element.items)
-        .filter((item) => DataUtils.nameToId(item.name) === monitor.parent);
-      if (items.length !== 1) {
+    enabledMonitors.forEach(async (monitor) => {
+      const scraperResponse = await fetch(`http://localhost:3000/api/scraper/items?name=${monitor.parent}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
+      });
+      if (!scraperResponse.ok) {
+        console.error("Worker error: ", await scraperResponse.text());
+        return;
+      }
+      const scraperData = await scraperResponse.json();
+      if (scraperData.length !== 1) {
         console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
         return;
       }
