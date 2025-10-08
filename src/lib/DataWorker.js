@@ -32,6 +32,7 @@ async function checkData() {
   try {
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
     enabledMonitors.forEach(async (monitor) => {
+      // get scraper data item value for specified user's enabled monitor
       const scraperResponse = await fetch(`http://localhost:3000/api/scraper/items?name=${monitor.parent}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
@@ -48,7 +49,7 @@ async function checkData() {
       if (verify(parseFloat(items[0].price), monitor.condition, parseFloat(monitor.threshold))) {
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
       } else {
-        console.log(`${monitor.parent} does not meet its threshold yet ...`);
+        console.log(`${monitor.parent} does not meet its threshold value...`);
       }
     });
   } catch (err) {
