@@ -12,6 +12,7 @@ export class AppConfig {
         endpoints: {
           login: process.env.SCRAPER_URL_LOGIN || "/auth/token",
           data: process.env.SCRAPER_URL_DATA || "/api/v1/data",
+          items: process.env.SCRAPER_URL_ITEMS || "/api/v1/data/items",
           edit: process.env.SCRAPER_URL_EDIT || "?challenge=",
         },
       },
