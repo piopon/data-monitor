@@ -1,5 +1,5 @@
-import { UserService } from "@/model/UserService.js";
 import { MonitorService } from "../model/MonitorService.js";
+import { UserService } from "../model/UserService.js";
 import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
