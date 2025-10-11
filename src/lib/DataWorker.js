@@ -1,3 +1,4 @@
+import { UserService } from "@/model/UserService.js";
 import { MonitorService } from "../model/MonitorService.js";
 import waitOn from "wait-on";
 
@@ -59,5 +60,11 @@ async function checkData() {
 //wait for Next.js server to be up and running before getting data
 await waitOn({ delay: 5000, interval: 1000, resources: ["http://localhost:3000"] });
 
-setInterval(checkData, INTERVAL);
-checkData();
+UserService.getUsers()
+  .then((users) => {
+    users.forEach((user, index) => {
+      setInterval(checkData, INTERVAL);
+      checkData();
+    });
+  })
+  .catch((error) => console.error(`Worker error: cannot get users: ${error}`));
