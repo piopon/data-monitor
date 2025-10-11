@@ -1,5 +1,4 @@
 import { MonitorService } from "../model/MonitorService.js";
-import { DataUtils } from "./DataUtils.js";
 import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
