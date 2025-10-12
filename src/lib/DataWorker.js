@@ -4,6 +4,10 @@ import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /**
  * Method used to verify two input values against each other
  * @param {Number} val1 First value to be verified
@@ -63,6 +67,9 @@ await waitOn({ delay: 5000, interval: 1000, resources: ["http://localhost:3000"]
 UserService.getUsers()
   .then((users) => {
     users.forEach((user, index) => {
+      sleep((INTERVAL / 10) * index).then(() => {
+        console.log(`Worker info: started for user ${user.email}`);
+      });
       setInterval(checkData, INTERVAL, user.jwt);
       checkData(user.jwt);
     });
