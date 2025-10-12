@@ -4,6 +4,12 @@ import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
 
+/**
+ * Method used to stop program execution for specified number of milliseconds
+ * @note This method wraps setTimeout method into easy-to-use manner
+ * @param {Number} ms Number of milliseconds to stop program execution
+ * @returns promise with sleep result when user can invoke action to do after sleep
+ */
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
