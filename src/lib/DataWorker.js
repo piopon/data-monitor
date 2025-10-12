@@ -1,8 +1,18 @@
 import { MonitorService } from "../model/MonitorService.js";
-import { DataUtils } from "./DataUtils.js";
+import { UserService } from "../model/UserService.js";
 import waitOn from "wait-on";
 
 const INTERVAL = 60_000;
+
+/**
+ * Method used to stop program execution for specified number of milliseconds
+ * @note This method wraps setTimeout method into easy-to-use manner
+ * @param {Number} ms Number of milliseconds to stop program execution
+ * @returns promise with sleep result when user can invoke action to do after sleep
+ */
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 /**
  * Method used to verify two input values against each other
@@ -28,14 +38,14 @@ function verify(val1, operator, val2) {
 /**
  * Main worker method used to check scraper data against threshold
  */
-async function checkData() {
+async function checkData(userJwt) {
   try {
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
     enabledMonitors.forEach(async (monitor) => {
       // get scraper data item value for specified user's enabled monitor
       const scraperResponse = await fetch(`http://localhost:3000/api/scraper/items?name=${monitor.parent}`, {
         method: "GET",
-        headers: { Authorization: `Bearer ${process.env.TEMP_TOKEN}` },
+        headers: { Authorization: `Bearer ${userJwt}` },
       });
       if (!scraperResponse.ok) {
         console.error("Worker error: ", await scraperResponse.text());
@@ -57,8 +67,17 @@ async function checkData() {
   }
 }
 
-//wait for Next.js server to be up and running before getting data
+// wait for Next.js server to be up and running before getting data
 await waitOn({ delay: 5000, interval: 1000, resources: ["http://localhost:3000"] });
-
-setInterval(checkData, INTERVAL);
-checkData();
+// start data check logic for each user in database with appropriate delay
+UserService.getUsers()
+  .then((users) => {
+    users.forEach((user, index) => {
+      sleep((INTERVAL / 10) * index).then(() => {
+        console.log(`Worker info: started for user ${user.email}`);
+      });
+      setInterval(checkData, INTERVAL, user.jwt);
+      checkData(user.jwt);
+    });
+  })
+  .catch((error) => console.error(`Worker error: cannot get users: ${error}`));
