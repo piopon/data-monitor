@@ -61,9 +61,9 @@ async function checkData(userJwt) {
   }
 }
 
-//wait for Next.js server to be up and running before getting data
+// wait for Next.js server to be up and running before getting data
 await waitOn({ delay: 5000, interval: 1000, resources: ["http://localhost:3000"] });
-
+// start data check logic for each user in database with appropriate delay
 UserService.getUsers()
   .then((users) => {
     users.forEach((user, index) => {
