@@ -2,7 +2,7 @@ import { MonitorService } from "../model/MonitorService.js";
 import { UserService } from "../model/UserService.js";
 import waitOn from "wait-on";
 
-const INTERVAL = 60_000;
+const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
 
 /**
  * Method used to stop program execution for specified number of milliseconds
