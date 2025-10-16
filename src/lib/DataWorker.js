@@ -2,7 +2,10 @@ import { MonitorService } from "../model/MonitorService.js";
 import { UserService } from "../model/UserService.js";
 import waitOn from "wait-on";
 
-const INTERVAL = 60_000;
+const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
+const DELAY = process.env.CHECK_DELAY || 5_000;
+const WAIT = process.env.CHECK_WAIT || 1_000;
+const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 
 /**
  * Method used to stop program execution for specified number of milliseconds
@@ -37,13 +40,14 @@ function verify(val1, operator, val2) {
 
 /**
  * Main worker method used to check scraper data against threshold
+ * @param {String} userJwt Parent's user JSON web token value (needed to retrieve data)
  */
 async function checkData(userJwt) {
   try {
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
     enabledMonitors.forEach(async (monitor) => {
       // get scraper data item value for specified user's enabled monitor
-      const scraperResponse = await fetch(`http://localhost:3000/api/scraper/items?name=${monitor.parent}`, {
+      const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${userJwt}` },
       });
@@ -68,7 +72,7 @@ async function checkData(userJwt) {
 }
 
 // wait for Next.js server to be up and running before getting data
-await waitOn({ delay: 5000, interval: 1000, resources: ["http://localhost:3000"] });
+await waitOn({ delay: DELAY, interval: WAIT, resources: [SERVER_ADDRESS] });
 // start data check logic for each user in database with appropriate delay
 UserService.getUsers()
   .then((users) => {
