@@ -6,6 +6,7 @@ export class MailNotifier extends Notifier {
   #config = undefined;
 
   constructor(config) {
+    super();
     this.#config = config;
     this.#transporter = NodeMailer.createTransport({
       service: config.service,
