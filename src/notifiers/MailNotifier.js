@@ -3,8 +3,10 @@ import NodeMailer from "nodemailer";
 
 export class MailNotifier extends Notifier {
   #transporter = undefined;
+  #config = undefined;
 
   constructor(config) {
+    this.#config = config;
     this.#transporter = NodeMailer.createTransport({
       service: config.service,
       auth: {
@@ -16,7 +18,7 @@ export class MailNotifier extends Notifier {
 
   async notify(data) {
     const mailOptions = {
-      from: data.sender,
+      from: this.#config.address,
       to: data.receiver,
       subject: `[data-monitor] ${data.name} reached its threshold condition`,
       text: data.details,
