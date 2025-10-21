@@ -34,10 +34,10 @@ export class MailNotifier extends Notifier {
       text: data.details,
     };
     try {
-        await this.#transporter.sendMail(mailOptions);
-        return {result: true, info: `Email sent to ${data.receiver}`};
+      await this.#transporter.sendMail(mailOptions);
+      return { result: true, info: `Email sent to ${data.receiver}` };
     } catch (error) {
-        return {result: false, info: `Cannot send email to ${data.receiver}: ${error}`};
+      return { result: false, info: `Cannot send email to ${data.receiver}: ${error}` };
     }
   }
 }
