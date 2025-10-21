@@ -1,5 +1,5 @@
 export class Notifier {
-    notify(data) {
+    async notify(data) {
         console.error("Please select a valid notifier.")
         return false;
     }
