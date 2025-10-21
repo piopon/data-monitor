@@ -5,6 +5,10 @@ export class MailNotifier extends Notifier {
   #transporter = undefined;
   #config = undefined;
 
+  /**
+   * Creates a new mail notifier with the specified configuration
+   * @param {Object} config Input configurationn used to create SMTP transport layer
+   */
   constructor(config) {
     super();
     this.#config = config;
@@ -17,6 +21,11 @@ export class MailNotifier extends Notifier {
     });
   }
 
+  /**
+   * Method used to notify the user about data reaching threshold
+   * @param {Object} data The notification values to be sent
+   * @returns true when notification succeeds, false otherwise
+   */
   async notify(data) {
     const mailOptions = {
       from: this.#config.address,
