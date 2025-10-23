@@ -1,3 +1,4 @@
+import { Monitor } from "../model/Monitor.js";
 import { MonitorService } from "../model/MonitorService.js";
 import { UserService } from "../model/UserService.js";
 import waitOn from "wait-on";
@@ -62,6 +63,10 @@ async function checkData(userJwt) {
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
+        Monitor.NOTIFIERS.filter((notifier) => monitor.notifier === notifier.value).forEach((notifier) => {
+          const res = notifier.handler.notify({ receiver: "", name: monitor.parent, details: "TEST" });
+          console.log(res.info);
+        });
       } else {
         console.log(`${monitor.parent} does not meet its threshold value...`);
       }

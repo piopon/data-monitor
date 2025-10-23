@@ -1,3 +1,5 @@
+import { AppConfig } from "@/config/AppConfig.js";
+import { MailNotifier } from "@/notifiers/MailNotifier.js";
 import { ModelUtils } from "../lib/ModelUtils.js";
 import { User } from "./User.js";
 
@@ -10,7 +12,7 @@ export class Monitor {
     { value: "≥", text: "≥" },
   ];
   static NOTIFIERS = [
-    { value: "email", text: "email" },
+    { value: "email", text: "email", handler: new MailNotifier(AppConfig.getConfig().notifier.mail) },
     { value: "discord", text: "discord" },
   ];
 
