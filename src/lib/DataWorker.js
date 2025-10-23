@@ -64,7 +64,7 @@ async function checkData(user) {
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
         Monitor.NOTIFIERS.filter((notifier) => monitor.notifier === notifier.value).forEach((notifier) => {
-          const res = notifier.handler.notify({ receiver: "", name: monitor.parent, details: "TEST" });
+          const res = notifier.handler.notify({ receiver: user.email, name: monitor.parent, details: "TEST" });
           console.log(res.info);
         });
       } else {
