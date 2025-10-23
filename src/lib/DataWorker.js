@@ -43,14 +43,14 @@ function verify(val1, operator, val2) {
  * Main worker method used to check scraper data against threshold
  * @param {String} userJwt Parent's user JSON web token value (needed to retrieve data)
  */
-async function checkData(userJwt) {
+async function checkData(user) {
   try {
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
     enabledMonitors.forEach(async (monitor) => {
       // get scraper data item value for specified user's enabled monitor
       const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
         method: "GET",
-        headers: { Authorization: `Bearer ${userJwt}` },
+        headers: { Authorization: `Bearer ${user.jwt}` },
       });
       if (!scraperResponse.ok) {
         console.error("Worker error: ", await scraperResponse.text());
@@ -85,8 +85,8 @@ UserService.getUsers()
       sleep((INTERVAL / 10) * index).then(() => {
         console.log(`Worker info: started for user ${user.email}`);
       });
-      setInterval(checkData, INTERVAL, user.jwt);
-      checkData(user.jwt);
+      setInterval(checkData, INTERVAL, user);
+      checkData(user);
     });
   })
   .catch((error) => console.error(`Worker error: cannot get users: ${error}`));
