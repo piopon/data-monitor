@@ -8,5 +8,9 @@ export async function POST(request) {
   if (notifierType === "email") {
     var notifier = new MailNotifier(AppConfig.getConfig().notifier.mail);
   }
-  return new Response(notifierType, { status: 200 });
+  const res = await notifier.notify(notifierData);
+  return new Response(JSON.stringify(res.info), {
+    status: res.result ? 200 : 400,
+    headers: { "Content-Type": "application/json" },
+  });
 }
