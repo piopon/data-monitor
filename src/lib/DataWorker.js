@@ -41,7 +41,7 @@ function verify(val1, operator, val2) {
 
 /**
  * Main worker method used to check scraper data against threshold
- * @param {String} userJwt Parent's user JSON web token value (needed to retrieve data)
+ * @param {Object} user Parent user for which we want to check data
  */
 async function checkData(user) {
   try {
