@@ -39,6 +39,13 @@ function verify(val1, operator, val2) {
   }
 }
 
+function updateSentTimestamp(monitorId) {
+  const sentTimeStamps = new Map();
+  sentTimeStamps[monitorId] = Date.now();
+  const fileContent = JSON.stringify(Object.fromEntries(sentTimeStamps))
+  fs.writeFileSync("sent-timestamps.json", fileContent);
+}
+
 /**
  * Main worker method used to check scraper data against threshold
  * @param {Object} user Parent user for which we want to check data
