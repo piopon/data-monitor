@@ -11,6 +11,7 @@ const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const FILE_PATH = 'sent-timestamps.json'
 const SENT_TIMESTAMPS = new Map();
+const SEND_INTERVAL_SECONDS = 1 * 60 * 60;
 
 /**
  * Method used to stop program execution for specified number of milliseconds
@@ -86,7 +87,7 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        if (sentInTheLast(monitor.parent, 150)) {
+        if (sentInTheLast(monitor.parent, SEND_INTERVAL_SECONDS)) {
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
