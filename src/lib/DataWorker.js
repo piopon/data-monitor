@@ -80,6 +80,7 @@ async function checkData(user) {
             console.error(`Notification ERROR: ${await notifyResponse.json()}`);
             return;
           }
+          updateSentTimestamp(monitor.parent);
           console.log(`Notification OK: ${await notifyResponse.json()}`);
         });
       } else {
