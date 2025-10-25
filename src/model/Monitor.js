@@ -10,7 +10,7 @@ export class Monitor {
     { value: "≥", text: "≥" },
   ];
   static NOTIFIERS = [
-    { value: "email", text: "email", api: "api/notifier?type=email" },
+    { value: "email", text: "email" },
     { value: "discord", text: "discord" },
   ];
 
