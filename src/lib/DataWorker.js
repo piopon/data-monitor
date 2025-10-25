@@ -7,6 +7,8 @@ const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
 const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
+const FILE_PATH = 'sent-timestamps.json'
+const SENT_TIMESTAMPS = new Map();
 
 /**
  * Method used to stop program execution for specified number of milliseconds
@@ -40,10 +42,9 @@ function verify(val1, operator, val2) {
 }
 
 function updateSentTimestamp(monitorId) {
-  const sentTimeStamps = new Map();
-  sentTimeStamps[monitorId] = Date.now();
-  const fileContent = JSON.stringify(Object.fromEntries(sentTimeStamps))
-  fs.writeFileSync("sent-timestamps.json", fileContent);
+  SENT_TIMESTAMPS[monitorId] = Date.now();
+  const fileContent = JSON.stringify(Object.fromEntries(SENT_TIMESTAMPS))
+  fs.writeFileSync(FILE_PATH, fileContent);
 }
 
 /**
