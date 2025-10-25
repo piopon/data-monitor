@@ -85,6 +85,9 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
+        if (sentInTheLast(monitor.parent, 150)) {
+          return;
+        }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
         Monitor.NOTIFIERS.filter((notifier) => monitor.notifier === notifier.value).forEach(async (notifier) => {
           const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier.value}`, {
