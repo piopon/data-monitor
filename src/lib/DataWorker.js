@@ -43,7 +43,7 @@ function verify(val1, operator, val2) {
   }
 }
 
-function sentInTheLast(monitorId, time) {
+function sentInTheLast(monitorId, timeSeconds) {
   if (SENT_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
     const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
     for (const [key, value] of Object.entries(fileContent)) {
@@ -53,7 +53,8 @@ function sentInTheLast(monitorId, time) {
   if (SENT_TIMESTAMPS.has(monitorId) === false) {
     return false;
   }
-  return true;
+  const sentDiff = Math.abs(Date.now()-SENT_TIMESTAMPS.get(monitorId));
+  return sentDiff <= timeSeconds * 1_000;
 }
 
 function updateSentTimestamp(monitorId) {
