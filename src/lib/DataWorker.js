@@ -88,6 +88,7 @@ async function checkData(user) {
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
         if (sentInTheLast(monitor.parent, SEND_INTERVAL_SECONDS)) {
+          console.log(`${monitor.parent} notification was sent in the last ${SEND_INTERVAL_SECONDS} seconds. Skipping.`);
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
