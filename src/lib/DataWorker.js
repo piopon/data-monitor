@@ -1,7 +1,9 @@
 import { Monitor } from "../model/Monitor.js";
 import { MonitorService } from "../model/MonitorService.js";
 import { UserService } from "../model/UserService.js";
+
 import waitOn from "wait-on";
+import fs from "fs"
 
 const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
 const DELAY = process.env.CHECK_DELAY || 5_000;
