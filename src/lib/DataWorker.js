@@ -43,6 +43,19 @@ function verify(val1, operator, val2) {
   }
 }
 
+function sentInTheLast(monitorId, time) {
+  if (SENT_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
+    const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
+    for (const [key, value] of Object.entries(fileContent)) {
+      SENT_TIMESTAMPS[key] = value;
+    }
+  }
+  if (SENT_TIMESTAMPS.has(monitorId) === false) {
+    return false;
+  }
+  return true;
+}
+
 function updateSentTimestamp(monitorId) {
   SENT_TIMESTAMPS[monitorId] = Date.now();
   const fileContent = JSON.stringify(Object.fromEntries(SENT_TIMESTAMPS))
