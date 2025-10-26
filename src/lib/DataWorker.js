@@ -10,7 +10,7 @@ const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL_SECONDS = process.env.CHECK_NOTIFY || 1 * 60 * 60;
-const SENT_TIMESTAMPS = new Map();
+const SEND_TIMESTAMPS = new Map();
 const FILE_PATH = 'sent-timestamps.json'
 
 /**
@@ -51,16 +51,16 @@ function verify(val1, operator, val2) {
  * @returns true when notification was sent in the time frame, false otherwise
  */
 function sentInTheLast(monitorId, timeSeconds) {
-  if (SENT_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
+  if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
     const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
     for (const [key, value] of Object.entries(fileContent)) {
-      SENT_TIMESTAMPS.set(key, value);
+      SEND_TIMESTAMPS.set(key, value);
     }
   }
-  if (SENT_TIMESTAMPS.has(monitorId) === false) {
+  if (SEND_TIMESTAMPS.has(monitorId) === false) {
     return false;
   }
-  const sentDiff = Math.abs(Date.now()-SENT_TIMESTAMPS.get(monitorId));
+  const sentDiff = Math.abs(Date.now()-SEND_TIMESTAMPS.get(monitorId));
   return sentDiff <= timeSeconds * 1_000;
 }
 
@@ -69,8 +69,8 @@ function sentInTheLast(monitorId, timeSeconds) {
  * @param {String} monitorId The monitor name identificer for which we want to update timestamp
  */
 function updateSentTimestamp(monitorId) {
-  SENT_TIMESTAMPS.set(monitorId, Date.now());
-  const fileContent = JSON.stringify(Object.fromEntries(SENT_TIMESTAMPS))
+  SEND_TIMESTAMPS.set(monitorId, Date.now());
+  const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS))
   fs.writeFileSync(FILE_PATH, fileContent);
 }
 
