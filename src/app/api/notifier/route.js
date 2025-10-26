@@ -1,6 +1,11 @@
 import { AppConfig } from "@/config/AppConfig";
 import { MailNotifier } from "@/notifiers/MailNotifier";
 
+/**
+ * Method used to send the notifier POST request to send notification
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing notification sent result
+ */
 export async function POST(request) {
   const notifierType = request.nextUrl.searchParams.get("type");
   if (notifierType === "email") {

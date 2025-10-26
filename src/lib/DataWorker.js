@@ -44,6 +44,12 @@ function verify(val1, operator, val2) {
   }
 }
 
+/**
+ * Method used to check if the monitor notification was sent in the last seconds
+ * @param {String} monitorId The monitor name identifier for which we want to check notification
+ * @param {Number} timeSeconds The number of seconds defining notification sent time frame
+ * @returns true when notification was sent in the time frame, false otherwise
+ */
 function sentInTheLast(monitorId, timeSeconds) {
   if (SENT_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
     const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
@@ -58,6 +64,10 @@ function sentInTheLast(monitorId, timeSeconds) {
   return sentDiff <= timeSeconds * 1_000;
 }
 
+/**
+ * Method used to update notification sent timestamp for the provided monitor
+ * @param {String} monitorId The monitor name identificer for which we want to update timestamp
+ */
 function updateSentTimestamp(monitorId) {
   SENT_TIMESTAMPS.set(monitorId, Date.now());
   const fileContent = JSON.stringify(Object.fromEntries(SENT_TIMESTAMPS))
