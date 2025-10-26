@@ -50,7 +50,7 @@ function verify(val1, operator, val2) {
  * @param {Number} timeSeconds The number of seconds defining notification sent time frame
  * @returns true when notification was sent in the time frame, false otherwise
  */
-function sentInTheLast(monitorId, timeSeconds) {
+function checkSendTimestamp(monitorId, time) {
   if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
     const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
     for (const [key, value] of Object.entries(fileContent)) {
@@ -61,14 +61,14 @@ function sentInTheLast(monitorId, timeSeconds) {
     return false;
   }
   const sentDiff = Math.abs(Date.now()-SEND_TIMESTAMPS.get(monitorId));
-  return sentDiff <= timeSeconds * 1_000;
+  return sentDiff <= time * 1_000;
 }
 
 /**
  * Method used to update notification sent timestamp for the provided monitor
  * @param {String} monitorId The monitor name identificer for which we want to update timestamp
  */
-function updateSentTimestamp(monitorId) {
+function updateSendTimestamp(monitorId) {
   SEND_TIMESTAMPS.set(monitorId, Date.now());
   const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS))
   fs.writeFileSync(FILE_PATH, fileContent);
@@ -97,7 +97,7 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        if (sentInTheLast(monitor.parent, SEND_INTERVAL_SECONDS)) {
+        if (checkSendTimestamp(monitor.parent, SEND_INTERVAL_SECONDS)) {
           console.log(`${monitor.parent} notification was sent in the last ${SEND_INTERVAL_SECONDS} seconds. Skipping.`);
           return;
         }
@@ -111,7 +111,7 @@ async function checkData(user) {
             console.error(`Notification ERROR: ${await notifyResponse.json()}`);
             return;
           }
-          updateSentTimestamp(monitor.parent);
+          updateSendTimestamp(monitor.parent);
           console.log(`Notification OK: ${await notifyResponse.json()}`);
         });
       } else {
