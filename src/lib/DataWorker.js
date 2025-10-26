@@ -3,7 +3,7 @@ import { MonitorService } from "../model/MonitorService.js";
 import { UserService } from "../model/UserService.js";
 
 import waitOn from "wait-on";
-import fs from "fs"
+import fs from "fs";
 
 const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
 const DELAY = process.env.CHECK_DELAY || 5_000;
@@ -11,7 +11,7 @@ const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
 const SEND_TIMESTAMPS = new Map();
-const FILE_PATH = 'sent-timestamps.json'
+const FILE_PATH = "sent-timestamps.json";
 
 /**
  * Method used to stop program execution for specified number of milliseconds
@@ -45,9 +45,9 @@ function verify(val1, operator, val2) {
 }
 
 /**
- * Method used to check if the monitor notification was sent in the last seconds
- * @param {String} monitorId The monitor name identifier for which we want to check notification
- * @param {Number} timeSeconds The number of seconds defining notification sent time frame
+ * Method used to check if notification send timestamp is within provided time frame
+ * @param {String} monitorId The monitor name identifier for which we want to check
+ * @param {Number} time The number of milliseconds defining notification sent time frame
  * @returns true when notification was sent in the time frame, false otherwise
  */
 function checkSendTimestamp(monitorId, time) {
@@ -60,7 +60,7 @@ function checkSendTimestamp(monitorId, time) {
   if (SEND_TIMESTAMPS.has(monitorId) === false) {
     return false;
   }
-  const sentDiff = Math.abs(Date.now()-SEND_TIMESTAMPS.get(monitorId));
+  const sentDiff = Math.abs(Date.now() - SEND_TIMESTAMPS.get(monitorId));
   return sentDiff <= time;
 }
 
@@ -70,7 +70,7 @@ function checkSendTimestamp(monitorId, time) {
  */
 function updateSendTimestamp(monitorId) {
   SEND_TIMESTAMPS.set(monitorId, Date.now());
-  const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS))
+  const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS));
   fs.writeFileSync(FILE_PATH, fileContent);
 }
 
@@ -98,7 +98,9 @@ async function checkData(user) {
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
         if (checkSendTimestamp(monitor.parent, SEND_INTERVAL)) {
-          console.log(`${monitor.parent} notification was sent in the last ${SEND_INTERVAL/1_000} seconds. Skipping.`);
+          console.log(
+            `${monitor.parent} notification was sent in the last ${SEND_INTERVAL / 1_000} seconds. Skipping.`
+          );
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
