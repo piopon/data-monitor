@@ -9,9 +9,9 @@ const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
 const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
-const FILE_PATH = 'sent-timestamps.json'
+const SEND_INTERVAL_SECONDS = process.env.CHECK_NOTIFY || 1 * 60 * 60;
 const SENT_TIMESTAMPS = new Map();
-const SEND_INTERVAL_SECONDS = 1 * 60 * 60;
+const FILE_PATH = 'sent-timestamps.json'
 
 /**
  * Method used to stop program execution for specified number of milliseconds
