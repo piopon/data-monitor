@@ -9,7 +9,7 @@ const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
 const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
-const SEND_INTERVAL_SECONDS = process.env.CHECK_NOTIFY || 1 * 60 * 60;
+const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
 const SEND_TIMESTAMPS = new Map();
 const FILE_PATH = 'sent-timestamps.json'
 
@@ -61,7 +61,7 @@ function checkSendTimestamp(monitorId, time) {
     return false;
   }
   const sentDiff = Math.abs(Date.now()-SEND_TIMESTAMPS.get(monitorId));
-  return sentDiff <= time * 1_000;
+  return sentDiff <= time;
 }
 
 /**
@@ -97,8 +97,8 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        if (checkSendTimestamp(monitor.parent, SEND_INTERVAL_SECONDS)) {
-          console.log(`${monitor.parent} notification was sent in the last ${SEND_INTERVAL_SECONDS} seconds. Skipping.`);
+        if (checkSendTimestamp(monitor.parent, SEND_INTERVAL)) {
+          console.log(`${monitor.parent} notification was sent in the last ${SEND_INTERVAL/1_000} seconds. Skipping.`);
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
