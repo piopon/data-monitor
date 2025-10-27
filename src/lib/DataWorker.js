@@ -1,11 +1,17 @@
+import { Monitor } from "../model/Monitor.js";
 import { MonitorService } from "../model/MonitorService.js";
 import { UserService } from "../model/UserService.js";
+
 import waitOn from "wait-on";
+import fs from "fs";
 
 const INTERVAL = process.env.CHECK_INTERVAL || 60_000;
 const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
+const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
+const SEND_TIMESTAMPS = new Map();
+const FILE_PATH = "sent-timestamps.json";
 
 /**
  * Method used to stop program execution for specified number of milliseconds
@@ -39,17 +45,47 @@ function verify(val1, operator, val2) {
 }
 
 /**
- * Main worker method used to check scraper data against threshold
- * @param {String} userJwt Parent's user JSON web token value (needed to retrieve data)
+ * Method used to check if notification send timestamp is within provided time frame
+ * @param {String} monitorId The monitor name identifier for which we want to check
+ * @param {Number} time The number of milliseconds defining notification sent time frame
+ * @returns true when notification was sent in the time frame, false otherwise
  */
-async function checkData(userJwt) {
+function checkSendTimestamp(monitorId, time) {
+  if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
+    const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
+    for (const [key, value] of Object.entries(fileContent)) {
+      SEND_TIMESTAMPS.set(key, value);
+    }
+  }
+  if (SEND_TIMESTAMPS.has(monitorId) === false) {
+    return false;
+  }
+  const sentDiff = Math.abs(Date.now() - SEND_TIMESTAMPS.get(monitorId));
+  return sentDiff <= time;
+}
+
+/**
+ * Method used to update notification sent timestamp for the provided monitor
+ * @param {String} monitorId The monitor name identificer for which we want to update timestamp
+ */
+function updateSendTimestamp(monitorId) {
+  SEND_TIMESTAMPS.set(monitorId, Date.now());
+  const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS));
+  fs.writeFileSync(FILE_PATH, fileContent);
+}
+
+/**
+ * Main worker method used to check scraper data against threshold
+ * @param {Object} user Parent user for which we want to check data
+ */
+async function checkData(user) {
   try {
     const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
     enabledMonitors.forEach(async (monitor) => {
       // get scraper data item value for specified user's enabled monitor
       const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
         method: "GET",
-        headers: { Authorization: `Bearer ${userJwt}` },
+        headers: { Authorization: `Bearer ${user.jwt}` },
       });
       if (!scraperResponse.ok) {
         console.error("Worker error: ", await scraperResponse.text());
@@ -61,7 +97,27 @@ async function checkData(userJwt) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
+        if (checkSendTimestamp(monitor.parent, SEND_INTERVAL)) {
+          console.log(
+            `${monitor.parent} notification was sent in the last ${SEND_INTERVAL / 1_000} seconds. Skipping.`
+          );
+          return;
+        }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
+        Monitor.NOTIFIERS.filter((notifier) => monitor.notifier === notifier.value).forEach(async (notifier) => {
+          const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
+          const message = `Monitored value reached its threshold condition: ${condition}`;
+          const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier.value}`, {
+            method: "POST",
+            body: JSON.stringify({ receiver: user.email, name: monitor.parent, details: message }),
+          });
+          if (!notifyResponse.ok) {
+            console.error(`Notification ERROR: ${await notifyResponse.json()}`);
+            return;
+          }
+          updateSendTimestamp(monitor.parent);
+          console.log(`Notification OK: ${await notifyResponse.json()}`);
+        });
       } else {
         console.log(`${monitor.parent} does not meet its threshold value...`);
       }
@@ -80,8 +136,8 @@ UserService.getUsers()
       sleep((INTERVAL / 10) * index).then(() => {
         console.log(`Worker info: started for user ${user.email}`);
       });
-      setInterval(checkData, INTERVAL, user.jwt);
-      checkData(user.jwt);
+      setInterval(checkData, INTERVAL, user);
+      checkData(user);
     });
   })
   .catch((error) => console.error(`Worker error: cannot get users: ${error}`));

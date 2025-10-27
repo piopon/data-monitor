@@ -27,7 +27,7 @@ export class AppConfig {
         mail: {
           service: process.env.NOTIFIER_MAIL_SERVICE || "gmail",
           address: process.env.NOTIFIER_MAIL_ADDRESS || "",
-          password: process.env.NOTIFIER_MAIL_PASSWORD || ""
+          password: process.env.NOTIFIER_MAIL_PASSWORD || "",
         },
       }
     };

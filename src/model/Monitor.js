@@ -28,7 +28,7 @@ export class Monitor {
   }
 
   /**
-   * Method used to retrieve SQL DB schema for monitor object 
+   * Method used to retrieve SQL DB schema for monitor object
    * @returns string containing SQL schema describing monitor object
    */
   static getDatabaseSchema() {
@@ -54,6 +54,6 @@ export class Monitor {
    * @returns string with schema for condition field
    */
   static #getConditionSchema() {
-    return "(condition IN (" + Monitor.CONDITIONS.map(condition => `'${condition.text}'`).join(", ") + "))";
+    return "(condition IN (" + Monitor.CONDITIONS.map((condition) => `'${condition.text}'`).join(", ") + "))";
   }
 }
