@@ -44,6 +44,10 @@ function verify(val1, operator, val2) {
   }
 }
 
+function getUserTimestampFile(user) {
+  return `${SEND_ROOT_DIR}/${user.email}_timestamps.json`;
+}
+
 /**
  * Method used to check if notification send timestamp is within provided time frame
  * @param {String} monitorId The monitor name identifier for which we want to check
