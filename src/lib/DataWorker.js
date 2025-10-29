@@ -44,6 +44,11 @@ function verify(val1, operator, val2) {
   }
 }
 
+/**
+ * Method used to retrieve user's send timestamp file name
+ * @param {Object} user The user for which we want to get the file name
+ * @returns path with input user's timestamp file name
+ */
 function getUserTimestampFile(user) {
   return `${SEND_ROOT_DIR}/${user.email}_timestamps.json`;
 }
