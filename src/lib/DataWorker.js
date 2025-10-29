@@ -11,7 +11,7 @@ const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
 const SEND_TIMESTAMPS = new Map();
-const FILE_PATH = "sent-timestamps.json";
+const SEND_ROOT_DIR = "users";
 
 /**
  * Method used to stop program execution for specified number of milliseconds
@@ -129,6 +129,8 @@ async function checkData(user) {
 
 // wait for Next.js server to be up and running before getting data
 await waitOn({ delay: DELAY, interval: WAIT, resources: [SERVER_ADDRESS] });
+// create parent directory for all worker's files
+fs.mkdirSync(SEND_ROOT_DIR, {mode: 777, recursive:true});
 // start data check logic for each user in database with appropriate delay
 UserService.getUsers()
   .then((users) => {
