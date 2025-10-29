@@ -11,7 +11,7 @@ const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
 const SEND_TIMESTAMPS = new Map();
-const FILE_PATH = "sent-timestamps.json";
+const SEND_ROOT_DIR = "users";
 
 /**
  * Method used to stop program execution for specified number of milliseconds
@@ -45,14 +45,25 @@ function verify(val1, operator, val2) {
 }
 
 /**
+ * Method used to retrieve user's send timestamp file name
+ * @param {Object} user The user for which we want to get the file name
+ * @returns path with input user's timestamp file name
+ */
+function getUserTimestampFile(user) {
+  return `${SEND_ROOT_DIR}/${user.email}_timestamps.json`;
+}
+
+/**
  * Method used to check if notification send timestamp is within provided time frame
+ * @param {Object} user The user for which we want to check the send timestamp value
  * @param {String} monitorId The monitor name identifier for which we want to check
  * @param {Number} time The number of milliseconds defining notification sent time frame
  * @returns true when notification was sent in the time frame, false otherwise
  */
-function checkSendTimestamp(monitorId, time) {
-  if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
-    const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
+function checkSendTimestamp(user, monitorId, time) {
+  const timestampFile = getUserTimestampFile(user);
+  if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(timestampFile)) {
+    const fileContent = JSON.parse(fs.readFileSync(timestampFile));
     for (const [key, value] of Object.entries(fileContent)) {
       SEND_TIMESTAMPS.set(key, value);
     }
@@ -66,12 +77,13 @@ function checkSendTimestamp(monitorId, time) {
 
 /**
  * Method used to update notification sent timestamp for the provided monitor
+ * @param {Object} user The user for which we want to update the send timestamp value
  * @param {String} monitorId The monitor name identificer for which we want to update timestamp
  */
-function updateSendTimestamp(monitorId) {
+function updateSendTimestamp(user, monitorId) {
   SEND_TIMESTAMPS.set(monitorId, Date.now());
   const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS));
-  fs.writeFileSync(FILE_PATH, fileContent);
+  fs.writeFileSync(getUserTimestampFile(user), fileContent);
 }
 
 /**
@@ -97,7 +109,7 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        if (checkSendTimestamp(monitor.parent, SEND_INTERVAL)) {
+        if (checkSendTimestamp(user, monitor.parent, SEND_INTERVAL)) {
           console.log(
             `${monitor.parent} notification was sent in the last ${SEND_INTERVAL / 1_000} seconds. Skipping.`
           );
@@ -115,7 +127,7 @@ async function checkData(user) {
             console.error(`Notification ERROR: ${await notifyResponse.json()}`);
             return;
           }
-          updateSendTimestamp(monitor.parent);
+          updateSendTimestamp(user, monitor.parent);
           console.log(`Notification OK: ${await notifyResponse.json()}`);
         });
       } else {
@@ -129,6 +141,8 @@ async function checkData(user) {
 
 // wait for Next.js server to be up and running before getting data
 await waitOn({ delay: DELAY, interval: WAIT, resources: [SERVER_ADDRESS] });
+// create parent directory for all worker's files
+fs.mkdirSync(SEND_ROOT_DIR, {mode: 777, recursive:true});
 // start data check logic for each user in database with appropriate delay
 UserService.getUsers()
   .then((users) => {
