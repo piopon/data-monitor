@@ -55,6 +55,7 @@ function getUserTimestampFile(user) {
 
 /**
  * Method used to check if notification send timestamp is within provided time frame
+ * @param {Object} user The user for which we want to check the send timestamp value
  * @param {String} monitorId The monitor name identifier for which we want to check
  * @param {Number} time The number of milliseconds defining notification sent time frame
  * @returns true when notification was sent in the time frame, false otherwise
@@ -76,6 +77,7 @@ function checkSendTimestamp(user, monitorId, time) {
 
 /**
  * Method used to update notification sent timestamp for the provided monitor
+ * @param {Object} user The user for which we want to update the send timestamp value
  * @param {String} monitorId The monitor name identificer for which we want to update timestamp
  */
 function updateSendTimestamp(user, monitorId) {
