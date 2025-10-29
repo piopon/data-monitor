@@ -102,7 +102,7 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        if (checkSendTimestamp(monitor.parent, SEND_INTERVAL)) {
+        if (checkSendTimestamp(user, monitor.parent, SEND_INTERVAL)) {
           console.log(
             `${monitor.parent} notification was sent in the last ${SEND_INTERVAL / 1_000} seconds. Skipping.`
           );
@@ -120,7 +120,7 @@ async function checkData(user) {
             console.error(`Notification ERROR: ${await notifyResponse.json()}`);
             return;
           }
-          updateSendTimestamp(monitor.parent);
+          updateSendTimestamp(user, monitor.parent);
           console.log(`Notification OK: ${await notifyResponse.json()}`);
         });
       } else {
