@@ -54,9 +54,10 @@ function getUserTimestampFile(user) {
  * @param {Number} time The number of milliseconds defining notification sent time frame
  * @returns true when notification was sent in the time frame, false otherwise
  */
-function checkSendTimestamp(monitorId, time) {
-  if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(FILE_PATH)) {
-    const fileContent = JSON.parse(fs.readFileSync(FILE_PATH));
+function checkSendTimestamp(user, monitorId, time) {
+  const timestampFile = getUserTimestampFile(user);
+  if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(timestampFile)) {
+    const fileContent = JSON.parse(fs.readFileSync(timestampFile));
     for (const [key, value] of Object.entries(fileContent)) {
       SEND_TIMESTAMPS.set(key, value);
     }
@@ -72,10 +73,10 @@ function checkSendTimestamp(monitorId, time) {
  * Method used to update notification sent timestamp for the provided monitor
  * @param {String} monitorId The monitor name identificer for which we want to update timestamp
  */
-function updateSendTimestamp(monitorId) {
+function updateSendTimestamp(user, monitorId) {
   SEND_TIMESTAMPS.set(monitorId, Date.now());
   const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS));
-  fs.writeFileSync(FILE_PATH, fileContent);
+  fs.writeFileSync(getUserTimestampFile(user), fileContent);
 }
 
 /**
