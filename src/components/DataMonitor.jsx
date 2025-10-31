@@ -9,7 +9,7 @@ import Toggle from "./Toggle";
 import Select from "./Select";
 
 const DataMonitor = ({ parentName }) => {
-  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email" };
+  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email", interval: 300_000 };
   const parentId = DataUtils.nameToId(parentName);
   const { userId } = useContext(LoginContext);
 
@@ -18,6 +18,7 @@ const DataMonitor = ({ parentName }) => {
   const [threshold, setThreshold] = useState(defaults.threshold);
   const [condition, setCondition] = useState(defaults.condition);
   const [notifier, setNotifier] = useState(defaults.notifier);
+  const [interval, setInterval] = useState(defaults.interval);
 
   useEffect(() => {
     const initialize = async () => {
