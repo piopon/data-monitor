@@ -25,6 +25,7 @@ export class Monitor {
     this.threshold = ModelUtils.getValueOrDefault(input.threshold, undefined);
     this.condition = ModelUtils.getValueOrDefault(input.condition, undefined);
     this.notifier = ModelUtils.getValueOrDefault(input.notifier, undefined);
+    this.interval = ModelUtils.getValueOrDefault(input.interval, undefined);
   }
 
   /**
@@ -38,6 +39,7 @@ export class Monitor {
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL CHECK ${Monitor.#getConditionSchema()},
             notifier TEXT NOT NULL,
+            interval NUMERIC NOT NULL,
             user_id SERIAL REFERENCES ${User.getTableName()}(id)`;
   }
 
