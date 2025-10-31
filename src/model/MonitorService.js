@@ -58,6 +58,10 @@ export class MonitorService {
       values.push(filters.notifier);
       conditions.push(`notifier = $${values.length}`);
     }
+    if (filters.interval) {
+      values.push(filters.interval);
+      conditions.push(`interval = $${values.length}`);
+    }
     if (filters.user) {
       values.push(filters.user);
       conditions.push(`user_id = $${values.length}`);
