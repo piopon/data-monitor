@@ -87,6 +87,14 @@ const DataMonitor = ({ parentName }) => {
           disabled={!enabled}
         />
         <Select options={Monitor.NOTIFIERS} value={notifier} disabled={!enabled} setter={setNotifier} />
+        <input
+          type="text"
+          className="data-interval"
+          placeholder="interval"
+          value={interval}
+          onChange={(event) => setInterval(event.target.value)}
+          disabled={!enabled}
+        />
         <button className="save-monitor" type="submit">
           save
         </button>
