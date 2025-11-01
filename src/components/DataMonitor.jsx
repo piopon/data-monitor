@@ -42,6 +42,7 @@ const DataMonitor = ({ parentName }) => {
         setCondition(data[0].condition ?? defaults.condition);
         setThreshold(data[0].threshold ?? defaults.threshold);
         setNotifier(data[0].notifier ?? defaults.notifier);
+        setInterval(data[0].interval ?? defaults.interval);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
