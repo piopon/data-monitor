@@ -109,9 +109,10 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        if (checkSendTimestamp(user, monitor.parent, SEND_INTERVAL)) {
+        const sendInterval = monitor.interval || SEND_INTERVAL;
+        if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
           console.log(
-            `${monitor.parent} notification was sent in the last ${SEND_INTERVAL / 1_000} seconds. Skipping.`
+            `${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`
           );
           return;
         }
