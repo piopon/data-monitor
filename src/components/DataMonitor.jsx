@@ -90,7 +90,7 @@ const DataMonitor = ({ parentName }) => {
         <input
           type="text"
           className="data-interval"
-          placeholder="interval"
+          placeholder="interval (ms)"
           value={interval}
           onChange={(event) => setInterval(event.target.value)}
           disabled={!enabled}
