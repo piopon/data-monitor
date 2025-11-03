@@ -34,7 +34,7 @@ export class MonitorService {
 
   /**
    * Method used to receive monitors matching provided filter expression
-   * @param {String} query expression used to filter monitor objects
+   * @param {String} filters expression used to filter monitor objects
    * @returns array of monitor objects matching filter expression
    */
   static async filterMonitors(filters) {
