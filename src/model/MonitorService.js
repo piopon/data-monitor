@@ -16,7 +16,10 @@ export class MonitorService {
       );`);
       return { result: true, message: `Initialized '${MonitorService.#DB_TABLE_NAME}' table.` };
     } catch (error) {
-      return { result: false, message: `Cannot initialize '${MonitorService.#DB_TABLE_NAME}' table: ${error.message}.` };
+      return {
+        result: false,
+        message: `Cannot initialize '${MonitorService.#DB_TABLE_NAME}' table: ${error.message}.`,
+      };
     }
   }
 

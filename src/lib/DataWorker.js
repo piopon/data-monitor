@@ -111,9 +111,7 @@ async function checkData(user) {
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
         const sendInterval = monitor.interval || SEND_INTERVAL;
         if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
-          console.log(
-            `${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`
-          );
+          console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
@@ -143,7 +141,7 @@ async function checkData(user) {
 // wait for Next.js server to be up and running before getting data
 await waitOn({ delay: DELAY, interval: WAIT, resources: [SERVER_ADDRESS] });
 // create parent directory for all worker's files
-fs.mkdirSync(SEND_ROOT_DIR, {mode: 777, recursive:true});
+fs.mkdirSync(SEND_ROOT_DIR, { mode: 777, recursive: true });
 // start data check logic for each user in database with appropriate delay
 UserService.getUsers()
   .then((users) => {
