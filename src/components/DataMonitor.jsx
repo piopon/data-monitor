@@ -9,7 +9,7 @@ import Toggle from "./Toggle";
 import Select from "./Select";
 
 const DataMonitor = ({ parentName }) => {
-  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email" };
+  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email", interval: 300_000 };
   const parentId = DataUtils.nameToId(parentName);
   const { userId } = useContext(LoginContext);
 
@@ -18,6 +18,7 @@ const DataMonitor = ({ parentName }) => {
   const [threshold, setThreshold] = useState(defaults.threshold);
   const [condition, setCondition] = useState(defaults.condition);
   const [notifier, setNotifier] = useState(defaults.notifier);
+  const [interval, setInterval] = useState(defaults.interval);
 
   useEffect(() => {
     const initialize = async () => {
@@ -41,6 +42,7 @@ const DataMonitor = ({ parentName }) => {
         setCondition(data[0].condition ?? defaults.condition);
         setThreshold(data[0].threshold ?? defaults.threshold);
         setNotifier(data[0].notifier ?? defaults.notifier);
+        setInterval(data[0].interval ?? defaults.interval);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
@@ -50,7 +52,7 @@ const DataMonitor = ({ parentName }) => {
 
   const saveMonitor = async (event) => {
     event.preventDefault();
-    const monitor = { parent: parentId, enabled, threshold, condition, notifier, user: userId };
+    const monitor = { parent: parentId, enabled, threshold, condition, notifier, interval, user: userId };
     try {
       const exists = defaults.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;
@@ -85,6 +87,14 @@ const DataMonitor = ({ parentName }) => {
           disabled={!enabled}
         />
         <Select options={Monitor.NOTIFIERS} value={notifier} disabled={!enabled} setter={setNotifier} />
+        <input
+          type="text"
+          className="data-interval"
+          placeholder="interval (ms)"
+          value={interval}
+          onChange={(event) => setInterval(event.target.value)}
+          disabled={!enabled}
+        />
         <button className="save-monitor" type="submit">
           save
         </button>

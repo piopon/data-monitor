@@ -192,6 +192,12 @@ div.data-card-monitor input.data-threshold {
   @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
 }
 
+div.data-card-monitor input.data-interval {
+  @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+  @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
+}
+
 div.data-card-monitor button.save-monitor {
   @apply m-1 px-4 py-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg;
   @apply disabled:opacity-50 disabled:pointer-events-none;
@@ -252,7 +258,7 @@ div.toggle span.toggle-icon-left {
 
 div.toggle span.toggle-icon-right {
   @apply absolute flex justify-center items-center size-5 end-1 top-1/2 -translate-y-1/2;
-  @apply peer-checked:text-indigo-600 text-gray-500 dark:text-neutral-500 transition-colors duration-500 ;
+  @apply peer-checked:text-indigo-600 text-gray-500 dark:text-neutral-500 transition-colors duration-500;
 }
 
 div.toggle span svg {

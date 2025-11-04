@@ -20,6 +20,7 @@ export async function GET(request) {
     const threshold = searchParams.get("threshold");
     const condition = searchParams.get("condition");
     const notifier = searchParams.get("notifier");
+    const interval = searchParams.get("interval");
     const user = searchParams.get("user");
     const monitors = await MonitorService.filterMonitors({
       ...(parent && { parent }),
@@ -27,6 +28,7 @@ export async function GET(request) {
       ...(threshold && { threshold }),
       ...(condition && { condition }),
       ...(notifier && { notifier }),
+      ...(interval && { interval }),
       ...(user && { user }),
     });
     return new Response(JSON.stringify(monitors), {
