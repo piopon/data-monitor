@@ -29,6 +29,9 @@ export class AppConfig {
           address: process.env.NOTIFIER_MAIL_ADDRESS || "",
           password: process.env.NOTIFIER_MAIL_PASSWORD || "",
         },
+        discord: {
+          webhook: process.env.NOTIFIER_DISCORD_HOOK || "",
+        }
       }
     };
   }
