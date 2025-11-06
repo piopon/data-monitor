@@ -23,6 +23,24 @@ export class DiscordNotifier extends Notifier {
           username: this.#config.name,
           avatar_url: avatar,
           content: data.details,
+          embeds: [
+            {
+              title: "Notification details",
+              color: 5763719,
+              fields: [
+                {
+                  name: "who",
+                  value: data.name,
+                  inline: false,
+                },
+                {
+                  name: "data",
+                  value: data.details,
+                  inline: false,
+                },
+              ],
+            },
+          ],
         }),
       });
       return { result: true, info: `Discord message sent!` };
