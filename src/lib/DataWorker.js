@@ -120,7 +120,7 @@ async function checkData(user) {
           const message = `Monitored value reached its threshold condition: ${condition}`;
           const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier.value}`, {
             method: "POST",
-            body: JSON.stringify({ receiver: user.email, name: monitor.parent, details: message }),
+            body: JSON.stringify({ receiver: user.email, name: monitor.parent, avatar: scraperData[0].icon, details: message }),
           });
           if (!notifyResponse.ok) {
             console.error(`Notification ERROR: ${await notifyResponse.json()}`);

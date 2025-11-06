@@ -12,6 +12,7 @@ export class DiscordNotifier extends Notifier {
     if (!this.#config.webhook) {
       return { result: false, info: `Discord notifier is not configured!` };
     }
+    const avatar = data.avatar.endsWith(".jpg") ? data.avatar : this.#config.avatar;
     try {
       await fetch(this.#config.webhook, {
         method: "POST",
@@ -20,7 +21,7 @@ export class DiscordNotifier extends Notifier {
         },
         body: JSON.stringify({
           username: this.#config.name,
-          avatar_url: this.#config.avatar,
+          avatar_url: avatar,
           content: data.details,
         }),
       });
