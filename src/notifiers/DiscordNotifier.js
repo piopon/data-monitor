@@ -16,8 +16,8 @@ export class DiscordNotifier extends Notifier {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: data.receiver,
-          avatar_url: "https://i.imgur.com/mDKlggm.png",
+          username: this.#config.name,
+          avatar_url: this.#config.avatar,
           content: data.details,
         }),
       });
