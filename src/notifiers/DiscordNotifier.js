@@ -9,6 +9,9 @@ export class DiscordNotifier extends Notifier {
   }
 
   async notify(data) {
+    if (!this.#config.webhook) {
+      return { result: false, info: `Discord notifier is not configured!` };
+    }
     try {
       await fetch(this.#config.webhook, {
         method: "POST",
