@@ -3,11 +3,20 @@ import { Notifier } from "./Notifier.js";
 export class DiscordNotifier extends Notifier {
   #config = undefined;
 
+  /**
+   * Creates a new discord notifier with the specified configuration
+   * @param {Object} config Input configuration needed to send notification
+   */
   constructor(config) {
     super();
     this.#config = config;
   }
 
+  /**
+   * Method used to notify the user about data reaching threshold
+   * @param {Object} data The notification values to be sent
+   * @returns true when notification succeeds, false otherwise
+   */
   async notify(data) {
     if (!this.#config.webhook) {
       return { result: false, info: `Discord notifier is not configured!` };
