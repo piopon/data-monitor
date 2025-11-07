@@ -43,8 +43,13 @@ export class DiscordNotifier extends Notifier {
                   inline: false,
                 },
                 {
-                  name: "data",
-                  value: data.details,
+                  name: "threshold",
+                  value: data.details.threshold,
+                  inline: false,
+                },
+                {
+                  name: "current data",
+                  value: data.details.data,
                   inline: false,
                 },
               ],
