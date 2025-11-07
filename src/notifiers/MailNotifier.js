@@ -31,7 +31,7 @@ export class MailNotifier extends Notifier {
       from: this.#config.address,
       to: data.receiver,
       subject: `[data-monitor] ${data.name} reached its threshold condition`,
-      text: data.details,
+      text: data.details.message,
     };
     try {
       await this.#transporter.sendMail(mailOptions);

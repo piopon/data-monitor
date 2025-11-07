@@ -31,7 +31,7 @@ export class DiscordNotifier extends Notifier {
         body: JSON.stringify({
           username: this.#config.name,
           avatar_url: avatar,
-          content: data.details,
+          content: data.details.message,
           embeds: [
             {
               title: "Notification details",
