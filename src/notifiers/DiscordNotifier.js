@@ -36,7 +36,7 @@ export class DiscordNotifier extends Notifier {
           embeds: [
             {
               title: "Notification details",
-              color: 5763719,
+              color: this.#getColorCode("green"),
               fields: [
                 {
                   name: "who",
@@ -72,5 +72,24 @@ export class DiscordNotifier extends Notifier {
       }
     }
     return this.#config.avatar;
+  }
+
+  #getColorCode(colorName) {
+    switch (colorName) {
+      case "green":
+        return 0x57f287;
+      case "gold":
+        return 0xf1c40f;
+      case "red":
+        return 0xed4245;
+      case "yellow":
+        return 0xfee75c;
+      case "orange":
+        return 0xe67e22;
+      case "blue":
+        return 0x3498db;
+      default:
+        return 0x95a5a6;
+    }
   }
 }
