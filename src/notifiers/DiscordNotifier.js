@@ -1,6 +1,8 @@
 import { Notifier } from "./Notifier.js";
 
 export class DiscordNotifier extends Notifier {
+  static #AVATAR_EXTENSIONS = [".jpg", ".png"];
+
   #config = undefined;
 
   /**
@@ -21,7 +23,6 @@ export class DiscordNotifier extends Notifier {
     if (!this.#config.webhook) {
       return { result: false, info: `Discord notifier is not configured!` };
     }
-    const avatar = data.avatar.endsWith(".jpg") ? data.avatar : this.#config.avatar;
     try {
       await fetch(this.#config.webhook, {
         method: "POST",
@@ -30,7 +31,7 @@ export class DiscordNotifier extends Notifier {
         },
         body: JSON.stringify({
           username: `[${this.#config.name}] ${data.name}`,
-          avatar_url: avatar,
+          avatar_url: this.#getAvatar(data.avatar),
           content: data.details.message,
           embeds: [
             {
@@ -61,5 +62,15 @@ export class DiscordNotifier extends Notifier {
     } catch (err) {
       return { result: false, info: `Cannot send discord message: ${err.message}` };
     }
+  }
+
+  #getAvatar(dataAvatar) {
+    for (let index = 0; index < DiscordNotifier.#AVATAR_EXTENSIONS.length; index++) {
+      const extension = DiscordNotifier.#AVATAR_EXTENSIONS[index];
+      if (dataAvatar.endsWith(extension)) {
+        return dataAvatar;
+      }
+    }
+    return this.#config.avatar;
   }
 }
