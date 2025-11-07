@@ -29,7 +29,7 @@ export class DiscordNotifier extends Notifier {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: this.#config.name,
+          username: `[${this.#config.name}] ${data.name}`,
           avatar_url: avatar,
           content: data.details.message,
           embeds: [
