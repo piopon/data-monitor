@@ -124,7 +124,7 @@ async function checkData(user) {
               name: monitor.parent,
               receiver: user.email,
               avatar: scraperData[0].icon,
-              details: message,
+              details: { message, data: scraperData[0].data, threshold: monitor.threshold },
             }),
           });
           if (!notifyResponse.ok) {
