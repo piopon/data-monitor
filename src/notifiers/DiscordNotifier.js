@@ -54,6 +54,12 @@ export class DiscordNotifier extends Notifier {
     }
   }
 
+  /**
+   * Method used to verify and return a suitable version of notification avatar
+   * @note input will be used when it has compatible extension, otherwise a default avatar is returned
+   * @param {String} dataAvatar The URL address to the data avatar
+   * @returns string containing the used avatar URL
+   */
   #getAvatar(dataAvatar) {
     for (let index = 0; index < DiscordNotifier.#AVATAR_EXTENSIONS.length; index++) {
       const extension = DiscordNotifier.#AVATAR_EXTENSIONS[index];
@@ -64,6 +70,11 @@ export class DiscordNotifier extends Notifier {
     return this.#config.avatar;
   }
 
+  /**
+   * Method used to retrieve the embedded notification details data based on input values
+   * @param {Object} data The input to be placed into embedded notification block
+   * @returns an object containing discord message embedded data
+   */
   #getEmbeddedNotificationDetails(data) {
     return {
       title: "Notification details",
@@ -88,6 +99,11 @@ export class DiscordNotifier extends Notifier {
     };
   }
 
+  /**
+   * Method used to return a color code supported by discord based on color name
+   * @param {String} colorName The name of the color for which we want the color code
+   * @returns number containing the color code based on the input name
+   */
   #getColorCode(colorName) {
     return DiscordNotifier.#SUPPORTED_COLOURS.get(
       DiscordNotifier.#SUPPORTED_COLOURS.has(colorName) ? colorName : "default"
