@@ -9,10 +9,6 @@ export class Monitor {
     { value: ">", text: ">" },
     { value: "≥", text: "≥" },
   ];
-  static NOTIFIERS = [
-    { value: "email", text: "email" },
-    { value: "discord", text: "discord" },
-  ];
 
   /**
    * Creates a new monitor from input JS object

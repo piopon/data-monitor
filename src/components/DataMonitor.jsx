@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import { Monitor } from "@/model/Monitor";
+import { Notifier } from "@/notifiers/Notifier";
 import { DataUtils } from "@/lib/DataUtils";
 import Toggle from "./Toggle";
 import Select from "./Select";
@@ -86,7 +87,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select options={Monitor.NOTIFIERS} value={notifier} disabled={!enabled} setter={setNotifier} />
+        <Select options={Notifier.getSupportedList()} value={notifier} disabled={!enabled} setter={setNotifier} />
         <input
           type="text"
           className="data-interval"
