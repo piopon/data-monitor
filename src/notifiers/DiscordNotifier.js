@@ -1,6 +1,4 @@
-import { Notifier } from "./Notifier.js";
-
-export class DiscordNotifier extends Notifier {
+export class DiscordNotifier {
   static #AVATAR_EXTENSIONS = [".jpg", ".png"];
   static #SUPPORTED_COLOURS = new Map([
     ["default", 0x95a5a6],

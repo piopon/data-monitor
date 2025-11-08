@@ -1,7 +1,6 @@
-import { Notifier } from "./Notifier.js";
 import NodeMailer from "nodemailer";
 
-export class MailNotifier extends Notifier {
+export class MailNotifier {
   #transporter = undefined;
   #config = undefined;
 
