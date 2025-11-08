@@ -2,6 +2,18 @@ import { Notifier } from "./Notifier.js";
 
 export class DiscordNotifier extends Notifier {
   static #AVATAR_EXTENSIONS = [".jpg", ".png"];
+  static #SUPPORTED_COLOURS = new Map([
+    ["default", 0x95a5a6],
+    ["green", 0x57f287],
+    ["gold", 0xf1c40f],
+    ["red", 0xed4245],
+    ["yellow", 0xfee75c],
+    ["orange", 0xe67e22],
+    ["blue", 0x3498db],
+    ["purple", 0x9b59b6],
+    ["fuchsia", 0xeb459e],
+    ["navy", 0x34495e],
+  ]);
 
   #config = undefined;
 
@@ -75,21 +87,8 @@ export class DiscordNotifier extends Notifier {
   }
 
   #getColorCode(colorName) {
-    switch (colorName) {
-      case "green":
-        return 0x57f287;
-      case "gold":
-        return 0xf1c40f;
-      case "red":
-        return 0xed4245;
-      case "yellow":
-        return 0xfee75c;
-      case "orange":
-        return 0xe67e22;
-      case "blue":
-        return 0x3498db;
-      default:
-        return 0x95a5a6;
-    }
+    return DiscordNotifier.#SUPPORTED_COLOURS.get(
+      DiscordNotifier.#SUPPORTED_COLOURS.has(colorName) ? colorName : "default"
+    );
   }
 }
