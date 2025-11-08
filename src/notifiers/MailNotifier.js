@@ -9,7 +9,6 @@ export class MailNotifier {
    * @param {Object} config Input configurationn used to create SMTP transport layer
    */
   constructor(config) {
-    super();
     this.#config = config;
     this.#transporter = NodeMailer.createTransport({
       service: config.service,

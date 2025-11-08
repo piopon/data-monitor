@@ -20,7 +20,6 @@ export class DiscordNotifier {
    * @param {Object} config Input configuration needed to send notification
    */
   constructor(config) {
-    super();
     this.#config = config;
   }
 
