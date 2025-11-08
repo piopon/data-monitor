@@ -45,29 +45,7 @@ export class DiscordNotifier extends Notifier {
           username: `[${this.#config.name}] ${data.name}`,
           avatar_url: this.#getAvatar(data.avatar),
           content: data.details.message,
-          embeds: [
-            {
-              title: "Notification details",
-              color: this.#getColorCode("green"),
-              fields: [
-                {
-                  name: "who",
-                  value: data.name,
-                  inline: true,
-                },
-                {
-                  name: "threshold",
-                  value: data.details.threshold,
-                  inline: true,
-                },
-                {
-                  name: "current data",
-                  value: data.details.data,
-                  inline: true,
-                },
-              ],
-            },
-          ],
+          embeds: [this.#getEmbeddedNotificationDetails(data)],
         }),
       });
       return { result: true, info: `Discord message sent!` };
@@ -84,6 +62,30 @@ export class DiscordNotifier extends Notifier {
       }
     }
     return this.#config.avatar;
+  }
+
+  #getEmbeddedNotificationDetails(data) {
+    return {
+      title: "Notification details",
+      color: this.#getColorCode("green"),
+      fields: [
+        {
+          name: "who",
+          value: data.name,
+          inline: true,
+        },
+        {
+          name: "threshold",
+          value: data.details.threshold,
+          inline: true,
+        },
+        {
+          name: "current data",
+          value: data.details.data,
+          inline: true,
+        },
+      ],
+    };
   }
 
   #getColorCode(colorName) {
