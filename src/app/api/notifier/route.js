@@ -8,11 +8,12 @@ import { MailNotifier } from "@/notifiers/MailNotifier";
  * @returns Response object with JSON value containing notification sent result
  */
 export async function POST(request) {
+  const notifierConfig = AppConfig.getConfig().notifier;
   const notifierType = request.nextUrl.searchParams.get("type");
   if (notifierType === "email") {
-    var notifier = new MailNotifier(AppConfig.getConfig().notifier.mail);
+    var notifier = new MailNotifier(notifierConfig.mail);
   } else if (notifierType === "discord") {
-    var notifier = new DiscordNotifier(AppConfig.getConfig().notifier.discord);
+    var notifier = new DiscordNotifier(notifierConfig.discord);
   } else {
     return new Response(`Unsupported notifier type: ${notifierType}`, {
       status: 400,
