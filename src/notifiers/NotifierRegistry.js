@@ -3,12 +3,15 @@ import { DiscordNotifier } from "./DiscordNotifier.js";
 import { MailNotifier } from "./MailNotifier.js";
 
 export class NotifierRegistry {
-  static #CONFIG = AppConfig.getConfig().notifier;
-  static #INSTANCES = new Map();
+  // Object with supported notifiers class implementations.
+  // IMPORTANT: Notifier implementations contain backend-only dependencies and references.
+  //            Thus it cannot be imported by frontend (client) classes
   static #REGISTRY = {
     MailNotifier,
     DiscordNotifier,
   };
+  static #INSTANCES = new Map();
+  static #CONFIG = AppConfig.getConfig().notifier;
 
   static create(classInfo) {
     if (!NotifierRegistry.#INSTANCES.has(classInfo.type)) {
