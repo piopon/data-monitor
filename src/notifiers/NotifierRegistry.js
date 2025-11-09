@@ -9,12 +9,12 @@ export class NotifierRegistry {
     DiscordNotifier,
   };
 
-  static create(name) {
-    const NotifierClass = NotifierRegistry.#REGISTRY[name];
+  static create(classInfo) {
+    const NotifierClass = NotifierRegistry.#REGISTRY[classInfo.type];
     if (!NotifierClass) {
       throw new Error(`Unsupported notifier type: ${type}`);
     }
-    const config = NotifierRegistry.#CONFIG[name];
+    const config = NotifierRegistry.#CONFIG[classInfo.config];
     return new NotifierClass(config);
   }
 }
