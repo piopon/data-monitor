@@ -1,6 +1,8 @@
 import { AppConfig } from "@/config/AppConfig";
 import { DiscordNotifier } from "@/notifiers/DiscordNotifier";
 import { MailNotifier } from "@/notifiers/MailNotifier";
+import { Notifier } from "@/notifiers/Notifier";
+import { NotifierRegistry } from "@/notifiers/NotifierRegistry";
 
 /**
  * Method used to send the notifier POST request to send notification
@@ -8,22 +10,19 @@ import { MailNotifier } from "@/notifiers/MailNotifier";
  * @returns Response object with JSON value containing notification sent result
  */
 export async function POST(request) {
-  const notifierConfig = AppConfig.getConfig().notifier;
   const notifierType = request.nextUrl.searchParams.get("type");
-  if (notifierType === "email") {
-    var notifier = new MailNotifier(notifierConfig.mail);
-  } else if (notifierType === "discord") {
-    var notifier = new DiscordNotifier(notifierConfig.discord);
-  } else {
-    return new Response(`Unsupported notifier type: ${notifierType}`, {
-      status: 400,
+  try {
+    const notifier = NotifierRegistry.create(Notifier.getClassInfo(notifierType));
+    const notifierData = await request.json();
+    const res = await notifier.notify(notifierData);
+    return new Response(JSON.stringify(res.info), {
+      status: res.result ? 200 : 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(error.message, {
+      status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-  const notifierData = await request.json();
-  const res = await notifier.notify(notifierData);
-  return new Response(JSON.stringify(res.info), {
-    status: res.result ? 200 : 400,
-    headers: { "Content-Type": "application/json" },
-  });
 }
