@@ -7,12 +7,22 @@ export class Notifier {
     ["discord", "DiscordNotifier"],
   ]);
 
+  /**
+   * Method used to return the array of supported notifier objects
+   * @note It returns the objects in front-end format { value: "notifier", text: "notifier" }
+   * @returns an array of supported notifier objects used to fill frontend widgets
+   */
   static getSupportedList() {
     const supported = [];
     [...Notifier.#SUPPORTED_NOTIFIERS.keys()].forEach(key => supported.push({ value: key, text: key }));
     return supported;
   }
 
+  /**
+   * Method used to return the class information (class name and config) for specified notifier
+   * @param {String} notifier The notifier type for which we want to retrieve class info
+   * @returns backend class information object for the specified notifier type
+   */
   static getClassInfo(notifier) {
     if (Notifier.#SUPPORTED_NOTIFIERS.has(notifier)) {
       return { config: notifier, type: Notifier.#SUPPORTED_NOTIFIERS.get(notifier)};

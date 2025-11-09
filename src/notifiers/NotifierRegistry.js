@@ -13,6 +13,11 @@ export class NotifierRegistry {
   static #INSTANCES = new Map();
   static #CONFIG = AppConfig.getConfig().notifier;
 
+  /**
+   * Method used to create a concrete notifier instance based on the provided information
+   * @param {Object} classInfo Notifier class information containing type and config data
+   * @returns a concrete notifier object based on the provided information
+   */
   static create(classInfo) {
     if (!NotifierRegistry.#INSTANCES.has(classInfo.type)) {
       const NotifierClass = NotifierRegistry.#REGISTRY[classInfo.type];
