@@ -22,7 +22,7 @@ export class NotifierRegistry {
     if (!NotifierRegistry.#INSTANCES.has(classInfo.type)) {
       const NotifierClass = NotifierRegistry.#REGISTRY[classInfo.type];
       if (!NotifierClass) {
-        throw new Error(`Unsupported notifier type: ${type}`);
+        throw new Error(`Not registered notifier type: ${classInfo.type}`);
       }
       const config = NotifierRegistry.#CONFIG[classInfo.config];
       NotifierRegistry.#INSTANCES.set(classInfo.type, new NotifierClass(config));
