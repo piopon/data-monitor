@@ -1,7 +1,6 @@
-import { Notifier } from "./Notifier.js";
 import NodeMailer from "nodemailer";
 
-export class MailNotifier extends Notifier {
+export class MailNotifier {
   #transporter = undefined;
   #config = undefined;
 
@@ -10,7 +9,6 @@ export class MailNotifier extends Notifier {
    * @param {Object} config Input configurationn used to create SMTP transport layer
    */
   constructor(config) {
-    super();
     this.#config = config;
     this.#transporter = NodeMailer.createTransport({
       service: config.service,
@@ -31,7 +29,7 @@ export class MailNotifier extends Notifier {
       from: this.#config.address,
       to: data.receiver,
       subject: `[data-monitor] ${data.name} reached its threshold condition`,
-      text: data.details,
+      text: data.details.message,
     };
     try {
       await this.#transporter.sendMail(mailOptions);

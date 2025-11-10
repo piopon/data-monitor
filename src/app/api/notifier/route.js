@@ -1,5 +1,5 @@
-import { AppConfig } from "@/config/AppConfig";
-import { MailNotifier } from "@/notifiers/MailNotifier";
+import { Notifier } from "@/notifiers/Notifier";
+import { NotifierRegistry } from "@/notifiers/NotifierRegistry";
 
 /**
  * Method used to send the notifier POST request to send notification
@@ -8,18 +8,19 @@ import { MailNotifier } from "@/notifiers/MailNotifier";
  */
 export async function POST(request) {
   const notifierType = request.nextUrl.searchParams.get("type");
-  if (notifierType === "email") {
-    var notifier = new MailNotifier(AppConfig.getConfig().notifier.mail);
-  } else {
-    return new Response(`Unsupported notifier type: ${notifierType}`, {
-      status: 400,
+  try {
+    const notifierInfo = Notifier.getClassInfo(notifierType);
+    const notifier = NotifierRegistry.create(notifierInfo);
+    const notifierData = await request.json();
+    const res = await notifier.notify(notifierData);
+    return new Response(JSON.stringify(res.info), {
+      status: res.result ? 200 : 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(error.message, {
+      status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-  const notifierData = await request.json();
-  const res = await notifier.notify(notifierData);
-  return new Response(JSON.stringify(res.info), {
-    status: res.result ? 200 : 400,
-    headers: { "Content-Type": "application/json" },
-  });
 }
