@@ -1,6 +1,3 @@
-import { AppConfig } from "@/config/AppConfig";
-import { DiscordNotifier } from "@/notifiers/DiscordNotifier";
-import { MailNotifier } from "@/notifiers/MailNotifier";
 import { Notifier } from "@/notifiers/Notifier";
 import { NotifierRegistry } from "@/notifiers/NotifierRegistry";
 
