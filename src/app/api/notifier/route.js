@@ -12,7 +12,8 @@ import { NotifierRegistry } from "@/notifiers/NotifierRegistry";
 export async function POST(request) {
   const notifierType = request.nextUrl.searchParams.get("type");
   try {
-    const notifier = NotifierRegistry.create(Notifier.getClassInfo(notifierType));
+    const notifierInfo = Notifier.getClassInfo(notifierType);
+    const notifier = NotifierRegistry.create(notifierInfo);
     const notifierData = await request.json();
     const res = await notifier.notify(notifierData);
     return new Response(JSON.stringify(res.info), {

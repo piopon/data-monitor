@@ -27,6 +27,6 @@ export class Notifier {
     if (Notifier.#SUPPORTED_NOTIFIERS.has(notifier)) {
       return { config: notifier, type: Notifier.#SUPPORTED_NOTIFIERS.get(notifier)};
     }
-    return undefined;
+    throw new Error(`Unsupported notifier type: ${notifier}`);
   }
 }
