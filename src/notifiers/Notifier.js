@@ -29,4 +29,16 @@ export class Notifier {
     }
     throw new Error(`Unsupported notifier type: ${notifier}`);
   }
+
+  static getSupportedNotifiers() {
+    const map = Notifier.#SUPPORTED_NOTIFIERS;
+    return Object.freeze({
+      get: (key) => map.get(key),
+      has: (key) => map.has(key),
+      keys: () => [...map.keys()],
+      values: () => [...map.values()],
+      entries: () => [...map.entries()],
+      size: map.size,
+    });
+  }
 }
