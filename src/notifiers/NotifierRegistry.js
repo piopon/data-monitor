@@ -29,4 +29,16 @@ export class NotifierRegistry {
     }
     return NotifierRegistry.#INSTANCES.get(classInfo.type);
   }
+
+  static getNotifiersRegistry() {
+    const obj = NotifierRegistry.#REGISTRY;
+    return Object.freeze({
+      get: (key) => obj[key],
+      has: (key) => key in obj,
+      keys: () => Object.keys(obj),
+      values: () => Object.values(obj),
+      entries: () => Object.entries(obj),
+      size: Object.keys(obj).length,
+    });
+  }
 }
