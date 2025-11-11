@@ -30,6 +30,10 @@ export class NotifierRegistry {
     return NotifierRegistry.#INSTANCES.get(classInfo.type);
   }
 
+  /**
+   * Method used to retrieve the immutable copy of notifiers registry with retrieval-only fields
+   * @returns the read-only object with notifiers registry
+   */
   static getNotifiersRegistry() {
     const obj = NotifierRegistry.#REGISTRY;
     return Object.freeze({

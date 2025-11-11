@@ -30,6 +30,10 @@ export class Notifier {
     throw new Error(`Unsupported notifier type: ${notifier}`);
   }
 
+  /**
+   * Method used to retrieve the immutable copy of supported notifiers with retrieval-only fields
+   * @returns the read-only object with supported notifiers
+   */
   static getSupportedNotifiers() {
     const map = Notifier.#SUPPORTED_NOTIFIERS;
     return Object.freeze({
