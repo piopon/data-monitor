@@ -145,9 +145,7 @@ async function checkData(user) {
 }
 
 // check notifiers configuration correctness
-const notifierCheck = NotifierValidator.validateConfiguration();
-console.log(notifierCheck.info);
-if (!notifierCheck.result) {
+if (!NotifierValidator.validateConfiguration().result) {
   process.exit(1);
 }
 // wait for Next.js server to be up and running before getting data
