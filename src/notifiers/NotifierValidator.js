@@ -3,6 +3,11 @@ import { Notifier } from "./Notifier.js";
 import { NotifierRegistry } from "./NotifierRegistry.js";
 
 export class NotifierValidator {
+  /**
+   * Method used to validate notifiers configuration
+   * @note This application compares app config with notifier registry and supported list
+   * @returns correct result when whole config is correct, incorrect result otherwise
+   */
   static validateConfiguration() {
     const notifiersList = Notifier.getSupportedNotifiers();
     const notifiersRegistry = NotifierRegistry.getNotifiersRegistry();
