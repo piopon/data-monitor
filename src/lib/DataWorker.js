@@ -1,5 +1,6 @@
 import { MonitorService } from "../model/MonitorService.js";
 import { Notifier } from "../notifiers/Notifier.js";
+import { NotifierValidator } from "../notifiers/NotifierValidator.js";
 import { UserService } from "../model/UserService.js";
 
 import waitOn from "wait-on";
@@ -143,6 +144,12 @@ async function checkData(user) {
   }
 }
 
+// check notifiers configuration correctness
+const notifierCheck = NotifierValidator.validateConfiguration();
+console.log(notifierCheck.info);
+if (!notifierCheck.result) {
+  process.exit(1);
+}
 // wait for Next.js server to be up and running before getting data
 await waitOn({ delay: DELAY, interval: WAIT, resources: [SERVER_ADDRESS] });
 // create parent directory for all worker's files
