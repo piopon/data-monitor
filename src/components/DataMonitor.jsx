@@ -76,7 +76,9 @@ const DataMonitor = ({ parentName }) => {
 
   const getNotifierOptions = () => {
     const supported = [];
-    NotifierCatalog.getSupportedNotifiers().keys().forEach((key) => supported.push({ value: key, text: key }));
+    NotifierCatalog.getSupportedNotifiers()
+      .keys()
+      .forEach((key) => supported.push({ value: key, text: key }));
     return supported;
   };
 
@@ -93,12 +95,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select
-          options={getNotifierOptions()}
-          value={notifier}
-          disabled={!enabled}
-          setter={setNotifier}
-        />
+        <Select options={getNotifierOptions()} value={notifier} disabled={!enabled} setter={setNotifier} />
         <input
           type="text"
           className="data-interval"
