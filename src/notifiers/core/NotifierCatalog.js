@@ -12,7 +12,7 @@ export class NotifierCatalog {
    * @note It returns the objects in front-end format { value: "notifier", text: "notifier" }
    * @returns an array of supported notifier objects used to fill frontend widgets
    */
-  static getSupportedList() {
+  static getWidgetOptions() {
     const supported = [];
     [...NotifierCatalog.#SUPPORTED_NOTIFIERS.keys()].forEach(key => supported.push({ value: key, text: key }));
     return supported;
