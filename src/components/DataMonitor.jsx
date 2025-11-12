@@ -74,6 +74,12 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
+  const getNotifierOptions = () => {
+    const supported = [];
+    [...NotifierCatalog.getSupportedNotifiers().keys()].forEach((key) => supported.push({ value: key, text: key }));
+    return supported;
+  };
+
   return (
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
@@ -88,7 +94,7 @@ const DataMonitor = ({ parentName }) => {
           disabled={!enabled}
         />
         <Select
-          options={NotifierCatalog.getWidgetOptions()}
+          options={getNotifierOptions()}
           value={notifier}
           disabled={!enabled}
           setter={setNotifier}
