@@ -75,11 +75,9 @@ const DataMonitor = ({ parentName }) => {
   };
 
   const notifierOptions = useMemo(() => {
-    const supported = [];
-    NotifierCatalog.getSupportedNotifiers()
+    return NotifierCatalog.getSupportedNotifiers()
       .keys()
-      .forEach((key) => supported.push({ value: key, text: key }));
-    return supported;
+      .map((key) => ({ value: key, text: key }));
   }, []);
 
   return (
