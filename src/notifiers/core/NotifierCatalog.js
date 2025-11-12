@@ -14,7 +14,7 @@ export class NotifierCatalog {
    */
   static getWidgetOptions() {
     const supported = [];
-    [...NotifierCatalog.#SUPPORTED_NOTIFIERS.keys()].forEach(key => supported.push({ value: key, text: key }));
+    [...NotifierCatalog.#SUPPORTED_NOTIFIERS.keys()].forEach((key) => supported.push({ value: key, text: key }));
     return supported;
   }
 
@@ -25,7 +25,7 @@ export class NotifierCatalog {
    */
   static getClassInfo(notifier) {
     if (NotifierCatalog.#SUPPORTED_NOTIFIERS.has(notifier)) {
-      return { config: notifier, type: NotifierCatalog.#SUPPORTED_NOTIFIERS.get(notifier)};
+      return { config: notifier, type: NotifierCatalog.#SUPPORTED_NOTIFIERS.get(notifier) };
     }
     throw new Error(`Unsupported notifier type: ${notifier}`);
   }

@@ -14,16 +14,16 @@ export class NotifierValidator {
     const notifiersConfig = Object.keys(AppConfig.getConfig().notifier);
 
     if (notifiersList.size !== notifiersRegistry.size || notifiersList.size !== notifiersConfig.length) {
-      return {result: false, info: `❌ Notifier config sizes mismatch.`};
+      return { result: false, info: `❌ Notifier config sizes mismatch.` };
     }
     for (const [notifierId, className] of notifiersList.entries()) {
       if (!notifiersConfig.includes(notifierId)) {
-        return {result: false, info: `❌ Missing config entry for notifier "${notifierId}".`};
+        return { result: false, info: `❌ Missing config entry for notifier "${notifierId}".` };
       }
       if (!notifiersRegistry.has(className)) {
-        return {result: false, info: `❌ Missing backend class "${className}" for notifier "${notifierId}".`};
+        return { result: false, info: `❌ Missing backend class "${className}" for notifier "${notifierId}".` };
       }
     }
-    return {result: true, info: `✅ Notifier configuration validated successfully.`};
+    return { result: true, info: `✅ Notifier configuration validated successfully.` };
   }
 }

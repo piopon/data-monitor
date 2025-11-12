@@ -87,7 +87,12 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select options={NotifierCatalog.getWidgetOptions()} value={notifier} disabled={!enabled} setter={setNotifier} />
+        <Select
+          options={NotifierCatalog.getWidgetOptions()}
+          value={notifier}
+          disabled={!enabled}
+          setter={setNotifier}
+        />
         <input
           type="text"
           className="data-interval"
