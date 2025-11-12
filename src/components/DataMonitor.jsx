@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import { Monitor } from "@/model/Monitor";
-import { Notifier } from "@/notifiers/Notifier";
+import { Notifier } from "@/notifiers/core/Notifier";
 import { DataUtils } from "@/lib/DataUtils";
 import Toggle from "./Toggle";
 import Select from "./Select";

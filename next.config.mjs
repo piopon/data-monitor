@@ -1,4 +1,4 @@
-import { NotifierValidator } from './src/notifiers/NotifierValidator.js';
+import { NotifierValidator } from './src/notifiers/core/NotifierValidator.js';
 
 const notifierCheck = NotifierValidator.validateConfiguration();
 console.log(notifierCheck.info);

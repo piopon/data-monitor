@@ -1,6 +1,6 @@
 import { MonitorService } from "../model/MonitorService.js";
-import { Notifier } from "../notifiers/Notifier.js";
-import { NotifierValidator } from "../notifiers/NotifierValidator.js";
+import { Notifier } from "../notifiers/core/Notifier.js";
+import { NotifierValidator } from "../notifiers/core/NotifierValidator.js";
 import { UserService } from "../model/UserService.js";
 
 import waitOn from "wait-on";

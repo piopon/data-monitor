@@ -1,5 +1,5 @@
-import { Notifier } from "@/notifiers/Notifier";
-import { NotifierRegistry } from "@/notifiers/NotifierRegistry";
+import { Notifier } from "@/notifiers/core/Notifier";
+import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 
 /**
  * Method used to send the notifier POST request to send notification
