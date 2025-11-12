@@ -76,7 +76,7 @@ const DataMonitor = ({ parentName }) => {
 
   const getNotifierOptions = () => {
     const supported = [];
-    [...NotifierCatalog.getSupportedNotifiers().keys()].forEach((key) => supported.push({ value: key, text: key }));
+    NotifierCatalog.getSupportedNotifiers().keys().forEach((key) => supported.push({ value: key, text: key }));
     return supported;
   };
 
