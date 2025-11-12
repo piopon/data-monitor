@@ -1,4 +1,4 @@
-import { AppConfig } from "../config/AppConfig.js";
+import { AppConfig } from "../../config/AppConfig.js";
 import { Notifier } from "./Notifier.js";
 import { NotifierRegistry } from "./NotifierRegistry.js";
 

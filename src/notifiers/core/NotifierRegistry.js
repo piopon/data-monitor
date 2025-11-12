@@ -1,6 +1,6 @@
-import { AppConfig } from "../config/AppConfig.js";
-import { DiscordNotifier } from "./DiscordNotifier.js";
-import { MailNotifier } from "./MailNotifier.js";
+import { AppConfig } from "../../config/AppConfig.js";
+import { DiscordNotifier } from "../DiscordNotifier.js";
+import { MailNotifier } from "../MailNotifier.js";
 
 export class NotifierRegistry {
   // Object with supported notifiers class implementations.
