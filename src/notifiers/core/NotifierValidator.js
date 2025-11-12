@@ -1,5 +1,5 @@
 import { AppConfig } from "../../config/AppConfig.js";
-import { Notifier } from "./Notifier.js";
+import { NotifierCatalog } from "./NotifierCatalog.js";
 import { NotifierRegistry } from "./NotifierRegistry.js";
 
 export class NotifierValidator {
@@ -9,7 +9,7 @@ export class NotifierValidator {
    * @returns correct result when whole config is correct, incorrect result otherwise
    */
   static validateConfiguration() {
-    const notifiersList = Notifier.getSupportedNotifiers();
+    const notifiersList = NotifierCatalog.getSupportedNotifiers();
     const notifiersRegistry = NotifierRegistry.getNotifiersRegistry();
     const notifiersConfig = Object.keys(AppConfig.getConfig().notifier);
 

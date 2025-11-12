@@ -1,4 +1,4 @@
-import { Notifier } from "@/notifiers/core/Notifier";
+import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 
 /**
@@ -9,7 +9,7 @@ import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 export async function POST(request) {
   const notifierType = request.nextUrl.searchParams.get("type");
   try {
-    const notifierInfo = Notifier.getClassInfo(notifierType);
+    const notifierInfo = NotifierCatalog.getClassInfo(notifierType);
     const notifier = NotifierRegistry.create(notifierInfo);
     const notifierData = await request.json();
     const res = await notifier.notify(notifierData);

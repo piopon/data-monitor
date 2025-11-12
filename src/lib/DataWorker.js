@@ -1,5 +1,5 @@
 import { MonitorService } from "../model/MonitorService.js";
-import { Notifier } from "../notifiers/core/Notifier.js";
+import { NotifierCatalog } from "../notifiers/core/NotifierCatalog.js";
 import { NotifierValidator } from "../notifiers/core/NotifierValidator.js";
 import { UserService } from "../model/UserService.js";
 
@@ -116,7 +116,7 @@ async function checkData(user) {
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
-        Notifier.getSupportedList().filter((notifier) => monitor.notifier === notifier.value).forEach(async (notifier) => {
+        NotifierCatalog.getSupportedList().filter((notifier) => monitor.notifier === notifier.value).forEach(async (notifier) => {
           const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
           const message = `Monitored value reached its threshold condition: ${condition}`;
           const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier.value}`, {
