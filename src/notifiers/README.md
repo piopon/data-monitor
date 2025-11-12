@@ -38,7 +38,7 @@ async notify(data) {
 
 In order to register newly created notifier it has to be added to the following lists/maps:
 
-* src\notifiers\Notifier.js
+* src\notifiers\core\NotifierCatalog.js
   ```js
   static #SUPPORTED_NOTIFIERS = new Map([
     ["email", "MailNotifier"],
@@ -47,7 +47,7 @@ In order to register newly created notifier it has to be added to the following 
   ]);
   ```
 
-* src\notifiers\NotifierRegistry.js
+* src\notifiers\core\NotifierRegistry.js
   ```js
   static #REGISTRY = {
     MailNotifier,
@@ -73,3 +73,8 @@ In order to register newly created notifier it has to be added to the following 
     };
   }
   ```
+
+When the configuration is correct then everything will start-up normally with a confirmation log:
+`✅ Notifier configuration validated successfully`.
+In case of an error both Next.js and data worker thread will stop with the following message:
+`❌ Missing config entry for notifier "XYZ"`.

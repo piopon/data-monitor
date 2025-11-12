@@ -1,6 +1,6 @@
-import { AppConfig } from "../config/AppConfig.js";
-import { DiscordNotifier } from "./DiscordNotifier.js";
-import { MailNotifier } from "./MailNotifier.js";
+import { AppConfig } from "../../config/AppConfig.js";
+import { DiscordNotifier } from "../DiscordNotifier.js";
+import { MailNotifier } from "../MailNotifier.js";
 
 export class NotifierRegistry {
   // Object with supported notifiers class implementations.
@@ -28,5 +28,21 @@ export class NotifierRegistry {
       NotifierRegistry.#INSTANCES.set(classInfo.type, new NotifierClass(config));
     }
     return NotifierRegistry.#INSTANCES.get(classInfo.type);
+  }
+
+  /**
+   * Method used to retrieve the immutable copy of notifiers registry with retrieval-only fields
+   * @returns the read-only object with notifiers registry
+   */
+  static getNotifiersRegistry() {
+    const obj = NotifierRegistry.#REGISTRY;
+    return Object.freeze({
+      get: (key) => obj[key],
+      has: (key) => key in obj,
+      keys: () => Object.keys(obj),
+      values: () => Object.values(obj),
+      entries: () => Object.entries(obj),
+      size: Object.keys(obj).length,
+    });
   }
 }

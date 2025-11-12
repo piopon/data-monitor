@@ -1,5 +1,6 @@
 import { MonitorService } from "../model/MonitorService.js";
-import { Notifier } from "../notifiers/Notifier.js";
+import { NotifierCatalog } from "../notifiers/core/NotifierCatalog.js";
+import { NotifierValidator } from "../notifiers/core/NotifierValidator.js";
 import { UserService } from "../model/UserService.js";
 
 import waitOn from "wait-on";
@@ -115,25 +116,28 @@ async function checkData(user) {
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
-        Notifier.getSupportedList().filter((notifier) => monitor.notifier === notifier.value).forEach(async (notifier) => {
-          const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
-          const message = `Monitored value reached its threshold condition: ${condition}`;
-          const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier.value}`, {
-            method: "POST",
-            body: JSON.stringify({
-              name: monitor.parent,
-              receiver: user.email,
-              avatar: scraperData[0].icon,
-              details: { message, data: scraperData[0].data, threshold: monitor.threshold },
-            }),
+        NotifierCatalog.getSupportedNotifiers()
+          .keys()
+          .filter((notifier) => monitor.notifier === notifier)
+          .forEach(async (notifier) => {
+            const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
+            const message = `Monitored value reached its threshold condition: ${condition}`;
+            const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
+              method: "POST",
+              body: JSON.stringify({
+                name: monitor.parent,
+                receiver: user.email,
+                avatar: scraperData[0].icon,
+                details: { message, data: scraperData[0].data, threshold: monitor.threshold },
+              }),
+            });
+            if (!notifyResponse.ok) {
+              console.error(`Notification ERROR: ${await notifyResponse.json()}`);
+              return;
+            }
+            updateSendTimestamp(user, monitor.parent);
+            console.log(`Notification OK: ${await notifyResponse.json()}`);
           });
-          if (!notifyResponse.ok) {
-            console.error(`Notification ERROR: ${await notifyResponse.json()}`);
-            return;
-          }
-          updateSendTimestamp(user, monitor.parent);
-          console.log(`Notification OK: ${await notifyResponse.json()}`);
-        });
       } else {
         console.log(`${monitor.parent} does not meet its threshold value...`);
       }
@@ -143,6 +147,10 @@ async function checkData(user) {
   }
 }
 
+// check notifiers configuration correctness
+if (!NotifierValidator.validateConfiguration().result) {
+  process.exit(1);
+}
 // wait for Next.js server to be up and running before getting data
 await waitOn({ delay: DELAY, interval: WAIT, resources: [SERVER_ADDRESS] });
 // create parent directory for all worker's files
