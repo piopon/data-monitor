@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import { Monitor } from "@/model/Monitor";
@@ -74,13 +74,13 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
-  const getNotifierOptions = () => {
+  const notifierOptions = useMemo(() => {
     const supported = [];
     NotifierCatalog.getSupportedNotifiers()
       .keys()
       .forEach((key) => supported.push({ value: key, text: key }));
     return supported;
-  };
+  }, []);
 
   return (
     <div className="data-card-monitor">
@@ -95,7 +95,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select options={getNotifierOptions()} value={notifier} disabled={!enabled} setter={setNotifier} />
+        <Select options={notifierOptions} value={notifier} disabled={!enabled} setter={setNotifier} />
         <input
           type="text"
           className="data-interval"
