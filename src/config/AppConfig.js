@@ -14,6 +14,7 @@ export class AppConfig {
           data: process.env.SCRAPER_URL_DATA || "/api/v1/data",
           items: process.env.SCRAPER_URL_ITEMS || "/api/v1/data/items",
           edit: process.env.SCRAPER_URL_EDIT || "?challenge=",
+          features: process.env.SCRAPER_URL_FEATURES || "/api/v1/settings/features",
         },
       },
       database: {
