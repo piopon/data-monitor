@@ -8,6 +8,7 @@ import GuestAccess from "@/components/GuestAccess";
 
 export default function Home() {
   const [email, setEmail] = useState("");
+  const [demo, setDemo] = useState(false);
   const [password, setPassword] = useState("");
   const { login, logout } = useContext(LoginContext);
   const router = useRouter();
@@ -21,6 +22,8 @@ export default function Home() {
           toast.error(err.message);
           return;
         }
+        const currentFeatures = await response.json();
+        setDemo(currentFeatures.demo);
       } catch (error) {
         toast.error(`Failed to get data: ${error.message}`);
       }
@@ -114,6 +117,11 @@ export default function Home() {
               </div>
             </div>
           </form>
+          {demo && (
+            <div className="demo-panel">
+            DEMO
+            </div>
+          )}
         </div>
       </section>
     </GuestAccess>
