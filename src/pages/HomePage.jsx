@@ -1,34 +1,16 @@
 "use client";
 
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import GuestAccess from "@/components/GuestAccess";
 
-export default function Home({demo}) {
+export default function HomePage({demo}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, logout } = useContext(LoginContext);
   const router = useRouter();
-
-  useEffect(() => {
-    const initialize = async () => {
-      try {
-        const response = await fetch("/api/init");
-        if (!response.ok) {
-          const err = await response.json();
-          toast.error(err.message);
-          return;
-        }
-        const currentFeatures = await response.json();
-        setDemo(currentFeatures.demo);
-      } catch (error) {
-        toast.error(`Failed to get data: ${error.message}`);
-      }
-    };
-    initialize();
-  }, []);
 
   const userSave = async (userData) => {
     const getUserResponse = await fetch(`/api/user?email=${userData.email}`);
