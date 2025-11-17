@@ -1,5 +1,6 @@
 import { toast } from "react-toastify";
 import HomePage from "@/pages/HomePage";
+import GuestAccess from "@/components/GuestAccess";
 
 export default async function Home() {
   const response = await fetch("/api/init");
@@ -10,5 +11,9 @@ export default async function Home() {
   }
   const currentFeatures = await response.json();
 
-  return <HomePage demo={currentFeatures.demo} />;
+  return (
+    <GuestAccess>
+      <HomePage demo={!currentFeatures.demo} />
+    </GuestAccess>
+  );
 }

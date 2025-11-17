@@ -4,7 +4,6 @@ import { useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
-import GuestAccess from "@/components/GuestAccess";
 
 export default function HomePage({demo}) {
   const [email, setEmail] = useState("");
@@ -63,7 +62,6 @@ export default function HomePage({demo}) {
   };
 
   return (
-    <GuestAccess>
       <section id="login-section">
         <div className="login-card">
           <h2 className="login-title">Log in to your account</h2>
@@ -105,6 +103,5 @@ export default function HomePage({demo}) {
           )}
         </div>
       </section>
-    </GuestAccess>
   );
 }
