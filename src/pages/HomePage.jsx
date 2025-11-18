@@ -5,11 +5,17 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 
-export default function HomePage({demo}) {
+export default function HomePage({demo, error}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, logout } = useContext(LoginContext);
   const router = useRouter();
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   const userSave = async (userData) => {
     const getUserResponse = await fetch(`/api/user?email=${userData.email}`);
