@@ -1,11 +1,11 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 
-export default function HomePage({demo, error}) {
+export default function HomePage({ demo, error }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, logout } = useContext(LoginContext);
@@ -68,46 +68,42 @@ export default function HomePage({demo, error}) {
   };
 
   return (
-      <section id="login-section">
-        <div className="login-card">
-          <h2 className="login-title">Log in to your account</h2>
-          <form className="login-form" onSubmit={userLogin}>
-            <div>
-              <div className="login-field-div">
-                <input
-                  required
-                  type="email"
-                  placeholder="email"
-                  autoComplete="email"
-                  className="login-field"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div className="login-field-div">
-                <input
-                  required
-                  type="password"
-                  placeholder="password"
-                  autoComplete="current-password"
-                  className="login-field"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="login-submit-div">
-                <button type="submit" className="login-submit">
-                  login
-                </button>
-              </div>
+    <section id="login-section">
+      <div className="login-card">
+        <h2 className="login-title">Log in to your account</h2>
+        <form className="login-form" onSubmit={userLogin}>
+          <div>
+            <div className="login-field-div">
+              <input
+                required
+                type="email"
+                placeholder="email"
+                autoComplete="email"
+                className="login-field"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-          </form>
-          {demo && (
-            <div className="demo-panel">
-            DEMO
+            <div className="login-field-div">
+              <input
+                required
+                type="password"
+                placeholder="password"
+                autoComplete="current-password"
+                className="login-field"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
-          )}
-        </div>
-      </section>
+            <div className="login-submit-div">
+              <button type="submit" className="login-submit">
+                login
+              </button>
+            </div>
+          </div>
+        </form>
+        {demo && <div className="demo-panel">DEMO</div>}
+      </div>
+    </section>
   );
 }
