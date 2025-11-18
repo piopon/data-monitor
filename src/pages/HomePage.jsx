@@ -75,6 +75,11 @@ export default function HomePage({ demo, error }) {
     await doLogin({email, password}, true);
   };
 
+  const demoLogin = async (event) => {
+    event.preventDefault();
+    await doLogin({"demo-user": "user", "demo-pass": "pass"}, false);
+  };
+
   return (
     <section id="login-section">
       <div className="login-card">
@@ -112,7 +117,7 @@ export default function HomePage({ demo, error }) {
         </form>
         {demo && (
           <div className="demo-card">
-            <form className="demo-form"}>
+            <form className="demo-form" onSubmit={demoLogin}>
               <input type="email" name="demo-user" value="" readOnly></input>
               <input type="password" name="demo-pass" value="" readOnly></input>
               <p>
