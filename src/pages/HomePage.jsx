@@ -102,7 +102,21 @@ export default function HomePage({ demo, error }) {
             </div>
           </div>
         </form>
-        {demo && <div className="demo-panel">DEMO</div>}
+        {demo && (
+          <div className="demo-card">
+            <form className="demo-form"}>
+              <input type="email" name="demo-user" value="" readOnly></input>
+              <input type="password" name="demo-pass" value="" readOnly></input>
+              <p>
+                don't know if it's for you?
+                <button type="submit" className="demo-submit">
+                  see
+                </button>
+                how it works.
+              </p>
+            </form>
+          </div>
+        )}
       </div>
     </section>
   );
