@@ -40,13 +40,12 @@ export default function HomePage({ demo, error }) {
     return { id: addUserData.id, message: `User ${userData.email} saved.` };
   };
 
-  const userLogin = async (event) => {
-    event.preventDefault();
+  const doLogin = async (userData, userStore) => {
     try {
       const response = await fetch("/api/scraper/token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(userData),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -54,17 +53,26 @@ export default function HomePage({ demo, error }) {
         toast.error(data.error);
         return;
       }
-      const saveResult = await userSave({ email: email, jwt: data.token });
-      if (saveResult.id == null) {
-        toast.error(saveResult.message);
-        return;
+      if (userStore) {
+        const saveResult = await userSave({ email: email, jwt: data.token });
+        if (saveResult.id == null) {
+          toast.error(saveResult.message);
+          return;
+        }
+        login(saveResult.id, data);
+      } else {
+        login(7357, data);
       }
-      login(saveResult.id, data);
       router.replace("/data");
       toast.success("Login successful!");
     } catch (e) {
       toast.error(`Error: ${e.message}`);
     }
+  };
+
+  const userLogin = async (event) => {
+    event.preventDefault();
+    await doLogin({email, password}, true);
   };
 
   return (
