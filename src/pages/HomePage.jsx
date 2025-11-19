@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 
-export default function HomePage({ demo, error }) {
+export default function HomePage({ demoEnabled, initError }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { demo, login, logout } = useContext(LoginContext);
   const router = useRouter();
 
   useEffect(() => {
-    if (error) {
-      toast.error(error);
+    if (initError) {
+      toast.error(initError);
     }
-  }, [error]);
+  }, [initError]);
 
   const userSave = async (userData) => {
     const getUserResponse = await fetch(`/api/user?email=${userData.email}`);
@@ -115,7 +115,7 @@ export default function HomePage({ demo, error }) {
             </div>
           </div>
         </form>
-        {demo && (
+        {demoEnabled && (
           <div className="demo-card">
             <form className="demo-form" onSubmit={demoLogin}>
               <input type="email" name="demo-user" value="" readOnly></input>

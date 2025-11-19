@@ -8,7 +8,7 @@ export default async function Home() {
 
   return (
     <GuestAccess>
-      <HomePage demo={data.demo} error={!data.init ? data.message : undefined} />
+      <HomePage demoEnabled={data.demo} initError={!data.init ? data.message : undefined} />
     </GuestAccess>
   );
 }
