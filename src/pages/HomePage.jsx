@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 
 export default function HomePage({ demo, error }) {
+  const DEMO_USER_ID = 7357;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, logout } = useContext(LoginContext);
@@ -53,16 +55,14 @@ export default function HomePage({ demo, error }) {
         toast.error(data.error);
         return;
       }
-      if (userStore) {
-        const saveResult = await userSave({ email: email, jwt: data.token });
-        if (saveResult.id == null) {
-          toast.error(saveResult.message);
-          return;
-        }
-        login(saveResult.id, data);
-      } else {
-        login(7357, data);
+      const saveResult = userStore
+        ? await userSave({ email: email, jwt: data.token })
+        : { id: DEMO_USER_ID, message: "Demo user = skip save operation!" };
+      if (saveResult.id == null) {
+        toast.error(saveResult.message);
+        return;
       }
+      login(saveResult.id, data);
       router.replace("/data");
       toast.success("Login successful!");
     } catch (e) {
