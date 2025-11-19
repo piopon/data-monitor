@@ -56,7 +56,7 @@ export default function HomePage({ demo, error }) {
         return;
       }
       const saveResult = userStore
-        ? await userSave({ email: email, jwt: data.token })
+        ? await userSave({ email: userData.email, jwt: data.token })
         : { id: DEMO_USER_ID, message: "Demo user = skip save operation!" };
       if (saveResult.id == null) {
         toast.error(saveResult.message);
