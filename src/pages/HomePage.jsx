@@ -6,11 +6,9 @@ import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 
 export default function HomePage({ demo, error }) {
-  const DEMO_USER_ID = 7357;
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, logout } = useContext(LoginContext);
+  const { demo, login, logout } = useContext(LoginContext);
   const router = useRouter();
 
   useEffect(() => {
@@ -42,27 +40,20 @@ export default function HomePage({ demo, error }) {
     return { id: addUserData.id, message: `User ${userData.email} saved.` };
   };
 
-  const doLogin = async (userData, userStore) => {
+  const doLogin = async (action, data) => {
     try {
       const response = await fetch("/api/scraper/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(data),
       });
-      const data = await response.json();
+      const loginData = await response.json();
       if (!response.ok) {
         logout();
-        toast.error(data.error);
+        toast.error(loginData.error);
         return;
       }
-      const saveResult = userStore
-        ? await userSave({ email: userData.email, jwt: data.token })
-        : { id: DEMO_USER_ID, message: "Demo user = skip save operation!" };
-      if (saveResult.id == null) {
-        toast.error(saveResult.message);
-        return;
-      }
-      login(saveResult.id, data);
+      await action(loginData);
       router.replace("/data");
       toast.success("Login successful!");
     } catch (e) {
@@ -72,12 +63,21 @@ export default function HomePage({ demo, error }) {
 
   const userLogin = async (event) => {
     event.preventDefault();
-    await doLogin({email, password}, true);
+    const userLoginAction = async (loginData) => {
+      const saveResult = await userSave({ email, jwt: loginData.token });
+      if (saveResult.id == null) {
+        toast.error(saveResult.message);
+        return;
+      }
+      login(saveResult.id, loginData);
+    };
+    await doLogin(userLoginAction, { email, password });
   };
 
   const demoLogin = async (event) => {
     event.preventDefault();
-    await doLogin({"demo-user": "user", "demo-pass": "pass"}, false);
+    const demoLoginAction = async (loginData) => demo(loginData);
+    await doLogin(demoLoginAction, { "demo-user": "u", "demo-pass": "p" });
   };
 
   return (
