@@ -42,7 +42,7 @@ export default function HomePage({ demo, error }) {
 
   const doLogin = async (userData, userStore) => {
     try {
-      const response = await fetch("/api/scraper/token", {
+      const response = await fetch("/api/scraper/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
