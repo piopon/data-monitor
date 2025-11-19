@@ -18,9 +18,18 @@ const MenuBar = () => {
 
   const userLogout = async (event) => {
     event.preventDefault();
+    const response = await fetch("/api/scraper/logout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ "demo-user": "user", "demo-pass": "pass" }),
+    });
     logout();
     router.replace("/");
-    toast.success("Logout successful!");
+    if (response.ok) {
+      toast.success("Logout successful!");
+    } else {
+      toast.warn("Logout successful, with problems on backend side...")
+    }
   };
 
   return (
