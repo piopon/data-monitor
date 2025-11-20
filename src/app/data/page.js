@@ -29,7 +29,7 @@ export default function Data() {
             if (isDemo) {
               attemptNo++;
               toast.warn("Waiting for demo to be initialized...");
-              await new Promise(res => setTimeout(res, WAIT_TIME_MS))
+              await new Promise((res) => setTimeout(res, WAIT_TIME_MS));
             } else {
               const message = await response.text();
               toast.error(message);

@@ -30,7 +30,7 @@ const MenuBar = () => {
     if (response.ok) {
       toast.success("Logout successful!");
     } else {
-      toast.warn("Logout successful, with problems on backend side...")
+      toast.warn("Logout successful, with problems on backend side...");
     }
   };
 
