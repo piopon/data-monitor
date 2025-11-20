@@ -19,24 +19,23 @@ export default function Data() {
     const getData = async () => {
       if (!token) return;
       try {
-        let attemptNo = 1;
-        do {
+        for (let attemptNo = 1; attemptNo < MAX_ATTEMPTS; attemptNo++) {
           var response = await fetch("/api/scraper/data", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
           });
-          if (!response.ok) {
-            if (isDemo) {
-              attemptNo++;
-              toast.warn("Waiting for demo to be initialized...");
-              await new Promise((res) => setTimeout(res, WAIT_TIME_MS));
-            } else {
-              const message = await response.text();
-              toast.error(message);
-              return;
-            }
+          if (response.ok) {
+            break;
           }
-        } while (!response.ok && isDemo && attemptNo <= MAX_ATTEMPTS);
+          if (isDemo && attemptNo <= MAX_ATTEMPTS) {
+            toast.warn("Waiting for demo initialization...");
+            await new Promise((res) => setTimeout(res, WAIT_TIME_MS));
+          } else {
+            const message = await response.text();
+            toast.error(message);
+            return;
+          }
+        }
         const data = await response.json();
         setData(data);
       } catch (error) {
