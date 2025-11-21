@@ -137,6 +137,15 @@ div.demo-card form.demo-form {
   @apply flex items-center justify-center;
 }
 
+form.demo-form p {
+  @apply text-sm;
+}
+
+form.demo-form p button {
+  @apply text-indigo-600 hover:text-indigo-400 hover:cursor-pointer underline;
+  @apply ml-0.5 mr-0.5;
+}
+
 /***************************** DATA PAGE ******************************/
 
 section#data-section {
