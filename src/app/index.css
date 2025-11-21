@@ -127,6 +127,16 @@ section#login-section button.login-submit {
   @apply bg-indigo-600 hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
 }
 
+section#login-section div.demo-card {
+  @apply w-full mt-6;
+  @apply flex items-center justify-center;
+}
+
+div.demo-card form.demo-form {
+  @apply h-10;
+  @apply flex items-center justify-center;
+}
+
 /***************************** DATA PAGE ******************************/
 
 section#data-section {
