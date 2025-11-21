@@ -137,6 +137,10 @@ div.demo-card form.demo-form {
   @apply flex items-center justify-center;
 }
 
+form.demo-form input {
+  display: none;
+}
+
 form.demo-form p {
   @apply text-sm;
 }
