@@ -12,7 +12,7 @@ import Select from "./Select";
 const DataMonitor = ({ parentName }) => {
   const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email", interval: 300_000 };
   const parentId = DataUtils.nameToId(parentName);
-  const { userId } = useContext(LoginContext);
+  const { isDemo, userId } = useContext(LoginContext);
 
   const [id, setId] = useState(defaults.id);
   const [enabled, setEnabled] = useState(defaults.enabled);
@@ -53,6 +53,10 @@ const DataMonitor = ({ parentName }) => {
 
   const saveMonitor = async (event) => {
     event.preventDefault();
+    if (isDemo) {
+      toast.warn(`Notifications are disabled for demo session.`);
+      return;
+    }
     const monitor = { parent: parentId, enabled, threshold, condition, notifier, interval, user: userId };
     try {
       const exists = defaults.id !== id;

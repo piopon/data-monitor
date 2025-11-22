@@ -11,9 +11,11 @@ export class AppConfig {
         public: process.env.NEXT_PUBLIC_SCRAPER_URL || null,
         endpoints: {
           login: process.env.SCRAPER_URL_LOGIN || "/auth/token",
+          logout: process.env.SCRAPER_URL_LOGOUT || "/auth/logout",
           data: process.env.SCRAPER_URL_DATA || "/api/v1/data",
           items: process.env.SCRAPER_URL_ITEMS || "/api/v1/data/items",
           edit: process.env.SCRAPER_URL_EDIT || "?challenge=",
+          features: process.env.SCRAPER_URL_FEATURES || "/api/v1/settings/features",
         },
       },
       database: {
