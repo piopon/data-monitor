@@ -57,7 +57,14 @@ export class ScraperRequest {
   static async #getResponseContent(response) {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      return response.ok ? JSON.stringify(await response.json()) : await response.text();
+      if (response.ok) {
+        return JSON.stringify(await response.json());
+      }
+      const textResponse = await response.text();
+      if (textResponse.startsWith('"') && textResponse.endsWith('"')) {
+        return textResponse.substring(1, textResponse.length-1);
+      }
+      return textResponse;
     }
     return await response.text();
   }
