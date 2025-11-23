@@ -34,15 +34,19 @@ export class ScraperRequest {
    * @returns response object received from scraper backend
    */
   static async #sendRequest(url, method, headers, body = undefined) {
-    const response = await fetch(url, {
-      method: method,
-      headers: headers,
-      ...(body && { body }),
-    });
-    return new Response(await this.#getResponseContent(response), {
-      status: response.status,
-      headers: response.headers,
-    });
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: headers,
+        ...(body && { body }),
+      });
+      return new Response(await this.#getResponseContent(response), {
+        status: response.status,
+        headers: response.headers,
+      });
+    } catch (error) {
+      return new Response("Scraper backend is not available", { status: 500 });
+    }
   }
 
   /**
