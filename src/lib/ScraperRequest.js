@@ -41,19 +41,8 @@ export class ScraperRequest {
         ...(body && { body }),
       });
       const content = await this.#getResponseContent(response);
-      // correct headers forwarded to frontend to have correct content-type
-      const fixedHeaders = new Headers();
-      for (const [key, value] of response.headers.entries()) {
-        fixedHeaders.set(key, value);
-      }
-      const contentType = fixedHeaders.get("content-type") ?? "";
-      const isJsonHeader = contentType.includes("application/json");
-      if (isJsonHeader && !this.#isJsonCompatible(content)) {
-        fixedHeaders.set("content-type", "text/plain; charset=utf-8");
-      }
       return new Response(content, {
         status: response.status,
-        headers: fixedHeaders,
       });
     } catch (error) {
       return new Response("Scraper backend is not available", { status: 500 });
