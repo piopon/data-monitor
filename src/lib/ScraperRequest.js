@@ -68,4 +68,13 @@ export class ScraperRequest {
     }
     return await response.text();
   }
+
+  static #isJsonCompatible(input) {
+    try {
+      JSON.parse(input);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
 }
