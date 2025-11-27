@@ -73,7 +73,7 @@ export class ScraperRequest {
       }
       const textResponse = await response.text();
       if (textResponse.startsWith('"') && textResponse.endsWith('"')) {
-        return textResponse.substring(1, textResponse.length-1);
+        return textResponse.substring(1, textResponse.length - 1);
       }
       return textResponse;
     }
