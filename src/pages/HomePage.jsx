@@ -47,13 +47,12 @@ export default function HomePage({ demoEnabled, initError }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      const loginData = await response.json();
       if (!response.ok) {
         logout();
-        toast.error(loginData.error);
+        toast.error(await response.text());
         return;
       }
-      await action(loginData);
+      await action(await response.json());
       router.replace("/data");
       toast.success("Login successful!");
     } catch (e) {

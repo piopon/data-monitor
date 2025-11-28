@@ -34,15 +34,19 @@ export class ScraperRequest {
    * @returns response object received from scraper backend
    */
   static async #sendRequest(url, method, headers, body = undefined) {
-    const response = await fetch(url, {
-      method: method,
-      headers: headers,
-      ...(body && { body }),
-    });
-    return new Response(await this.#getResponseContent(response), {
-      status: response.status,
-      headers: response.headers,
-    });
+    try {
+      const response = await fetch(url, {
+        method: method,
+        headers: headers,
+        ...(body && { body }),
+      });
+      const content = await this.#getResponseContent(response);
+      return new Response(content, {
+        status: response.status,
+      });
+    } catch (error) {
+      return new Response("Scraper backend is not available", { status: 500 });
+    }
   }
 
   /**
@@ -53,8 +57,24 @@ export class ScraperRequest {
   static async #getResponseContent(response) {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      return response.ok ? JSON.stringify(await response.json()) : await response.text();
+      if (response.ok) {
+        return JSON.stringify(await response.json());
+      }
+      const textResponse = await response.text();
+      if (textResponse.startsWith('"') && textResponse.endsWith('"')) {
+        return textResponse.substring(1, textResponse.length - 1);
+      }
+      return textResponse;
     }
     return await response.text();
+  }
+
+  static #isJsonCompatible(input) {
+    try {
+      JSON.parse(input);
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 }

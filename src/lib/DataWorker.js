@@ -92,9 +92,9 @@ function updateSendTimestamp(user, monitorId) {
  * @param {Object} user Parent user for which we want to check data
  */
 async function checkData(user) {
-  try {
-    const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
-    enabledMonitors.forEach(async (monitor) => {
+  const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
+  enabledMonitors.forEach(async (monitor) => {
+    try {
       // get scraper data item value for specified user's enabled monitor
       const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
         method: "GET",
@@ -141,10 +141,10 @@ async function checkData(user) {
       } else {
         console.log(`${monitor.parent} does not meet its threshold value...`);
       }
-    });
-  } catch (err) {
-    console.error("Worker error: ", err.message);
-  }
+    } catch (error) {
+      console.error("Worker error: ", error.message);
+    }
+  });
 }
 
 // check notifiers configuration correctness

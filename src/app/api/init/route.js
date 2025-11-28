@@ -6,7 +6,7 @@ import { UserService } from "@/model/UserService";
 export async function GET(request) {
   const userInitResult = await UserService.initializeTable();
   if (!userInitResult.result) {
-    const result = {init: false, message: userInitResult.message};
+    const result = { init: false, message: userInitResult.message };
     return new Response(JSON.stringify(result), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -14,7 +14,7 @@ export async function GET(request) {
   }
   const monitorInitResult = await MonitorService.initializeTable();
   if (!monitorInitResult.result) {
-    const result = {init: false, message: monitorInitResult.message};
+    const result = { init: false, message: monitorInitResult.message };
     return new Response(JSON.stringify(result), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -22,9 +22,9 @@ export async function GET(request) {
   }
   const featuresResponse = await ScraperRequest.GET(AppConfig.getConfig().scraper.endpoints.features);
   if (!featuresResponse.ok) {
-    const result = {init: false, message: "Cannot get scraper features status"};
+    const result = { init: false, message: await featuresResponse.text() };
     return new Response(JSON.stringify(result), {
-      status: 500,
+      status: featuresResponse.status,
       headers: { "Content-Type": "application/json" },
     });
   }
