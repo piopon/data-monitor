@@ -232,6 +232,14 @@ section#data-section div#empty-cards-placeholder {
   @apply h-full;
 }
 
+div#empty-cards-placeholder p {
+  @apply text-xl font-light;
+}
+
+div#empty-cards-placeholder span.empty-title {
+  @apply text-indigo-600 text-4xl font-bold;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {
