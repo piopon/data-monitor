@@ -233,11 +233,15 @@ section#data-section div#empty-cards-placeholder {
 }
 
 div#empty-cards-placeholder p {
-  @apply text-xl font-light;
+  @apply text-xl font-extralight;
 }
 
 div#empty-cards-placeholder span.empty-title {
   @apply text-indigo-600 text-4xl font-bold;
+}
+
+div#empty-cards-placeholder span.empty-footer {
+  @apply mt-1 ml-80 font-light text-xs;
 }
 
 /***************************** PAGE NOT FOUND *******************************/
