@@ -2,11 +2,9 @@
 
 import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import UserAccess from "@/components/UserAccess";
-import Spinner from "@/components/Spinner";
-import DataCards from "@/components/DataCards";
 import { LoginContext } from "@/context/Contexts";
-import EmptyCards from "@/components/EmptyCards";
+import UserAccess from "@/components/UserAccess";
+import DataPage from "@/pages/DataPage";
 
 export default function Data() {
   const MAX_ATTEMPTS = 5;
@@ -50,9 +48,7 @@ export default function Data() {
 
   return (
     <UserAccess>
-      <section id="data-section">
-        {loading ? <Spinner /> : data.length > 0 ? <DataCards data={data} /> : <EmptyCards />}
-      </section>
+      <DataPage isLoading={loading} data={data} />
     </UserAccess>
   );
 }
