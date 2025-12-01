@@ -48,7 +48,7 @@ export default function Data() {
 
   return (
     <UserAccess>
-      <DataPage isLoading={loading} data={data} />
+      <DataPage loading={loading} data={data} />
     </UserAccess>
   );
 }
