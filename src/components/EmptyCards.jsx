@@ -1,5 +1,3 @@
-import React from "react";
-
 const EmptyCards = () => {
   return (
     <div id="empty-cards-placeholder">
