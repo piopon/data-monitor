@@ -227,6 +227,23 @@ div.data-card-monitor button.save-monitor {
   @apply bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-hidden focus:bg-indigo-600;
 }
 
+section#data-section div#empty-cards-placeholder {
+  @apply flex flex-col justify-center items-center;
+  @apply h-full;
+}
+
+div#empty-cards-placeholder p {
+  @apply text-xl p-3 sm:p-0 font-extralight text-justify;
+}
+
+div#empty-cards-placeholder span.empty-title {
+  @apply text-indigo-600 text-2xl sm:text-4xl font-bold;
+}
+
+div#empty-cards-placeholder span.empty-footer {
+  @apply mt-1 ml-0 sm:ml-80 font-light text-xs;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {
