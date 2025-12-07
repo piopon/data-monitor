@@ -21,6 +21,11 @@ const MenuBar = () => {
     router.replace("/notifiers");
   };
 
+  const viewHome = async (event) => {
+    event.preventDefault();
+    router.replace("/");
+  };
+
   const userLogout = async (event) => {
     event.preventDefault();
     const response = !isDemo
@@ -57,6 +62,15 @@ const MenuBar = () => {
           <div className="menu-item-div">
             <button type="submit" className="menu-item-button">
               notifiers
+            </button>
+          </div>
+        </form>
+      </section>
+      <section className="menu-section">
+        <form className="menu-item-form" onSubmit={viewHome}>
+          <div className="menu-item-div">
+            <button type="submit" className="menu-item-button">
+              home
             </button>
           </div>
         </form>
