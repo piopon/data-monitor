@@ -33,17 +33,17 @@ div.page-container {
 }
 
 nav.page-head {
-  @apply flex flex-row sm:flex-col items-center justify-center w-full;
+  @apply flex flex-col items-center justify-center w-full;
   @apply bg-indigo-600 border-b border-indigo-500;
 }
 
 div.page-head-logo-div {
-  @apply flex w-full sm:w-[80%] h-20;
+  @apply flex w-full sm:w-[80%] mt-2 sm:mt-5 mb-2 sm:mb-5;
 }
 
 div.page-head-menu-div {
-  @apply flex items-center justify-center sm:justify-end flex-col sm:flex-row;
-  @apply sm:w-[80%] h-full sm:h-10;
+  @apply flex items-center justify-end sm:justify-end flex-row;
+  @apply w-full sm:w-[80%] mb-2;
   @apply animate-menu-drop-down;
 }
 
