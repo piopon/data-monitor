@@ -41,7 +41,7 @@ const MenuBar = () => {
           <form className="menu-item-form" onSubmit={viewConfig}>
             <div className="menu-item-div">
               <button type="submit" className="menu-item-button">
-                config
+                scraper
               </button>
             </div>
           </form>
