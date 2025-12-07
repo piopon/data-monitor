@@ -10,7 +10,7 @@ const GuestAccess = ({ children }) => {
 
   useEffect(() => {
     if (userLogged) {
-      router.replace("/data");
+      router.replace("/monitors");
     }
   }, [userLogged, router]);
 
