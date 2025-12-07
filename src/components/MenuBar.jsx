@@ -12,8 +12,8 @@ const MenuBar = () => {
 
   const config = AppConfig.getConfig();
   const router = useRouter();
-  const { pageId, setPageId } = useContext(PageContext);
   const { isDemo, challenge, logout } = useContext(LoginContext);
+  const { pageId } = useContext(PageContext);
 
   const viewConfig = async (event) => {
     event.preventDefault();
@@ -23,13 +23,11 @@ const MenuBar = () => {
   const viewNotifiers = async (event) => {
     event.preventDefault();
     router.replace("/notifiers");
-    setPageId(PAGE_ID_NOTIFIERS);
   };
 
   const viewMonitors = async (event) => {
     event.preventDefault();
     router.replace("/");
-    setPageId(PAGE_ID_MONITORS);
   };
 
   const userLogout = async (event) => {
