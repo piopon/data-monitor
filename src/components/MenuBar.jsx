@@ -7,6 +7,9 @@ import { AppConfig } from "@/config/AppConfig";
 import { LoginContext, PageContext } from "@/context/Contexts";
 
 const MenuBar = () => {
+  const PAGE_ID_NOTIFIERS = "notifiers";
+  const PAGE_ID_MONITORS = "monitors";
+
   const config = AppConfig.getConfig();
   const router = useRouter();
   const { pageId, setPageId } = useContext(PageContext);
@@ -20,13 +23,13 @@ const MenuBar = () => {
   const viewNotifiers = async (event) => {
     event.preventDefault();
     router.replace("/notifiers");
-    setPageId("notifier");
+    setPageId(PAGE_ID_NOTIFIERS);
   };
 
-  const viewHome = async (event) => {
+  const viewMonitors = async (event) => {
     event.preventDefault();
     router.replace("/");
-    setPageId("home");
+    setPageId(PAGE_ID_MONITORS);
   };
 
   const userLogout = async (event) => {
@@ -49,7 +52,7 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
-      {"home" === pageId && (
+      {PAGE_ID_MONITORS === pageId && (
         <section className="menu-section">
           <form className="menu-item-form" onSubmit={viewNotifiers}>
             <div className="menu-item-div">
@@ -60,12 +63,12 @@ const MenuBar = () => {
           </form>
         </section>
       )}
-      {"notifier" === pageId && (
+      {PAGE_ID_NOTIFIERS === pageId && (
         <section className="menu-section">
-          <form className="menu-item-form" onSubmit={viewHome}>
+          <form className="menu-item-form" onSubmit={viewMonitors}>
             <div className="menu-item-div">
               <button type="submit" className="menu-item-button">
-                home
+                monitors
               </button>
             </div>
           </form>
