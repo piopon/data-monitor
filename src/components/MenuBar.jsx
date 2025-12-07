@@ -16,6 +16,11 @@ const MenuBar = () => {
     router.push(`${config.scraper.public}${config.scraper.endpoints.edit}${challenge}`);
   };
 
+  const viewNotifiers = async (event) => {
+    event.preventDefault();
+    router.replace("/notifiers");
+  };
+
   const userLogout = async (event) => {
     event.preventDefault();
     const response = !isDemo
@@ -47,6 +52,15 @@ const MenuBar = () => {
           </form>
         </section>
       )}
+      <section className="menu-section">
+        <form className="menu-item-form" onSubmit={viewNotifiers}>
+          <div className="menu-item-div">
+            <button type="submit" className="menu-item-button">
+              notifiers
+            </button>
+          </div>
+        </form>
+      </section>
       <section className="menu-section">
         <form className="menu-item-form" onSubmit={userLogout}>
           <div className="menu-item-div">
