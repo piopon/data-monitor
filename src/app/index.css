@@ -42,7 +42,7 @@ div.page-head-logo-div {
 }
 
 div.page-head-menu-div {
-  @apply flex items-center justify-end sm:justify-end flex-row;
+  @apply flex items-center justify-evenly sm:justify-end flex-row;
   @apply w-full sm:w-[80%] mb-2;
   @apply animate-menu-drop-down;
 }
