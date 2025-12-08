@@ -27,7 +27,7 @@ const MenuBar = () => {
 
   const viewMonitors = async (event) => {
     event.preventDefault();
-    router.replace("/");
+    router.replace("/monitors");
   };
 
   const userLogout = async (event) => {
