@@ -7,9 +7,6 @@ import { AppConfig } from "@/config/AppConfig";
 import { LoginContext, PageContext } from "@/context/Contexts";
 
 const MenuBar = () => {
-  const PAGE_ID_NOTIFIERS = "notifiers";
-  const PAGE_ID_MONITORS = "monitors";
-
   const config = AppConfig.getConfig();
   const router = useRouter();
   const { isDemo, challenge, logout } = useContext(LoginContext);
@@ -50,7 +47,7 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
-      {PAGE_ID_MONITORS === pageId && (
+      {"monitors" === pageId && (
         <section className="menu-section">
           <form className="menu-item-form" onSubmit={viewNotifiers}>
             <div className="menu-item-div">
@@ -61,7 +58,7 @@ const MenuBar = () => {
           </form>
         </section>
       )}
-      {PAGE_ID_NOTIFIERS === pageId && (
+      {"notifiers" === pageId && (
         <section className="menu-section">
           <form className="menu-item-form" onSubmit={viewMonitors}>
             <div className="menu-item-div">
