@@ -6,7 +6,7 @@ import { LoginContext, PageContext } from "@/context/Contexts";
 import UserAccess from "@/components/UserAccess";
 import MonitorsPage from "@/pages/MonitorsPage";
 
-export default function Data() {
+export default function Monitors() {
   const MAX_ATTEMPTS = 5;
   const WAIT_TIME_MS = 500;
 
