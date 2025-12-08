@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LoginContext, PageContext } from "@/context/Contexts";
 import UserAccess from "@/components/UserAccess";
-import DataPage from "@/pages/DataPage";
+import MonitorsPage from "@/pages/MonitorsPage";
 
 export default function Data() {
   const MAX_ATTEMPTS = 5;
@@ -48,10 +48,9 @@ export default function Data() {
     setPageId("monitors");
   }, [isDemo, setPageId, token]);
 
-
   return (
     <UserAccess>
-      <DataPage loading={loading} data={data} />
+      <MonitorsPage loading={loading} data={data} />
     </UserAccess>
   );
 }
