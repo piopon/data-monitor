@@ -45,4 +45,22 @@ export class NotifierService {
     const { rows } = await DatabaseQuery(`SELECT * FROM ${NotifierService.#DB_TABLE_NAME} ${whereClause}`, values);
     return rows;
   }
+
+  static async addNotifier(data) {
+    const { type, origin, sender, password } = data;
+    const { rows } = await DatabaseQuery(
+      `INSERT INTO ${NotifierService.#DB_TABLE_NAME} (type, origin, sender, password) VALUES ($1, $2, $3, $4) RETURNING *`,
+      [type, origin, sender, password]
+    );
+    return rows[0];
+  }
+
+  static async editNotifier(id, data) {
+    const { type, origin, sender, password } = data;
+    const { rows } = await DatabaseQuery(
+      `UPDATE ${NotifierService.#DB_TABLE_NAME} SET type = $1, origin = $2, sender = $3, password = $4 WHERE id = $5 RETURNING *`,
+      [type, origin, sender, password, id]
+    );
+    return rows[0];
+  }
 }
