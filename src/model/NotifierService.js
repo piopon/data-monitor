@@ -63,4 +63,9 @@ export class NotifierService {
     );
     return rows[0];
   }
+
+  static async deleteNotifier(id) {
+    const { rowCount } = await DatabaseQuery(`DELETE FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
+    return rowCount > 0;
+  }
 }
