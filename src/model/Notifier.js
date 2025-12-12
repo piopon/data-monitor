@@ -5,6 +5,7 @@ export class Notifier {
 
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
+    this.id = ModelUtils.getValueOrDefault(input.id, undefined);
     this.type = ModelUtils.getValueOrDefault(input.type, "");
     this.origin = ModelUtils.getValueOrDefault(input.origin, "");
     this.sender = ModelUtils.getValueOrDefault(input.sender, "");

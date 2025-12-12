@@ -16,6 +16,7 @@ export class Monitor {
    */
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
+    this.id = ModelUtils.getValueOrDefault(input.id, undefined);
     this.parent = ModelUtils.getValueOrDefault(input.parent, "");
     this.enabled = ModelUtils.getValueOrDefault(input.enabled, false);
     this.threshold = ModelUtils.getValueOrDefault(input.threshold, undefined);
