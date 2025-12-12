@@ -25,6 +25,10 @@ export class NotifierService {
     const values = [];
     const conditions = [];
 
+    if (filters.id) {
+      values.push(filters.id);
+      conditions.push(`id = $${values.length}`);
+    }
     if (filters.type) {
       values.push(filters.type);
       conditions.push(`type = $${values.length}`);

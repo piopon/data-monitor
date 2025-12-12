@@ -19,10 +19,11 @@ export class Monitor {
     this.id = ModelUtils.getValueOrDefault(input.id, undefined);
     this.parent = ModelUtils.getValueOrDefault(input.parent, "");
     this.enabled = ModelUtils.getValueOrDefault(input.enabled, false);
+    this.interval = ModelUtils.getValueOrDefault(input.interval, undefined);
     this.threshold = ModelUtils.getValueOrDefault(input.threshold, undefined);
     this.condition = ModelUtils.getValueOrDefault(input.condition, undefined);
     this.notifier = ModelUtils.getValueOrDefault(input.notifier, undefined);
-    this.interval = ModelUtils.getValueOrDefault(input.interval, undefined);
+    this.userId = ModelUtils.getValueOrDefault(input.userId, undefined);
   }
 
   /**
@@ -33,10 +34,10 @@ export class Monitor {
     return `id SERIAL PRIMARY KEY,
             parent TEXT NOT NULL UNIQUE,
             enabled BOOLEAN DEFAULT false,
+            interval NUMERIC NOT NULL,
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL CHECK ${Monitor.#getConditionSchema()},
             notifier TEXT NOT NULL,
-            interval NUMERIC NOT NULL,
             user_id SERIAL REFERENCES ${User.getTableName()}(id)`;
   }
 

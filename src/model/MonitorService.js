@@ -41,6 +41,10 @@ export class MonitorService {
     const values = [];
     const conditions = [];
 
+    if (filters.id) {
+      values.push(filters.id);
+      conditions.push(`id = $${values.length}`);
+    }
     if (filters.parent) {
       values.push(filters.parent);
       conditions.push(`parent = $${values.length}`);
@@ -48,6 +52,10 @@ export class MonitorService {
     if (filters.enabled) {
       values.push(filters.enabled);
       conditions.push(`enabled = $${values.length}`);
+    }
+    if (filters.interval) {
+      values.push(filters.interval);
+      conditions.push(`interval = $${values.length}`);
     }
     if (filters.threshold) {
       values.push(filters.threshold);
@@ -60,10 +68,6 @@ export class MonitorService {
     if (filters.notifier) {
       values.push(filters.notifier);
       conditions.push(`notifier = $${values.length}`);
-    }
-    if (filters.interval) {
-      values.push(filters.interval);
-      conditions.push(`interval = $${values.length}`);
     }
     if (filters.user) {
       values.push(filters.user);
