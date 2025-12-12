@@ -92,7 +92,7 @@ function updateSendTimestamp(user, monitorId) {
  * @param {Object} user Parent user for which we want to check data
  */
 async function checkData(user) {
-  const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
+  const enabledMonitors = await MonitorService.filterMonitors({ user: user.id, enabled: true });
   enabledMonitors.forEach(async (monitor) => {
     try {
       // get scraper data item value for specified user's enabled monitor
