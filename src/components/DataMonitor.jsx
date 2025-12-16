@@ -10,21 +10,28 @@ import Toggle from "./Toggle";
 import Select from "./Select";
 
 const CONFIG_NOTIFIER_OPTION = { value: "config", text: "configure..." };
+const MONITOR_DEFAULTS = {
+  id: 0,
+  enabled: false,
+  threshold: "",
+  condition: "<",
+  notifier: CONFIG_NOTIFIER_OPTION.text,
+  interval: 300_000,
+};
 
 const DataMonitor = ({ parentName }) => {
-  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "", interval: 300_000 };
   const parentId = DataUtils.nameToId(parentName);
-  const router = useRouter();
   const { isDemo, userId } = useContext(LoginContext);
+  const router = useRouter();
 
-  const [id, setId] = useState(defaults.id);
-  const [enabled, setEnabled] = useState(defaults.enabled);
-  const [interval, setInterval] = useState(defaults.interval);
-  const [threshold, setThreshold] = useState(defaults.threshold);
-  const [condition, setCondition] = useState(defaults.condition);
+  const [id, setId] = useState(MONITOR_DEFAULTS.id);
+  const [enabled, setEnabled] = useState(MONITOR_DEFAULTS.enabled);
+  const [interval, setInterval] = useState(MONITOR_DEFAULTS.interval);
+  const [threshold, setThreshold] = useState(MONITOR_DEFAULTS.threshold);
+  const [condition, setCondition] = useState(MONITOR_DEFAULTS.condition);
   const [notifierId, setNotifierId] = useState(-1);
   const [notifierOpts, setNotifierOpts] = useState([CONFIG_NOTIFIER_OPTION]);
-  const [notifierType, setNotifierType] = useState(defaults.notifier);
+  const [notifierType, setNotifierType] = useState(MONITOR_DEFAULTS.notifier);
 
   useEffect(() => {
     const initialize = async () => {
@@ -74,12 +81,12 @@ const DataMonitor = ({ parentName }) => {
           return;
         }
         // initialize UI with monitor and notifier data
-        setId(monitorData[0].id ?? defaults.id);
-        setEnabled(monitorData[0].enabled ?? defaults.enabled);
-        setCondition(monitorData[0].condition ?? defaults.condition);
-        setThreshold(monitorData[0].threshold ?? defaults.threshold);
-        setNotifierType(notifierData[0].type ?? defaults.notifier);
-        setInterval(monitorData[0].interval ?? defaults.interval);
+        setId(monitorData[0].id ?? MONITOR_DEFAULTS.id);
+        setEnabled(monitorData[0].enabled ?? MONITOR_DEFAULTS.enabled);
+        setCondition(monitorData[0].condition ?? MONITOR_DEFAULTS.condition);
+        setThreshold(monitorData[0].threshold ?? MONITOR_DEFAULTS.threshold);
+        setNotifierType(notifierData[0].type ?? MONITOR_DEFAULTS.notifier);
+        setInterval(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
@@ -95,7 +102,7 @@ const DataMonitor = ({ parentName }) => {
     }
     const monitor = { parent: parentId, enabled, threshold, condition, notifier: notifierId, interval, user: userId };
     try {
-      const exists = defaults.id !== id;
+      const exists = MONITOR_DEFAULTS.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;
       const monitorResponse = await fetch(`/api/monitor${idFilter}`, {
         method: exists ? "PUT" : "POST",
