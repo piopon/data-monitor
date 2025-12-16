@@ -8,10 +8,12 @@ import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { DataUtils } from "@/lib/DataUtils";
 import Toggle from "./Toggle";
 import Select from "./Select";
+import { useRouter } from "next/navigation";
 
 const DataMonitor = ({ parentName }) => {
   const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email", interval: 300_000 };
   const parentId = DataUtils.nameToId(parentName);
+  const router = useRouter();
   const { isDemo, userId } = useContext(LoginContext);
 
   const [id, setId] = useState(defaults.id);
@@ -111,6 +113,13 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
+  const notifierSelected = (value) => {
+    if ("configure" === value) {
+      router.replace("/notifiers");
+    }
+    setNotifier(value);
+  };
+
   return (
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
@@ -124,7 +133,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select options={notifierOpts} value={notifier} disabled={!enabled} setter={setNotifier} />
+        <Select options={notifierOpts} value={notifier} disabled={!enabled} setter={notifierSelected} />
         <input
           type="text"
           className="data-interval"
