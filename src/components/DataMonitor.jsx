@@ -38,11 +38,27 @@ const DataMonitor = ({ parentName }) => {
           toast.error("Error: Received multiple monitor entries...");
           return;
         }
+        if (data[0].notifier == null) {
+          return;
+        }
+        const notifierResponse = await fetch(`/api/notifier?id=${data[0].notifier}`);
+        const notifierData = await notifierResponse.json();
+        if (!notifierResponse.ok) {
+          toast.error(notifierData.message);
+          return;
+        }
+        if (0 === notifierData.length) {
+          return;
+        }
+        if (1 !== notifierData.length) {
+          toast.error("Error: Received multiple notifier entries...");
+          return;
+        }
         setId(data[0].id ?? defaults.id);
         setEnabled(data[0].enabled ?? defaults.enabled);
         setCondition(data[0].condition ?? defaults.condition);
         setThreshold(data[0].threshold ?? defaults.threshold);
-        setNotifier(data[0].notifier ?? defaults.notifier);
+        setNotifier(notifierData[0].type ?? defaults.notifier);
         setInterval(data[0].interval ?? defaults.interval);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
