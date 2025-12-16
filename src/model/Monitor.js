@@ -1,4 +1,5 @@
 import { ModelUtils } from "../lib/ModelUtils.js";
+import { Notifier } from "./Notifier.js";
 import { User } from "./User.js";
 
 export class Monitor {
@@ -22,7 +23,7 @@ export class Monitor {
     this.interval = ModelUtils.getValueOrDefault(input.interval, undefined);
     this.threshold = ModelUtils.getValueOrDefault(input.threshold, undefined);
     this.condition = ModelUtils.getValueOrDefault(input.condition, undefined);
-    this.notifier = ModelUtils.getValueOrDefault(input.notifier, undefined);
+    this.notifierId = ModelUtils.getValueOrDefault(input.notifierId, undefined);
     this.userId = ModelUtils.getValueOrDefault(input.userId, undefined);
   }
 
@@ -37,7 +38,7 @@ export class Monitor {
             interval NUMERIC NOT NULL,
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL CHECK ${Monitor.#getConditionSchema()},
-            notifier TEXT NOT NULL,
+            notifier_id SERIAL REFERENCES ${Notifier.getTableName()}(id),
             user_id SERIAL REFERENCES ${User.getTableName()}(id)`;
   }
 
