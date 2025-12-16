@@ -10,7 +10,7 @@ import Toggle from "./Toggle";
 import Select from "./Select";
 
 const DataMonitor = ({ parentName }) => {
-  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email", interval: 300_000 };
+  const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "", interval: 300_000 };
   const parentId = DataUtils.nameToId(parentName);
   const router = useRouter();
   const { isDemo, userId } = useContext(LoginContext);
