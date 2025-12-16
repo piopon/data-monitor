@@ -1,3 +1,4 @@
+import { NotifierCatalog } from "../notifiers/core/NotifierCatalog.js";
 import { ModelUtils } from "../lib/ModelUtils.js";
 
 export class Notifier {
@@ -22,7 +23,7 @@ export class Notifier {
    */
   static getDatabaseSchema() {
     return `id SERIAL PRIMARY KEY,
-            type TEXT NOT NULL CHECK (type IN ('email', 'discord')),
+            type TEXT NOT NULL CHECK ${Notifier.#getTypeSchema()},
             origin TEXT NOT NULL,
             sender TEXT NOT NULL,
             password TEXT`;
@@ -34,5 +35,13 @@ export class Notifier {
    */
   static getTableName() {
     return Notifier.#DB_TABLE_NAME;
+  }
+
+  /**
+   * Method used to retrieve monitor conditions in a schema suitable format
+   * @returns string with schema for condition field
+   */
+  static #getTypeSchema() {
+    return "(type IN (" + NotifierCatalog.getSupportedNotifiers().keys().join(", ") + "))";
   }
 }
