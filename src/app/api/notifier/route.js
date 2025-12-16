@@ -4,7 +4,26 @@ import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 
 export async function GET(request) {
   try {
-    const notifiers = await NotifierService.getNotifiers();
+    const searchParams = request.nextUrl.searchParams;
+    if (0 === searchParams.size) {
+      const notifiers = await NotifierService.getNotifiers();
+      return new Response(JSON.stringify(notifiers), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const id = searchParams.get("id");
+    const type = searchParams.get("type");
+    const origin = searchParams.get("origin");
+    const sender = searchParams.get("sender");
+    const password = searchParams.get("password");
+    const notifiers = await NotifierService.filterNotifiers({
+      ...(id && { id }),
+      ...(type && { type }),
+      ...(origin && { threshold }),
+      ...(sender && { sender }),
+      ...(password && { password }),
+    });
     return new Response(JSON.stringify(notifiers), {
       status: 200,
       headers: { "Content-Type": "application/json" },
