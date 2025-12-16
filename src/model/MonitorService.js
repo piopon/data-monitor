@@ -67,7 +67,7 @@ export class MonitorService {
     }
     if (filters.notifier) {
       values.push(filters.notifier);
-      conditions.push(`notifier = $${values.length}`);
+      conditions.push(`notifier_id = $${values.length}`);
     }
     if (filters.user) {
       values.push(filters.user);
@@ -88,7 +88,7 @@ export class MonitorService {
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${
         MonitorService.#DB_TABLE_NAME
-      } (parent, enabled, threshold, condition, notifier, interval, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      } (parent, enabled, threshold, condition, notifier_id, interval, user_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
       [parent, enabled, threshold, condition, notifier, interval, user]
     );
     return rows[0];
@@ -105,7 +105,7 @@ export class MonitorService {
     const { rows } = await DatabaseQuery(
       `UPDATE ${
         MonitorService.#DB_TABLE_NAME
-      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier = $5, interval = $6, user_id = $7 WHERE id = $8 RETURNING *`,
+      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier_id = $5, interval = $6, user_id = $7 WHERE id = $8 RETURNING *`,
       [parent, enabled, threshold, condition, notifier, interval, user, id]
     );
     return rows[0];
