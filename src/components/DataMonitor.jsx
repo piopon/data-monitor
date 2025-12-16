@@ -1,14 +1,13 @@
 "use client";
 
-import { useContext, useEffect, useState, useMemo } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
-import { Monitor } from "@/model/Monitor";
-import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { DataUtils } from "@/lib/DataUtils";
+import { Monitor } from "@/model/Monitor";
 import Toggle from "./Toggle";
 import Select from "./Select";
-import { useRouter } from "next/navigation";
 
 const DataMonitor = ({ parentName }) => {
   const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "email", interval: 300_000 };
