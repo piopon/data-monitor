@@ -16,6 +16,7 @@ const DataMonitor = ({ parentName }) => {
 
   const [id, setId] = useState(defaults.id);
   const [notifierId, setNotifierId] = useState(-1);
+  const [notifierOpts, setNotifierOpts] = useState([]);
   const [enabled, setEnabled] = useState(defaults.enabled);
   const [threshold, setThreshold] = useState(defaults.threshold);
   const [condition, setCondition] = useState(defaults.condition);
@@ -25,6 +26,19 @@ const DataMonitor = ({ parentName }) => {
   useEffect(() => {
     const initialize = async () => {
       try {
+        const notifiersResponse = await fetch(`/api/notifier`);
+        const notifiersData = await notifiersResponse.json();
+        if (!notifiersResponse.ok) {
+          toast.error(notifiersData.message);
+          return;
+        }
+        const notifierOptions = notifiersData.map((notifier) => ({
+          value: `${notifier.type}@${notifier.id}`,
+          text: notifier.type,
+        }));
+        notifierOptions.push({ value: "configure", text: "configure" });
+        setNotifierOpts(notifierOptions)
+
         const response = await fetch(`/api/monitor?parent=${parentId}`);
         const data = await response.json();
         if (!response.ok) {
@@ -96,12 +110,6 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
-  const notifierOptions = useMemo(() => {
-    return NotifierCatalog.getSupportedNotifiers()
-      .keys()
-      .map((key) => ({ value: key, text: key }));
-  }, []);
-
   return (
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
@@ -115,7 +123,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select options={notifierOptions} value={notifier} disabled={!enabled} setter={setNotifier} />
+        <Select options={notifierOpts} value={notifier} disabled={!enabled} setter={setNotifier} />
         <input
           type="text"
           className="data-interval"
