@@ -38,25 +38,25 @@ const DataMonitor = ({ parentName }) => {
         }));
         notifierOptions.push({ value: "configure", text: "configure" });
         setNotifierOpts(notifierOptions)
-
-        const response = await fetch(`/api/monitor?parent=${parentId}`);
-        const data = await response.json();
-        if (!response.ok) {
-          toast.error(data.message);
+        // get monitor for specified parent
+        const monitorResponse = await fetch(`/api/monitor?parent=${parentId}`);
+        const monitorData = await monitorResponse.json();
+        if (!monitorResponse.ok) {
+          toast.error(monitorData.message);
           return;
         }
-        if (0 === data.length) {
-          // no monitor data for the specified parent (leave default values)
+        if (0 === monitorData.length) {
           return;
         }
-        if (1 !== data.length) {
+        if (1 !== monitorData.length) {
           toast.error("Error: Received multiple monitor entries...");
           return;
         }
-        if (data[0].notifier == null) {
+        // get notifier name from ID
+        if (monitorData[0].notifier == null) {
           return;
         }
-        setNotifierId(data[0].notifier);
+        setNotifierId(monitorData[0].notifier);
         const notifierResponse = await fetch(`/api/notifier?id=${notifierId}`);
         const notifierData = await notifierResponse.json();
         if (!notifierResponse.ok) {
@@ -70,12 +70,13 @@ const DataMonitor = ({ parentName }) => {
           toast.error("Error: Received multiple notifier entries...");
           return;
         }
-        setId(data[0].id ?? defaults.id);
-        setEnabled(data[0].enabled ?? defaults.enabled);
-        setCondition(data[0].condition ?? defaults.condition);
-        setThreshold(data[0].threshold ?? defaults.threshold);
+        // initialize UI with monitor and notifier data
+        setId(monitorData[0].id ?? defaults.id);
+        setEnabled(monitorData[0].enabled ?? defaults.enabled);
+        setCondition(monitorData[0].condition ?? defaults.condition);
+        setThreshold(monitorData[0].threshold ?? defaults.threshold);
         setNotifier(notifierData[0].type ?? defaults.notifier);
-        setInterval(data[0].interval ?? defaults.interval);
+        setInterval(monitorData[0].interval ?? defaults.interval);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
