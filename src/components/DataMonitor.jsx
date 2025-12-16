@@ -18,13 +18,13 @@ const DataMonitor = ({ parentName }) => {
   const { isDemo, userId } = useContext(LoginContext);
 
   const [id, setId] = useState(defaults.id);
-  const [notifierId, setNotifierId] = useState(-1);
-  const [notifierOpts, setNotifierOpts] = useState([]);
   const [enabled, setEnabled] = useState(defaults.enabled);
+  const [interval, setInterval] = useState(defaults.interval);
   const [threshold, setThreshold] = useState(defaults.threshold);
   const [condition, setCondition] = useState(defaults.condition);
-  const [notifier, setNotifier] = useState(defaults.notifier);
-  const [interval, setInterval] = useState(defaults.interval);
+  const [notifierId, setNotifierId] = useState(-1);
+  const [notifierOpts, setNotifierOpts] = useState([CONFIG_NOTIFIER_OPTION]);
+  const [notifierType, setNotifierType] = useState(defaults.notifier);
 
   useEffect(() => {
     const initialize = async () => {
@@ -78,7 +78,7 @@ const DataMonitor = ({ parentName }) => {
         setEnabled(monitorData[0].enabled ?? defaults.enabled);
         setCondition(monitorData[0].condition ?? defaults.condition);
         setThreshold(monitorData[0].threshold ?? defaults.threshold);
-        setNotifier(notifierData[0].type ?? defaults.notifier);
+        setNotifierType(notifierData[0].type ?? defaults.notifier);
         setInterval(monitorData[0].interval ?? defaults.interval);
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
@@ -118,7 +118,7 @@ const DataMonitor = ({ parentName }) => {
     if (CONFIG_NOTIFIER_OPTION.value === value) {
       router.replace("/notifiers");
     }
-    setNotifier(value);
+    setNotifierType(value);
   };
 
   return (
@@ -134,7 +134,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select options={notifierOpts} value={notifier} disabled={!enabled} setter={notifierSelected} />
+        <Select options={notifierOpts} value={notifierType} disabled={!enabled} setter={notifierSelected} />
         <input
           type="text"
           className="data-interval"
