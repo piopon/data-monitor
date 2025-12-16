@@ -9,7 +9,7 @@ import { Monitor } from "@/model/Monitor";
 import Toggle from "./Toggle";
 import Select from "./Select";
 
-const CONFIG_NOTIFIER_OPTION = { value: "config", text: "configure..." };
+const CONFIG_NOTIFIER_OPTION = { value: "config@-1", text: "configure..." };
 const MONITOR_DEFAULTS = {
   id: 0,
   enabled: false,
@@ -47,7 +47,7 @@ const DataMonitor = ({ parentName }) => {
           text: notifier.type,
         }));
         notifierOptions.push(CONFIG_NOTIFIER_OPTION);
-        setNotifierOpts(notifierOptions)
+        setNotifierOpts(notifierOptions);
         // get monitor for specified parent
         const monitorResponse = await fetch(`/api/monitor?parent=${parentId}`);
         const monitorData = await monitorResponse.json();
