@@ -9,6 +9,8 @@ import { Monitor } from "@/model/Monitor";
 import Toggle from "./Toggle";
 import Select from "./Select";
 
+const CONFIG_NOTIFIER_OPTION = { value: "config", text: "configure..." };
+
 const DataMonitor = ({ parentName }) => {
   const defaults = { id: 0, enabled: false, threshold: "", condition: "<", notifier: "", interval: 300_000 };
   const parentId = DataUtils.nameToId(parentName);
@@ -37,7 +39,7 @@ const DataMonitor = ({ parentName }) => {
           value: `${notifier.type}@${notifier.id}`,
           text: notifier.type,
         }));
-        notifierOptions.push({ value: "configure", text: "configure" });
+        notifierOptions.push(CONFIG_NOTIFIER_OPTION);
         setNotifierOpts(notifierOptions)
         // get monitor for specified parent
         const monitorResponse = await fetch(`/api/monitor?parent=${parentId}`);
@@ -113,7 +115,7 @@ const DataMonitor = ({ parentName }) => {
   };
 
   const notifierSelected = (value) => {
-    if ("configure" === value) {
+    if (CONFIG_NOTIFIER_OPTION.value === value) {
       router.replace("/notifiers");
     }
     setNotifier(value);
