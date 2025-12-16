@@ -2,6 +2,11 @@ import { NotifierService } from "@/model/NotifierService";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 
+/**
+ * Method used to send the notifier GET request to retrieve notifier data
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing notifiers data
+ */
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
