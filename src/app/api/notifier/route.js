@@ -1,5 +1,22 @@
+import { NotifierService } from "@/model/NotifierService";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
+
+export async function GET(request) {
+  try {
+    const notifiers = await NotifierService.getNotifiers();
+    return new Response(JSON.stringify(notifiers), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const errorOutput = { message: `Cannot get notifiers: ${error.message}` };
+    return new Response(JSON.stringify(errorOutput), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
 
 /**
  * Method used to send the notifier POST request to send notification
