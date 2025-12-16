@@ -15,6 +15,7 @@ const DataMonitor = ({ parentName }) => {
   const { isDemo, userId } = useContext(LoginContext);
 
   const [id, setId] = useState(defaults.id);
+  const [notifierId, setNotifierId] = useState(-1);
   const [enabled, setEnabled] = useState(defaults.enabled);
   const [threshold, setThreshold] = useState(defaults.threshold);
   const [condition, setCondition] = useState(defaults.condition);
@@ -41,7 +42,8 @@ const DataMonitor = ({ parentName }) => {
         if (data[0].notifier == null) {
           return;
         }
-        const notifierResponse = await fetch(`/api/notifier?id=${data[0].notifier}`);
+        setNotifierId(data[0].notifier);
+        const notifierResponse = await fetch(`/api/notifier?id=${notifierId}`);
         const notifierData = await notifierResponse.json();
         if (!notifierResponse.ok) {
           toast.error(notifierData.message);
@@ -73,7 +75,7 @@ const DataMonitor = ({ parentName }) => {
       toast.warn(`Notifications are disabled for demo session.`);
       return;
     }
-    const monitor = { parent: parentId, enabled, threshold, condition, notifier, interval, user: userId };
+    const monitor = { parent: parentId, enabled, threshold, condition, notifier: notifierId, interval, user: userId };
     try {
       const exists = defaults.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;
