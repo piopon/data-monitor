@@ -42,6 +42,7 @@ export class Notifier {
    * @returns string with schema for condition field
    */
   static #getTypeSchema() {
-    return "(type IN (" + NotifierCatalog.getSupportedNotifiers().keys().join(", ") + "))";
+    const supportedNotifierTypes = NotifierCatalog.getSupportedNotifiers().keys();
+    return "(type IN (" + supportedNotifierTypes.map((notifier) => `'${notifier}'`).join(", ") + "))";
   }
 }
