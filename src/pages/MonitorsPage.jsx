@@ -1,6 +1,6 @@
 import DataCards from "@/components/DataCards";
 import EmptyCards from "@/components/EmptyCards";
-import Spinner from "@/components/Spinner";
+import Spinner from "@/widgets/Spinner";
 
 const MonitorsPage = ({ loading, data }) => {
   return (

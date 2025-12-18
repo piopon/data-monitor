@@ -6,8 +6,8 @@ import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import { DataUtils } from "@/lib/DataUtils";
 import { Monitor } from "@/model/Monitor";
-import Toggle from "./Toggle";
-import Select from "./Select";
+import Toggle from "@/widgets/Toggle";
+import Select from "@/widgets/Select";
 
 const CONFIG_NOTIFIER_OPTION = { value: "config@-1", text: "configure..." };
 const MONITOR_DEFAULTS = {
