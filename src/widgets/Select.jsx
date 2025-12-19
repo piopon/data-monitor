@@ -3,6 +3,7 @@ import ReactSelect from 'react-select'
 const Select = ({ options, value, disabled, setter }) => {
   return (
     <ReactSelect
+      classNamePrefix="react-select"
       options={options}
       getOptionLabel={(option) => option.text}
       getOptionValue={(option) => option.value}

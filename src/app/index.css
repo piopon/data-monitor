@@ -209,6 +209,29 @@ div.data-card-monitor select {
   @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
 }
 
+div.data-card-monitor .react-select__control {
+  @apply m-1 px-1.5 py-2 relative;
+  @apply rounded-lg text-sm bg-white border-0;
+}
+
+div.data-card-monitor .react-select__value-container {
+  @apply p-0;
+}
+
+div.data-card-monitor .react-select__single-value {
+  @apply text-black;
+}
+
+div.data-card-monitor .react-select__indicators {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+div.data-card-monitor .react-select__indicator {
+  @apply pl-1 pr-0 py-0;
+}
+
 div.data-card-monitor input.data-threshold {
   @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
   @apply disabled:opacity-50 disabled:pointer-events-none;
