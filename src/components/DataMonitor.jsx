@@ -122,12 +122,20 @@ const DataMonitor = ({ parentName }) => {
   };
 
   const notifierSelected = (input) => {
-    const currentId = input.split("@")[1]
     if (CONFIG_NOTIFIER_OPTION.value === input) {
       router.replace("/notifiers");
     }
-    setNotifierId(parseInt(currentId))
     setNotifierType(input);
+    if (input.includes("@")) {
+      const idString = input.split("@")[1].trim();
+      if ("" === idString || isNaN(idString)) {
+        toast.warning(`Notifier ID is invalid: ${input}`);
+        return;
+      }
+      setNotifierId(parseInt(idString));
+    } else {
+      toast.warning(`Notifier does not have an ID: ${input}`);
+    }
   };
 
   return (
