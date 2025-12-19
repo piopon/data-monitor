@@ -222,6 +222,14 @@ div.data-card-monitor .react-select__control {
   @apply rounded-lg text-sm bg-white border-0;
 }
 
+div.data-card-monitor .react-select__control--is-focused {
+  @apply ring-2 ring-black
+}
+
+div.data-card-monitor .react-select__control--is-disabled {
+  @apply opacity-50 pointer-events-none;
+}
+
 div.data-card-monitor .react-select__value-container {
   @apply p-0;
 }
