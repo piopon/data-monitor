@@ -5,10 +5,10 @@ import { User } from "./User.js";
 export class Monitor {
   static #DB_TABLE_NAME = "monitors";
   static CONDITIONS = [
-    { value: "<", text: "<" },
-    { value: "≤", text: "≤" },
-    { value: ">", text: ">" },
-    { value: "≥", text: "≥" },
+    { key: 0, value: "<", text: "<" },
+    { key: 1, value: "≤", text: "≤" },
+    { key: 2, value: ">", text: ">" },
+    { key: 3, value: "≥", text: "≥" },
   ];
 
   /**
