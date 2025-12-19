@@ -122,10 +122,12 @@ const DataMonitor = ({ parentName }) => {
   };
 
   const notifierSelected = (value) => {
-    if (CONFIG_NOTIFIER_OPTION.value === value) {
+    const [currentType, currentId] = value.split("@")
+    if (CONFIG_NOTIFIER_OPTION.value === currentType) {
       router.replace("/notifiers");
     }
-    setNotifierType(value);
+    setNotifierId(parseInt(currentId))
+    setNotifierType(currentType);
   };
 
   return (
