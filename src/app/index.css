@@ -209,6 +209,14 @@ div.data-card-monitor select {
   @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
 }
 
+.select-small .react-select__control {
+  @apply min-w-16;
+}
+
+.select-big .react-select__control {
+  @apply min-w-32;
+}
+
 div.data-card-monitor .react-select__control {
   @apply m-1 px-1.5 py-2 relative;
   @apply rounded-lg text-sm bg-white border-0;

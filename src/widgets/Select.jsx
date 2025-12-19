@@ -1,8 +1,9 @@
 import ReactSelect from 'react-select'
 
-const Select = ({ options, value, disabled, setter }) => {
+const Select = ({ size = "small", options, value, disabled, setter }) => {
   return (
     <ReactSelect
+      className={`select-${size}`}
       classNamePrefix="react-select"
       options={options}
       getOptionLabel={(option) => option.text}
