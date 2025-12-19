@@ -248,6 +248,10 @@ div.data-card-monitor .react-select__indicator {
   @apply pl-1 pr-0 py-0;
 }
 
+div.data-card-monitor .react-select__menu {
+  @apply mt-0.5;
+}
+
 div.data-card-monitor input.data-threshold {
   @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
   @apply disabled:opacity-50 disabled:pointer-events-none;
