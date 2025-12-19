@@ -82,6 +82,51 @@ div.page-content {
   @apply bg-white;
 }
 
+/****************************** WIDGETS *******************************/
+
+div.data-card-monitor .select-small .react-select__control {
+  @apply min-w-16;
+}
+
+div.data-card-monitor .select-big .react-select__control {
+  @apply min-w-32;
+}
+
+div.data-card-monitor .react-select__control {
+  @apply m-1 px-1.5 py-2 relative;
+  @apply rounded-lg text-sm bg-white border-0;
+}
+
+div.data-card-monitor .react-select__control--is-focused {
+  @apply ring-2 ring-black
+}
+
+div.data-card-monitor .react-select__control--is-disabled {
+  @apply opacity-50 pointer-events-none;
+}
+
+div.data-card-monitor .react-select__value-container {
+  @apply p-0;
+}
+
+div.data-card-monitor .react-select__single-value {
+  @apply text-black;
+}
+
+div.data-card-monitor .react-select__indicators {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+div.data-card-monitor .react-select__indicator {
+  @apply pl-1 pr-0 py-0;
+}
+
+div.data-card-monitor .react-select__menu {
+  @apply mt-0.5;
+}
+
 /***************************** LOGIN PAGE *****************************/
 
 section#login-section {
@@ -201,55 +246,6 @@ div.data-card-content {
 
 div.data-card-monitor form {
   @apply flex flex-row w-full;
-}
-
-div.data-card-monitor select {
-  @apply m-1 px-4 py-3 pe-9 rounded-lg text-sm;
-  @apply disabled:opacity-50 disabled:pointer-events-none;
-  @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
-}
-
-.select-small .react-select__control {
-  @apply min-w-16;
-}
-
-.select-big .react-select__control {
-  @apply min-w-32;
-}
-
-div.data-card-monitor .react-select__control {
-  @apply m-1 px-1.5 py-2 relative;
-  @apply rounded-lg text-sm bg-white border-0;
-}
-
-div.data-card-monitor .react-select__control--is-focused {
-  @apply ring-2 ring-black
-}
-
-div.data-card-monitor .react-select__control--is-disabled {
-  @apply opacity-50 pointer-events-none;
-}
-
-div.data-card-monitor .react-select__value-container {
-  @apply p-0;
-}
-
-div.data-card-monitor .react-select__single-value {
-  @apply text-black;
-}
-
-div.data-card-monitor .react-select__indicators {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-div.data-card-monitor .react-select__indicator {
-  @apply pl-1 pr-0 py-0;
-}
-
-div.data-card-monitor .react-select__menu {
-  @apply mt-0.5;
 }
 
 div.data-card-monitor input.data-threshold {
