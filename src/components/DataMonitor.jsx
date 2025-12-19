@@ -9,7 +9,7 @@ import { Monitor } from "@/model/Monitor";
 import Toggle from "@/widgets/Toggle";
 import Select from "@/widgets/Select";
 
-const CONFIG_NOTIFIER_OPTION = { value: "config@-1", text: "configure..." };
+const CONFIG_NOTIFIER_OPTION = { key: "config@-1", value: "config", text: "configure..." };
 const MONITOR_DEFAULTS = {
   id: 0,
   enabled: false,
@@ -43,7 +43,8 @@ const DataMonitor = ({ parentName }) => {
           return;
         }
         const notifierOptions = notifiersData.map((notifier) => ({
-          value: `${notifier.type}@${notifier.id}`,
+          key: `${notifier.type}@${notifier.id}`,
+          value: notifier.type,
           text: notifier.type,
         }));
         notifierOptions.push(CONFIG_NOTIFIER_OPTION);
@@ -121,9 +122,9 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
-  const notifierSelected = (value) => {
-    const [currentType, currentId] = value.split("@")
-    if (CONFIG_NOTIFIER_OPTION.value === currentType) {
+  const notifierSelected = (input) => {
+    const [currentType, currentId] = input.key.split("@")
+    if (CONFIG_NOTIFIER_OPTION.value === input.value) {
       router.replace("/notifiers");
     }
     setNotifierId(parseInt(currentId))
