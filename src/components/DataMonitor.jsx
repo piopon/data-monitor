@@ -15,7 +15,7 @@ const MONITOR_DEFAULTS = {
   enabled: false,
   threshold: "",
   condition: "<",
-  notifier: CONFIG_NOTIFIER_OPTION.text,
+  notifier: CONFIG_NOTIFIER_OPTION.value,
   interval: 300_000,
 };
 
@@ -121,7 +121,8 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
-  const notifierSelected = (input) => {
+  const notifierSelected = (selection) => {
+    const input = selection.value;
     if (CONFIG_NOTIFIER_OPTION.value === input) {
       router.replace("/notifiers");
     }
