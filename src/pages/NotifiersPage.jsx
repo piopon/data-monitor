@@ -6,14 +6,14 @@ const NotifiersPage = () => {
   const [notifiers, setNotifiers] = useState([]);
 
   const addNotifier = () => {
-    setNotifiers(currentNotifiers => [...currentNotifiers, "test"]);
+    setNotifiers((currentNotifiers) => [...currentNotifiers, "test"]);
   };
 
   return (
     <section id="notifiers-section">
       <div className="notifier-cards-div">
         {notifiers.length === 0 ? (
-          <EmptyCards whatToAdd={"notifier"} showFooter={false}/>
+          <EmptyCards whatToAdd={"notifier"} showFooter={false} />
         ) : (
           notifiers.map((type) => <NotifierCard key={type} type={type} />)
         )}

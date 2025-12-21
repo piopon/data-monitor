@@ -5,7 +5,7 @@ import Spinner from "@/widgets/Spinner";
 const MonitorsPage = ({ loading, data }) => {
   return (
     <section id="data-section">
-      {loading ? <Spinner /> : data.length > 0 ? <DataCards data={data} /> : <EmptyCards whatToAdd={"monitor"}/>}
+      {loading ? <Spinner /> : data.length > 0 ? <DataCards data={data} /> : <EmptyCards whatToAdd={"monitor"} />}
     </section>
   );
 };

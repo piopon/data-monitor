@@ -98,7 +98,7 @@ div.data-card-monitor .react-select__control {
 }
 
 div.data-card-monitor .react-select__control--is-focused {
-  @apply ring-2 ring-black
+  @apply ring-2 ring-black;
 }
 
 div.data-card-monitor .react-select__control--is-disabled {
@@ -294,7 +294,7 @@ section#notifiers-section div.notifier-cards-div {
 
 section#notifiers-section div.notifier-card {
   @apply w-full mt-2 p-5;
-  @apply rounded-xl shadow-lg relative ;
+  @apply rounded-xl shadow-lg relative;
   @apply bg-gray-200;
 }
 

@@ -9,7 +9,7 @@ import { Monitor } from "@/model/Monitor";
 import Toggle from "@/widgets/Toggle";
 import Select from "@/widgets/Select";
 
-const OPTION_VALUE_DELIMITER = "@"
+const OPTION_VALUE_DELIMITER = "@";
 const CONFIG_NOTIFIER_OPTION = { value: `config${OPTION_VALUE_DELIMITER}-1`, text: "configure..." };
 const MONITOR_DEFAULTS = {
   id: 0,
