@@ -285,7 +285,11 @@ div#empty-cards-placeholder span.empty-footer {
 
 section#notifiers-section {
   @apply w-full h-full;
+}
+
+section#notifiers-section div.notifier-cards-div {
   @apply flex flex-col items-start gap-5;
+  @apply my-5 sm:my-2 mx-5 sm:mx-0;
 }
 
 section#notifiers-section div.notifier-card {
