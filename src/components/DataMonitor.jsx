@@ -9,7 +9,8 @@ import { Monitor } from "@/model/Monitor";
 import Toggle from "@/widgets/Toggle";
 import Select from "@/widgets/Select";
 
-const CONFIG_NOTIFIER_OPTION = { value: "config@-1", text: "configure..." };
+const OPTION_VALUE_DELIMITER = "@"
+const CONFIG_NOTIFIER_OPTION = { value: `config${OPTION_VALUE_DELIMITER}-1`, text: "configure..." };
 const MONITOR_DEFAULTS = {
   id: 0,
   enabled: false,
@@ -43,7 +44,7 @@ const DataMonitor = ({ parentName }) => {
           return;
         }
         const notifierOptions = notifiersData.map((notifier) => ({
-          value: `${notifier.type}@${notifier.id}`,
+          value: `${notifier.type}${OPTION_VALUE_DELIMITER}${notifier.id}`,
           text: notifier.type,
         }));
         notifierOptions.push(CONFIG_NOTIFIER_OPTION);
@@ -127,8 +128,8 @@ const DataMonitor = ({ parentName }) => {
       router.replace("/notifiers");
     }
     setNotifierType(input);
-    if (input.includes("@")) {
-      const idString = input.split("@")[1].trim();
+    if (input.includes(OPTION_VALUE_DELIMITER)) {
+      const idString = input.split(OPTION_VALUE_DELIMITER)[1].trim();
       if ("" === idString || isNaN(idString)) {
         toast.warning(`Notifier ID is invalid: ${input}`);
         return;
