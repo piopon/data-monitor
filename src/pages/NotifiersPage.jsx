@@ -1,3 +1,4 @@
+import NotifierCard from "@/components/NotifierCard";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 
 const NotifiersPage = () => {
@@ -6,7 +7,7 @@ const NotifiersPage = () => {
       {NotifierCatalog.getSupportedNotifiers()
         .keys()
         .map((type) => (
-          <div>{type}</div>
+          <NotifierCard type={type} />
         ))}
     </section>
   );
