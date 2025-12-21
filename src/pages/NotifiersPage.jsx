@@ -6,8 +6,7 @@ const NotifiersPage = () => {
   const [notifiers, setNotifiers] = useState([]);
 
   const addNotifier = () => {
-    notifiers.push("test");
-    setNotifiers(notifiers);
+    setNotifiers(currentNotifiers => [...currentNotifiers, "test"]);
   };
 
   return (
