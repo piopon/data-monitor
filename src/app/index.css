@@ -281,6 +281,20 @@ div#empty-cards-placeholder span.empty-footer {
   @apply mt-1 ml-0 sm:ml-80 font-light text-xs;
 }
 
+/***************************** NOTIFIER PAGE ********************************/
+
+section#notifiers-section {
+  @apply w-full h-full;
+}
+
+section#notifiers-section div.notifier-card {
+  @apply bg-gray-200 p-5 rounded-xl shadow-lg relative;
+}
+
+section#notifiers-section h3.notifier-card-title {
+  @apply text-center text-lg sm:text-2xl uppercase font-bold my-2;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {
