@@ -7,7 +7,7 @@ const NotifiersPage = () => {
       {NotifierCatalog.getSupportedNotifiers()
         .keys()
         .map((type) => (
-          <NotifierCard type={type} />
+          <NotifierCard key={type} type={type} />
         ))}
     </section>
   );
