@@ -295,6 +295,10 @@ section#notifiers-section h3.notifier-card-title {
   @apply text-center text-lg sm:text-2xl uppercase font-bold my-2;
 }
 
+section#notifiers-section div.notifier-card-items {
+  @apply my-2;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {

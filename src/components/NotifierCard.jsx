@@ -4,6 +4,9 @@ const NotifierCard = ({ type }) => {
       <h3 className="notifier-card-title">
         {type}
       </h3>
+      <div className="notifier-card-items">
+        setting
+      </div>
     </div>
   )
 }
