@@ -306,6 +306,16 @@ section#notifiers-section div.notifier-card-items {
   @apply my-2;
 }
 
+section#notifiers-section button.add-notifier {
+  @apply w-full h-12 mt-5;
+  @apply rounded-xl shadow-lg;
+  @apply bg-indigo-600 text-white;
+}
+
+section#notifiers-section button.add-notifier:hover {
+  @apply bg-indigo-500 cursor-pointer;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {
