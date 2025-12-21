@@ -285,10 +285,13 @@ div#empty-cards-placeholder span.empty-footer {
 
 section#notifiers-section {
   @apply w-full h-full;
+  @apply flex flex-col items-start gap-5;
 }
 
 section#notifiers-section div.notifier-card {
-  @apply bg-gray-200 p-5 rounded-xl shadow-lg relative;
+  @apply w-full mt-2 p-5;
+  @apply rounded-xl shadow-lg relative ;
+  @apply bg-gray-200;
 }
 
 section#notifiers-section h3.notifier-card-title {
