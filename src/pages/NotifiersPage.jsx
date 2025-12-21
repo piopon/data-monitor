@@ -1,7 +1,13 @@
+import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
+
 const NotifiersPage = () => {
   return (
     <section id="notifiers-section">
-      notifiers settings
+      {NotifierCatalog.getSupportedNotifiers()
+        .keys()
+        .map((type) => (
+          <div>{type}</div>
+        ))}
     </section>
   );
 };
