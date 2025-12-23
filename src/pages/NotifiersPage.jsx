@@ -26,7 +26,15 @@ const NotifiersPage = () => {
   }, []);
 
   const addNotifier = () => {
-    setNotifiers((currentNotifiers) => [...currentNotifiers, "test"]);
+    setNotifiers((currentNotifiers) => [
+      ...currentNotifiers,
+      {
+        type: "",
+        origin: "",
+        sender: "",
+        password: "",
+      },
+    ]);
   };
 
   return (
@@ -35,8 +43,8 @@ const NotifiersPage = () => {
         {notifiers.length === 0 ? (
           <EmptyCards whatToAdd={"notifier"} showFooter={false} />
         ) : (
-          notifiers.map((type, index) => {
-            return <NotifierCard key={`${index}_${type}`} type={type} />;
+          notifiers.map((notifier, index) => {
+            return <NotifierCard key={`${index}_${notifier.type}`} data={notifier} />;
           })
         )}
       </div>
