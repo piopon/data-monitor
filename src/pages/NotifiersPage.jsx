@@ -35,7 +35,9 @@ const NotifiersPage = () => {
         {notifiers.length === 0 ? (
           <EmptyCards whatToAdd={"notifier"} showFooter={false} />
         ) : (
-          notifiers.map((type) => <NotifierCard key={type} type={type} />)
+          notifiers.map((type, index) => {
+            return <NotifierCard key={`${index}_${type}`} type={type} />;
+          })
         )}
       </div>
       <button className="add-notifier" onClick={addNotifier}>
