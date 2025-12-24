@@ -48,9 +48,7 @@ const NotifiersPage = () => {
 
   return (
     <section id="notifiers-section">
-      <div className="notifier-cards-div">
-        {getCards()}
-      </div>
+      <div className="notifier-cards-div">{getCards()}</div>
       <button className="add-notifier" onClick={addNotifier}>
         add
       </button>
