@@ -25,6 +25,15 @@ const NotifiersPage = () => {
     initialize();
   }, []);
 
+  const getCards = () => {
+    if (notifiers.length === 0) {
+      return <EmptyCards whatToAdd={"notifier"} showFooter={false} />;
+    }
+    return notifiers.map((notifier, index) => {
+      return <NotifierCard key={`${index}${notifier.id}_${notifier.type}`} data={notifier} />;
+    });
+  };
+
   const addNotifier = () => {
     setNotifiers((currentNotifiers) => [
       ...currentNotifiers,
@@ -40,13 +49,7 @@ const NotifiersPage = () => {
   return (
     <section id="notifiers-section">
       <div className="notifier-cards-div">
-        {notifiers.length === 0 ? (
-          <EmptyCards whatToAdd={"notifier"} showFooter={false} />
-        ) : (
-          notifiers.map((notifier, index) => {
-            return <NotifierCard key={`${index}${notifier.id}_${notifier.type}`} data={notifier} />;
-          })
-        )}
+        {getCards()}
       </div>
       <button className="add-notifier" onClick={addNotifier}>
         add
