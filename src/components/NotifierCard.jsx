@@ -7,7 +7,7 @@ const NotifierCard = ({ data }) => {
 
   const notifierTypeSetter = (selection) => setNotifierType(selection.value);
 
-  const createEmpty = () => {
+  const createTypeSelector = () => {
     const typeOptions = NotifierCatalog.getSupportedNotifiers()
       .keys()
       .map((notifier) => ({ text: notifier, value: notifier }));
@@ -15,10 +15,16 @@ const NotifierCard = ({ data }) => {
   };
 
   const createUI = () => {
-    if (!notifierType) {
-      return createEmpty();
+    const typeSelector = createTypeSelector();
+    if ("" === notifierType) {
+      return typeSelector;
     }
-    return <div className="notifier-card-items">setting</div>;
+    return (
+      <>
+        {typeSelector}
+        <div className="notifier-card-items">setting</div>
+      </>
+    );
   };
 
   return <div className="notifier-card">{createUI()}</div>;
