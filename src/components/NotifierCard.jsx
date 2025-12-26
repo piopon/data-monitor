@@ -11,7 +11,7 @@ const NotifierCard = ({ data }) => {
     const typeOptions = NotifierCatalog.getSupportedNotifiers()
       .keys()
       .map((notifier) => ({ text: notifier, value: notifier }));
-    return <Select options={typeOptions} disabled={false} setter={notifierTypeSetter} />;
+    return <Select options={typeOptions} disabled={false} setter={notifierTypeSetter} value={notifierType} />;
   };
 
   const createUI = () => {
