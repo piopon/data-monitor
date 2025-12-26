@@ -3,7 +3,10 @@ import Select from "@/widgets/Select";
 
 const NotifierCard = ({ data }) => {
   const createEmpty = () => {
-    return <Select options={NotifierCatalog.getSupportedNotifiers().keys()} disabled={false} />;
+    const typeOptions = NotifierCatalog.getSupportedNotifiers()
+      .keys()
+      .map((notifier) => ({ text: notifier, value: notifier }));
+    return <Select options={typeOptions} disabled={false} />;
   };
 
   const createUI = () => {
