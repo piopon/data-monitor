@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import Select from "@/widgets/Select";
 
 const NotifierCard = ({ data }) => {
+  const [notifierType, setNotifierType] = useState(data.type);
+
   const createEmpty = () => {
     const typeOptions = NotifierCatalog.getSupportedNotifiers()
       .keys()
@@ -10,7 +13,7 @@ const NotifierCard = ({ data }) => {
   };
 
   const createUI = () => {
-    if (!data.type) {
+    if (!notifierType) {
       return createEmpty();
     }
     return <div className="notifier-card-items">setting</div>;
