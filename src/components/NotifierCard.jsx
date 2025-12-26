@@ -11,13 +11,9 @@ const NotifierCard = ({ data }) => {
       return createEmpty();
     }
     return <div className="notifier-card-items">setting</div>;
-  }
+  };
 
-  return (
-    <div className="notifier-card">
-      {createUI()}
-    </div>
-  );
+  return <div className="notifier-card">{createUI()}</div>;
 };
 
 export default NotifierCard;
