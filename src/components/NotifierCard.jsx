@@ -26,12 +26,24 @@ const NotifierCard = ({ data }) => {
     );
   };
 
+  const createSettings = () => {
+    return notifierCardElement(
+      "origin",
+      <input name="myInput" />
+    );
+  };
+
   const createCardItems = () => {
     const typeSelector = createTypeSelector();
     if ("" === notifierType) {
       return typeSelector;
     }
-    return <div className="notifier-card-items">{typeSelector}setting</div>;
+    return (
+      <div className="notifier-card-items">
+        {typeSelector}
+        {createSettings()}
+      </div>
+    );
   };
 
   return <div className="notifier-card">{createCardItems()}</div>;
