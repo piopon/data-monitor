@@ -14,20 +14,15 @@ const NotifierCard = ({ data }) => {
     return <Select options={typeOptions} disabled={false} setter={notifierTypeSetter} value={notifierType} />;
   };
 
-  const createUI = () => {
+  const createCardItems = () => {
     const typeSelector = createTypeSelector();
     if ("" === notifierType) {
       return typeSelector;
     }
-    return (
-      <>
-        {typeSelector}
-        <div className="notifier-card-items">setting</div>
-      </>
-    );
+    return <div className="notifier-card-items">{typeSelector}setting</div>;
   };
 
-  return <div className="notifier-card">{createUI()}</div>;
+  return <div className="notifier-card">{createCardItems()}</div>;
 };
 
 export default NotifierCard;
