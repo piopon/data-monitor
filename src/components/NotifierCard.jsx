@@ -5,17 +5,24 @@ import Select from "@/widgets/Select";
 const NotifierCard = ({ data }) => {
   const [notifierType, setNotifierType] = useState(data.type);
 
+  const notifierCardElement = (name, element) => {
+    return (
+      <div className={"notifier-card-" + {name}}>
+        <p className="card-label">{name}</p>
+        {element}
+      </div>
+    );
+  };
+
   const notifierTypeSetter = (selection) => setNotifierType(selection.value);
 
   const createTypeSelector = () => {
     const typeOptions = NotifierCatalog.getSupportedNotifiers()
       .keys()
       .map((notifier) => ({ text: notifier, value: notifier }));
-    return (
-      <div className="notifier-card-type">
-        <p className="card-label">type</p>
-        <Select options={typeOptions} disabled={false} setter={notifierTypeSetter} value={notifierType} />
-      </div>
+    return notifierCardElement(
+      "type",
+      <Select options={typeOptions} disabled={false} setter={notifierTypeSetter} value={notifierType} />
     );
   };
 
