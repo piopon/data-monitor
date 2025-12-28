@@ -31,7 +31,13 @@ const NotifierCard = ({ data }) => {
   };
 
   const createSettings = () => {
-    return notifierCardElement("origin", <input name="myInput" />);
+    return (
+      <>
+        {notifierCardElement("origin", <input name="notifierOrigin" />)}
+        {notifierCardElement("sender", <input name="notifierSender" />)}
+        {notifierCardElement("password", <input name="notifierPass" />)}
+      </>
+    );
   };
 
   const createCardItems = () => {
