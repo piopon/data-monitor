@@ -7,7 +7,7 @@ const NotifierCard = ({ data }) => {
 
   const notifierCardElement = (name, element) => {
     return (
-      <div className={"notifier-card-" + {name}}>
+      <div className={"notifier-card-" + { name }}>
         <p className="card-label">{name}</p>
         {element}
       </div>
@@ -17,20 +17,21 @@ const NotifierCard = ({ data }) => {
   const notifierTypeSetter = (selection) => setNotifierType(selection.value);
 
   const createTypeSelector = () => {
-    const typeOptions = NotifierCatalog.getSupportedNotifiers()
-      .keys()
-      .map((notifier) => ({ text: notifier, value: notifier }));
-    return notifierCardElement(
-      "type",
-      <Select options={typeOptions} disabled={false} setter={notifierTypeSetter} value={notifierType} />
+    const typeSelect = (
+      <Select
+        options={NotifierCatalog.getSupportedNotifiers()
+          .keys()
+          .map((notifier) => ({ text: notifier, value: notifier }))}
+        disabled={false}
+        setter={notifierTypeSetter}
+        value={notifierType}
+      />
     );
+    return notifierCardElement("type", typeSelect);
   };
 
   const createSettings = () => {
-    return notifierCardElement(
-      "origin",
-      <input name="myInput" />
-    );
+    return notifierCardElement("origin", <input name="myInput" />);
   };
 
   const createCardItems = () => {
