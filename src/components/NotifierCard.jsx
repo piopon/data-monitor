@@ -7,7 +7,7 @@ const NotifierCard = ({ data }) => {
 
   const notifierCardElement = (name, element) => {
     return (
-      <div className={"notifier-card-" + { name }}>
+      <div className={"notifier-card-" + name}>
         <p className="card-label">{name}</p>
         {element}
       </div>
