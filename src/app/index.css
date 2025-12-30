@@ -316,6 +316,19 @@ section#notifiers-section button.add-notifier:hover {
   @apply bg-indigo-500 cursor-pointer;
 }
 
+input.notifier-origin {
+  @apply w-full m-1 px-1.5 py-2 relative;
+  @apply rounded-sm text-sm bg-white border-1 border-gray-300;
+}
+
+input.notifier-origin:focus {
+  @apply ring-2 ring-black;
+}
+
+input.notifier-origin:disabled {
+  @apply opacity-50 pointer-events-none;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {
