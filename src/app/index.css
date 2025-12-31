@@ -329,6 +329,32 @@ input.notifier-origin:disabled {
   @apply opacity-50 pointer-events-none;
 }
 
+input.notifier-sender {
+  @apply w-full m-1 px-1.5 py-2 relative;
+  @apply rounded-sm text-sm bg-white border-1 border-gray-300;
+}
+
+input.notifier-sender:focus {
+  @apply ring-2 ring-black;
+}
+
+input.notifier-sender:disabled {
+  @apply opacity-50 pointer-events-none;
+}
+
+input.notifier-pass {
+  @apply w-full m-1 px-1.5 py-2 relative;
+  @apply rounded-sm text-sm bg-white border-1 border-gray-300;
+}
+
+input.notifier-pass:focus {
+  @apply ring-2 ring-black;
+}
+
+input.notifier-pass:disabled {
+  @apply opacity-50 pointer-events-none;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {
