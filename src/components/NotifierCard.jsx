@@ -30,12 +30,20 @@ const NotifierCard = ({ data }) => {
     return notifierCardElement("type", typeSelect);
   };
 
-  const createSettings = () => {
-    return (
+  const createSettings = (type) => {
+    const labelOrigin = "email" === type ? "provider name" : "webhook";
+    const labelSender = "email" === type ? "sender email" : "bot name";
+    const labelPassword = "email" === type ? "sender password" : "-";
+    return "email" === type ? (
       <>
-        {notifierCardElement("origin", <input name="notifier-origin" className="notifier-origin" />)}
-        {notifierCardElement("sender", <input name="notifier-sender" className="notifier-sender" />)}
-        {notifierCardElement("password", <input name="notifier-pass" className="notifier-pass" />)}
+        {notifierCardElement(labelOrigin, <input name="notifier-origin" className="notifier-origin" />)}
+        {notifierCardElement(labelSender, <input name="notifier-sender" className="notifier-sender" />)}
+        {notifierCardElement(labelPassword, <input type="password" name="notifier-pass" className="notifier-pass" />)}
+      </>
+    ) : (
+      <>
+        {notifierCardElement(labelSender, <input name="notifier-sender" className="notifier-sender" />)}
+        {notifierCardElement(labelOrigin, <input name="notifier-origin" className="notifier-origin" />)}
       </>
     );
   };
@@ -48,7 +56,7 @@ const NotifierCard = ({ data }) => {
     return (
       <div className="notifier-card-items">
         {typeSelector}
-        {createSettings()}
+        {createSettings(notifierType)}
       </div>
     );
   };
