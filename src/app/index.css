@@ -317,7 +317,7 @@ section#notifiers-section button.add-notifier:hover {
 }
 
 input.notifier-origin {
-  @apply w-full m-1 px-1.5 py-2 relative;
+  @apply w-full px-1.5 py-2 relative;
   @apply rounded-sm text-sm bg-white border-1 border-gray-300;
 }
 
@@ -330,7 +330,7 @@ input.notifier-origin:disabled {
 }
 
 input.notifier-sender {
-  @apply w-full m-1 px-1.5 py-2 relative;
+  @apply w-full px-1.5 py-2 relative;
   @apply rounded-sm text-sm bg-white border-1 border-gray-300;
 }
 
@@ -343,7 +343,7 @@ input.notifier-sender:disabled {
 }
 
 input.notifier-pass {
-  @apply w-full m-1 px-1.5 py-2 relative;
+  @apply w-full px-1.5 py-2 relative;
   @apply rounded-sm text-sm bg-white border-1 border-gray-300;
 }
 
