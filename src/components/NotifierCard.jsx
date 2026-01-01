@@ -5,6 +5,11 @@ import Select from "@/widgets/Select";
 const NotifierCard = ({ data }) => {
   const [notifierType, setNotifierType] = useState(data.type);
 
+  const saveNotifier = async (event) => {
+    event.preventDefault();
+    console.log("SAVE NOTIFIER!!!");
+  };
+
   const notifierCardElement = (name, element) => {
     return (
       <div className={"notifier-card-" + name}>
@@ -61,7 +66,16 @@ const NotifierCard = ({ data }) => {
     );
   };
 
-  return <div className="notifier-card">{createCardItems()}</div>;
+  return (
+    <div className="notifier-card">
+      <form onSubmit={saveNotifier}>
+        {createCardItems()}
+        <button className="save-monitor" type="submit">
+          save
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default NotifierCard;
