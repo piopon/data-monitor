@@ -309,11 +309,7 @@ section#notifiers-section div.notifier-card-items {
 section#notifiers-section button.add-notifier {
   @apply w-full h-12 mt-5;
   @apply rounded-xl shadow-lg;
-  @apply bg-indigo-600 text-white;
-}
-
-section#notifiers-section button.add-notifier:hover {
-  @apply bg-indigo-500 cursor-pointer;
+  @apply bg-indigo-600 text-white hover:bg-indigo-500 hover:cursor-pointer;
 }
 
 input.notifier-origin {
