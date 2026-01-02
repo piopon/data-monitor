@@ -62,7 +62,7 @@ const NotifierCard = ({ data }) => {
       <div className="notifier-card-items">
         {typeSelector}
         {createSettings(notifierType)}
-        <button className="save-monitor" type="submit">
+        <button className="notifier-save-btn" type="submit">
           save
         </button>
       </div>

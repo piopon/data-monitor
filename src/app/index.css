@@ -337,6 +337,12 @@ input.notifier-pass {
   @apply disabled:opacity-50 disabled:pointer-events-none;
 }
 
+button.notifier-save-btn {
+  @apply w-50 mt-7 py-3 font-medium rounded-sm bg-green-600 text-white;
+  @apply hover:bg-green-500 hover:cursor-pointer focus:outline-hidden focus:bg-green-600;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+}
+
 /***************************** PAGE NOT FOUND *******************************/
 
 div.page-not-found {
