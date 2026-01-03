@@ -80,16 +80,17 @@ const NotifierCard = ({ data }) => {
             onChange={(event) => setNotifierSender(event.target.value)}
           />
         )}
-        {"email" === type && notifierCardElement(
-          labelPassword,
-          <input
-            type="password"
-            name="notifier-pass"
-            className="notifier-pass"
-            value={notifierPass}
-            onChange={(event) => setNotifierPass(event.target.value)}
-          />
-        )}
+        {"email" === type &&
+          notifierCardElement(
+            labelPassword,
+            <input
+              type="password"
+              name="notifier-pass"
+              className="notifier-pass"
+              value={notifierPass}
+              onChange={(event) => setNotifierPass(event.target.value)}
+            />
+          )}
       </>
     );
   };
