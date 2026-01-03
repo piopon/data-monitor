@@ -58,7 +58,7 @@ const NotifierCard = ({ data }) => {
     const labelOrigin = "email" === type ? "provider name" : "webhook";
     const labelSender = "email" === type ? "sender email" : "bot name";
     const labelPassword = "email" === type ? "sender password" : "-";
-    return "email" === type ? (
+    return (
       <>
         {notifierCardElement(
           labelOrigin,
@@ -80,7 +80,7 @@ const NotifierCard = ({ data }) => {
             onChange={(event) => setNotifierSender(event.target.value)}
           />
         )}
-        {notifierCardElement(
+        {"email" === type && notifierCardElement(
           labelPassword,
           <input
             type="password"
@@ -88,29 +88,6 @@ const NotifierCard = ({ data }) => {
             className="notifier-pass"
             value={notifierPass}
             onChange={(event) => setNotifierPass(event.target.value)}
-          />
-        )}
-      </>
-    ) : (
-      <>
-        {notifierCardElement(
-          labelOrigin,
-          <input
-            type="text"
-            name="notifier-origin"
-            className="notifier-origin"
-            value={notifierOrigin}
-            onChange={(event) => setNotifierOrigin(event.target.value)}
-          />
-        )}
-        {notifierCardElement(
-          labelSender,
-          <input
-            type="text"
-            name="notifier-sender"
-            className="notifier-sender"
-            value={notifierSender}
-            onChange={(event) => setNotifierSender(event.target.value)}
           />
         )}
       </>
