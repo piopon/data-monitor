@@ -4,10 +4,13 @@ import Select from "@/widgets/Select";
 
 const NotifierCard = ({ data }) => {
   const [notifierType, setNotifierType] = useState(data.type);
+  const [notifierPass, setNotifierPass] = useState(data.password);
+  const [notifierOrigin, setNotifierOrigin] = useState(data.origin);
+  const [notifierSender, setNotifierSender] = useState(data.sender);
 
   const saveNotifier = async (event) => {
     event.preventDefault();
-    const notifier = { type: notifierType, origin, sender, password };
+    const notifier = { type: notifierType, origin: notifierOrigin, sender: notifierSender, password: notifierPass };
     try {
       const notifierResponse = await fetch(`/api/notifier`, {
         method: "POST",
