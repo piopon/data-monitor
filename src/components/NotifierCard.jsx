@@ -59,14 +59,59 @@ const NotifierCard = ({ data }) => {
     const labelPassword = "email" === type ? "sender password" : "-";
     return "email" === type ? (
       <>
-        {notifierCardElement(labelOrigin, <input name="notifier-origin" className="notifier-origin" />)}
-        {notifierCardElement(labelSender, <input name="notifier-sender" className="notifier-sender" />)}
-        {notifierCardElement(labelPassword, <input type="password" name="notifier-pass" className="notifier-pass" />)}
+        {notifierCardElement(
+          labelOrigin,
+          <input
+            type="text"
+            name="notifier-origin"
+            className="notifier-origin"
+            value={notifierOrigin}
+            onChange={(event) => setNotifierOrigin(event.target.value)}
+          />
+        )}
+        {notifierCardElement(
+          labelSender,
+          <input
+            type="text"
+            name="notifier-sender"
+            className="notifier-sender"
+            value={notifierSender}
+            onChange={(event) => setNotifierSender(event.target.value)}
+          />
+        )}
+        {notifierCardElement(
+          labelPassword,
+          <input
+            type="password"
+            name="notifier-pass"
+            className="notifier-pass"
+            value={notifierPass}
+            onChange={(event) => setNotifierPass(event.target.value)}
+          />
+        )}
       </>
     ) : (
       <>
-        {notifierCardElement(labelSender, <input name="notifier-sender" className="notifier-sender" />)}
-        {notifierCardElement(labelOrigin, <input name="notifier-origin" className="notifier-origin" />)}
+        {notifierCardElement(
+          labelOrigin,
+          <input
+            type="text"
+            name="notifier-origin"
+            className="notifier-origin"
+            value={notifierOrigin}
+            onChange={(event) => setNotifierOrigin(event.target.value)}
+          />
+        )}
+        {notifierCardElement(
+          labelSender,
+          <input
+            type="text"
+            name="notifier-sender"
+            className="notifier-sender"
+            value={notifierSender}
+            onChange={(event) => setNotifierSender(event.target.value)}
+          />
+        )}
       </>
     );
   };
