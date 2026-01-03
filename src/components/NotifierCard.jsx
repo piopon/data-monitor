@@ -7,7 +7,22 @@ const NotifierCard = ({ data }) => {
 
   const saveNotifier = async (event) => {
     event.preventDefault();
-    console.log("SAVE NOTIFIER!!!");
+    const notifier = { type: notifierType, origin, sender, password };
+    try {
+      const notifierResponse = await fetch(`/api/notifier`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(notifier),
+      });
+      const notifierData = await notifierResponse.json();
+      if (!notifierResponse.ok) {
+        toast.error(notifierData.message);
+        return;
+      }
+      toast.success(`Saved notifier!`);
+    } catch (e) {
+      toast.error(`Error: ${e.message}`);
+    }
   };
 
   const notifierCardElement = (name, element) => {
