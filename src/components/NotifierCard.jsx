@@ -31,7 +31,23 @@ const NotifierCard = ({ data }) => {
   };
 
   const deleteNotifier = async () => {
-    console.log("DELETE NOTIFIER");
+    try {
+      if (data.id == null) {
+        return;
+      }
+      const notifierResponse = await fetch(`/api/notifier?id=${data.id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      const notifierData = await notifierResponse.json();
+      if (!notifierResponse.ok) {
+        toast.error(notifierData.message);
+        return;
+      }
+      toast.success(`Deleted ${notifierType} notifier!`);
+    } catch (e) {
+      toast.error(`Error: ${e.message}`);
+    }
   };
 
   const notifierCardElement = (name, element) => {
