@@ -9,8 +9,7 @@ const NotifierCard = ({ data }) => {
   const [notifierOrigin, setNotifierOrigin] = useState(data.origin);
   const [notifierSender, setNotifierSender] = useState(data.sender);
 
-  const saveNotifier = async (event) => {
-    event.preventDefault();
+  const saveNotifier = async () => {
     const notifier = { type: notifierType, origin: notifierOrigin, sender: notifierSender, password: notifierPass };
     try {
       const existing = data.id != null;
@@ -29,6 +28,10 @@ const NotifierCard = ({ data }) => {
     } catch (e) {
       toast.error(`Error: ${e.message}`);
     }
+  };
+
+  const deleteNotifier = async () => {
+    console.log("DELETE NOTIFIER");
   };
 
   const notifierCardElement = (name, element) => {
@@ -109,13 +112,16 @@ const NotifierCard = ({ data }) => {
         <button className="notifier-save-btn" type="submit">
           save
         </button>
+        <button className="notifier-delete-btn" type="submit" formAction={deleteNotifier}>
+          delete
+        </button>
       </div>
     );
   };
 
   return (
     <div className="notifier-card">
-      <form onSubmit={saveNotifier}>{createCardItems()}</form>
+      <form action={saveNotifier}>{createCardItems()}</form>
     </div>
   );
 };
