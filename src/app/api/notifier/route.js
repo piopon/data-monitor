@@ -74,3 +74,22 @@ export async function POST(request) {
     });
   }
 }
+
+export async function PUT(request) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
+    const notifierData = await request.json();
+    const monitor = await NotifierService.editNotifier(id, notifierData);
+    return new Response(JSON.stringify(monitor), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const errorOutput = { message: `Cannot update notifier: ${error.message}` };
+    return new Response(JSON.stringify(errorOutput), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
