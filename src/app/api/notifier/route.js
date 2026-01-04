@@ -50,12 +50,21 @@ export async function GET(request) {
 export async function POST(request) {
   const notifierType = request.nextUrl.searchParams.get("type");
   try {
-    const notifierInfo = NotifierCatalog.getClassInfo(notifierType);
-    const notifier = NotifierRegistry.create(notifierInfo);
-    const notifierData = await request.json();
-    const res = await notifier.notify(notifierData);
-    return new Response(JSON.stringify(res.info), {
-      status: res.result ? 200 : 400,
+    // if 'type' parameter is provided then we want to send notification message
+    if (notifierType) {
+      const notifierInfo = NotifierCatalog.getClassInfo(notifierType);
+      const notifier = NotifierRegistry.create(notifierInfo);
+      const notifierData = await request.json();
+      const res = await notifier.notify(notifierData);
+      return new Response(JSON.stringify(res.info), {
+        status: res.result ? 200 : 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    // no 'type' parameter provider hence we want to create new notifier
+    const notifier = await NotifierService.addNotifier(await request.json());
+    return new Response(JSON.stringify(notifier), {
+      status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
