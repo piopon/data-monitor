@@ -13,8 +13,10 @@ const NotifierCard = ({ data }) => {
     event.preventDefault();
     const notifier = { type: notifierType, origin: notifierOrigin, sender: notifierSender, password: notifierPass };
     try {
-      const notifierResponse = await fetch(`/api/notifier`, {
-        method: "POST",
+      const existing = data.id != null;
+      const optionalIdParam = existing ? `?id=${data.id}` : "";
+      const notifierResponse = await fetch(`/api/notifier${optionalIdParam}`, {
+        method: existing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(notifier),
       });
@@ -23,7 +25,7 @@ const NotifierCard = ({ data }) => {
         toast.error(notifierData.message);
         return;
       }
-      toast.success(`Saved notifier!`);
+      toast.success(`${existing ? "Updated" : "Saved"} ${notifierType} notifier!`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
     }
