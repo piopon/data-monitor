@@ -25,9 +25,7 @@ const NotifiersPage = () => {
     initialize();
   }, []);
 
-  const removeNotifier = (id) => {
-    setNotifiers((prev) => prev.filter((n) => n.id !== id))
-  };
+  const removeNotifier = (id) => setNotifiers((prev) => prev.filter((n) => n.id !== id));
 
   const getCards = () => {
     if (notifiers.length === 0) {

@@ -44,7 +44,7 @@ const NotifierCard = ({ data, onDelete }) => {
         toast.error(notifierData.message);
         return;
       }
-      onDelete(data.id)
+      onDelete(data.id);
       toast.success(`Deleted ${notifierType} notifier!`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
@@ -129,9 +129,11 @@ const NotifierCard = ({ data, onDelete }) => {
         <button className="notifier-save-btn" type="submit">
           save
         </button>
-        {data.id && <button className="notifier-delete-btn" type="submit" formAction={deleteNotifier}>
-          delete
-        </button>}
+        {data.id && (
+          <button className="notifier-delete-btn" type="submit" formAction={deleteNotifier}>
+            delete
+          </button>
+        )}
       </div>
     );
   };
