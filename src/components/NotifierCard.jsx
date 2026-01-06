@@ -128,9 +128,9 @@ const NotifierCard = ({ data }) => {
         <button className="notifier-save-btn" type="submit">
           save
         </button>
-        <button className="notifier-delete-btn" type="submit" formAction={deleteNotifier}>
+        {data.id && <button className="notifier-delete-btn" type="submit" formAction={deleteNotifier}>
           delete
-        </button>
+        </button>}
       </div>
     );
   };
