@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import Select from "@/widgets/Select";
 
-const NotifierCard = ({ data }) => {
+const NotifierCard = ({ data, onDelete }) => {
   const [notifierType, setNotifierType] = useState(data.type);
   const [notifierPass, setNotifierPass] = useState(data.password);
   const [notifierOrigin, setNotifierOrigin] = useState(data.origin);
@@ -44,6 +44,7 @@ const NotifierCard = ({ data }) => {
         toast.error(notifierData.message);
         return;
       }
+      onDelete(data.id)
       toast.success(`Deleted ${notifierType} notifier!`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
