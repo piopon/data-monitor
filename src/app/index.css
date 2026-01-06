@@ -340,7 +340,7 @@ button.notifier-save-btn {
 }
 
 button.notifier-delete-btn {
-  @apply w-50 mt-7 py-3 font-medium rounded-sm bg-red-600 text-white;
+  @apply w-50 mt-7 ml-3 py-3 font-medium rounded-sm bg-red-600 text-white;
   @apply hover:bg-red-500 hover:cursor-pointer focus:outline-hidden focus:bg-red-600;
   @apply disabled:opacity-50 disabled:pointer-events-none;
 }
