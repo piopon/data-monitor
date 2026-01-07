@@ -6,24 +6,25 @@ const NotifiersPage = () => {
   const [notifiers, setNotifiers] = useState([]);
 
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        const notifiersResponse = await fetch(`/api/notifier`);
-        const notifiersData = await notifiersResponse.json();
-        if (!notifiersResponse.ok) {
-          toast.error(notifiersData.message);
-          return;
-        }
-        if (0 === notifiersData.length) {
-          return;
-        }
-        setNotifiers(notifiersData);
-      } catch (error) {
-        toast.error(`Failed to get notifier data: ${error.message}`);
-      }
-    };
-    initialize();
+    refreshNotifiers();
   }, []);
+
+  const refreshNotifiers = async () => {
+    try {
+      const notifiersResponse = await fetch(`/api/notifier`);
+      const notifiersData = await notifiersResponse.json();
+      if (!notifiersResponse.ok) {
+        toast.error(notifiersData.message);
+        return;
+      }
+      if (0 === notifiersData.length) {
+        return;
+      }
+      setNotifiers(notifiersData);
+    } catch (error) {
+      toast.error(`Failed to get notifier data: ${error.message}`);
+    }
+  };
 
   const removeNotifier = (id) => setNotifiers((prev) => prev.filter((n) => n.id !== id));
 
