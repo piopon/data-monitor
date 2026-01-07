@@ -33,7 +33,14 @@ const NotifiersPage = () => {
       return <EmptyCards whatToAdd={"notifier"} showFooter={false} />;
     }
     return notifiers.map((notifier, index) => {
-      return <NotifierCard key={`${index}${notifier.id}_${notifier.type}`} data={notifier} onDelete={removeNotifier} />;
+      return (
+        <NotifierCard
+          key={`${index}${notifier.id}_${notifier.type}`}
+          data={notifier}
+          onChange={refreshNotifiers}
+          onDelete={removeNotifier}
+        />
+      );
     });
   };
 
