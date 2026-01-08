@@ -311,6 +311,7 @@ section#notifiers-section button.add-notifier {
   @apply sticky bottom-5 w-full h-12 my-5;
   @apply rounded-xl shadow-lg;
   @apply bg-indigo-600 text-white hover:bg-indigo-500 hover:cursor-pointer;
+  @apply disabled:bg-gray-500 disabled:opacity-50 disabled:pointer-events-none;
 }
 
 input.notifier-origin {
