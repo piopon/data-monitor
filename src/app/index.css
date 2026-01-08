@@ -284,10 +284,11 @@ div#empty-cards-placeholder span.empty-footer {
 /***************************** NOTIFIER PAGE ********************************/
 
 section#notifiers-section {
-  @apply w-full h-full;
+  @apply w-full h-screen flex flex-col;
 }
 
 section#notifiers-section div.notifier-cards-div {
+  @apply flex-1 overflow-y-auto;
   @apply flex flex-col items-start gap-5;
   @apply my-5 sm:my-2 mx-5 sm:mx-0;
 }
@@ -307,7 +308,7 @@ section#notifiers-section div.notifier-card-items {
 }
 
 section#notifiers-section button.add-notifier {
-  @apply w-full h-12 mt-5;
+  @apply sticky bottom-5 w-full h-12 my-5;
   @apply rounded-xl shadow-lg;
   @apply bg-indigo-600 text-white hover:bg-indigo-500 hover:cursor-pointer;
 }
