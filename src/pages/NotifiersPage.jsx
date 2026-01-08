@@ -4,6 +4,7 @@ import EmptyCards from "@/components/EmptyCards";
 
 const NotifiersPage = () => {
   const [notifiers, setNotifiers] = useState([]);
+  const [addDisabled, setAddDisabled] = useState(false);
 
   useEffect(() => {
     refreshNotifiers();
@@ -21,6 +22,7 @@ const NotifiersPage = () => {
         return;
       }
       setNotifiers(notifiersData);
+      setAddDisabled(false);
     } catch (error) {
       toast.error(`Failed to get notifier data: ${error.message}`);
     }
@@ -45,6 +47,7 @@ const NotifiersPage = () => {
   };
 
   const addNotifier = () => {
+    setAddDisabled(true);
     setNotifiers((currentNotifiers) => [
       ...currentNotifiers,
       {
@@ -59,7 +62,7 @@ const NotifiersPage = () => {
   return (
     <section id="notifiers-section">
       <div className="notifier-cards-div">{getCards()}</div>
-      <button className="add-notifier" onClick={addNotifier}>
+      <button className="add-notifier" onClick={addNotifier} disabled={addDisabled}>
         add
       </button>
     </section>
