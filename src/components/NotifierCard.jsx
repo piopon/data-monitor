@@ -64,14 +64,7 @@ const NotifierCard = ({ data, options, onChange, onDelete }) => {
   const notifierTypeSetter = (selection) => setNotifierType(selection.value);
 
   const createTypeSelector = () => {
-    const typeSelect = (
-      <Select
-        options={options}
-        disabled={false}
-        setter={notifierTypeSetter}
-        value={notifierType}
-      />
-    );
+    const typeSelect = <Select options={options} disabled={false} setter={notifierTypeSetter} value={notifierType} />;
     return notifierCardElement("type", typeSelect);
   };
 

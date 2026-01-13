@@ -40,8 +40,8 @@ const NotifiersPage = () => {
 
   const getOptions = () => {
     const available = NotifierCatalog.getSupportedNotifiers().keys();
-    const used = notifiers.map(notifier => notifier.type);
-    return available.map((option) => ({ text: option, value: option, isDisabled: used.includes(option)}));
+    const used = notifiers.map((notifier) => notifier.type);
+    return available.map((option) => ({ text: option, value: option, isDisabled: used.includes(option) }));
   };
 
   const getCards = () => {
