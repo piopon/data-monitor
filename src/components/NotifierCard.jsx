@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import Select from "@/widgets/Select";
 
-const NotifierCard = ({ data, onChange, onDelete }) => {
+const NotifierCard = ({ data, options, onChange, onDelete }) => {
   const [notifierType, setNotifierType] = useState(data.type);
   const [notifierPass, setNotifierPass] = useState(data.password);
   const [notifierOrigin, setNotifierOrigin] = useState(data.origin);
@@ -66,9 +66,7 @@ const NotifierCard = ({ data, onChange, onDelete }) => {
   const createTypeSelector = () => {
     const typeSelect = (
       <Select
-        options={NotifierCatalog.getSupportedNotifiers()
-          .keys()
-          .map((notifier) => ({ text: notifier, value: notifier }))}
+        options={options}
         disabled={false}
         setter={notifierTypeSetter}
         value={notifierType}

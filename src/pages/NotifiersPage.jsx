@@ -44,6 +44,9 @@ const NotifiersPage = () => {
         <NotifierCard
           key={`${index}${notifier.id}_${notifier.type}`}
           data={notifier}
+          options={NotifierCatalog.getSupportedNotifiers()
+            .keys()
+            .map((notifier) => ({ text: notifier, value: notifier }))}
           onChange={refreshNotifiers}
           onDelete={removeNotifier}
         />
