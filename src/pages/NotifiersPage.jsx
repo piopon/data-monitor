@@ -35,6 +35,12 @@ const NotifiersPage = () => {
 
   const removeNotifier = (id) => setNotifiers((prev) => prev.filter((n) => n.id !== id));
 
+  const getOptions = () => {
+    const available = NotifierCatalog.getSupportedNotifiers().keys();
+    const used = notifiers.map(notifier => notifier.type);
+    return available.map((option) => ({ text: option, value: option, isDisabled: used.includes(option)}));
+  };
+
   const getCards = () => {
     if (notifiers.length === 0) {
       return <EmptyCards whatToAdd={"notifier"} showFooter={false} />;
@@ -44,9 +50,7 @@ const NotifiersPage = () => {
         <NotifierCard
           key={`${index}${notifier.id}_${notifier.type}`}
           data={notifier}
-          options={NotifierCatalog.getSupportedNotifiers()
-            .keys()
-            .map((notifier) => ({ text: notifier, value: notifier }))}
+          options={getOptions()}
           onChange={refreshNotifiers}
           onDelete={removeNotifier}
         />
