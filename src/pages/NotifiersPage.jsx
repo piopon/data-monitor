@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import NotifierCard from "@/components/NotifierCard";
 import EmptyCards from "@/components/EmptyCards";
+import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 
 const NotifiersPage = () => {
+  const TOTAL_NOTIFIERS_NO = NotifierCatalog.getSupportedNotifiers().size;
   const [notifiers, setNotifiers] = useState([]);
   const [addDisabled, setAddDisabled] = useState(false);
 
@@ -22,7 +24,7 @@ const NotifiersPage = () => {
         return;
       }
       setNotifiers(notifiersData);
-      setAddDisabled(false);
+      setAddDisabled(notifiersData.length === TOTAL_NOTIFIERS_NO);
     } catch (error) {
       toast.error(`Failed to get notifier data: ${error.message}`);
     }
