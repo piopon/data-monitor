@@ -31,9 +31,12 @@ const NotifiersPage = () => {
   };
 
   const removeNotifier = (id) => {
-    setNotifiers((prev) => prev.filter((n) => n.id !== id));
-    setAddDisabled(notifiers.length === TOTAL_NOTIFIERS_NO);
-  }
+    setNotifiers((prev) => {
+      const updated = prev.filter((n) => n.id !== id);
+      setAddDisabled(updated.length === TOTAL_NOTIFIERS_NO);
+      return updated;
+    });
+  };
 
   const getCards = () => {
     if (notifiers.length === 0) {
