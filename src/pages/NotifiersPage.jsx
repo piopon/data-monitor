@@ -12,6 +12,10 @@ const NotifiersPage = () => {
     refreshNotifiers();
   }, []);
 
+  useEffect(() => {
+    setAddDisabled(notifiers.length === TOTAL_NOTIFIERS_NO);
+  }, [notifiers]);
+
   const refreshNotifiers = async () => {
     try {
       const notifiersResponse = await fetch(`/api/notifier`);
@@ -24,19 +28,12 @@ const NotifiersPage = () => {
         return;
       }
       setNotifiers(notifiersData);
-      setAddDisabled(notifiersData.length === TOTAL_NOTIFIERS_NO);
     } catch (error) {
       toast.error(`Failed to get notifier data: ${error.message}`);
     }
   };
 
-  const removeNotifier = (id) => {
-    setNotifiers((prev) => {
-      const updated = prev.filter((n) => n.id !== id);
-      setAddDisabled(updated.length === TOTAL_NOTIFIERS_NO);
-      return updated;
-    });
-  };
+  const removeNotifier = (id) => setNotifiers((prev) => prev.filter((n) => n.id !== id));
 
   const getCards = () => {
     if (notifiers.length === 0) {
