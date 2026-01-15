@@ -75,6 +75,11 @@ export async function POST(request) {
   }
 }
 
+/**
+ * Method used to send the notifier PUT request to send notification
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing notification sent result
+ */
 export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -94,6 +99,11 @@ export async function PUT(request) {
   }
 }
 
+/**
+ * Method used to send the notifier DELETE request to send notification
+ * @param {Object} request Request object received from the frontend
+ * @returns Response object with JSON value containing notification sent result
+ */
 export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
