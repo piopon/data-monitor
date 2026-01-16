@@ -122,6 +122,8 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
+  const conditionSelected = (selection) => setCondition(selection.value);
+
   const notifierSelected = (selection) => {
     const input = selection.value;
     if (CONFIG_NOTIFIER_OPTION.value === input) {
@@ -144,7 +146,7 @@ const DataMonitor = ({ parentName }) => {
     <div className="data-card-monitor">
       <form onSubmit={saveMonitor}>
         <Toggle id={parentId} label="enabled" enabled={enabled} setter={setEnabled} />
-        <Select options={Monitor.CONDITIONS} value={condition} disabled={!enabled} setter={setCondition} />
+        <Select options={Monitor.CONDITIONS} value={condition} disabled={!enabled} setter={conditionSelected} />
         <input
           type="text"
           className="data-threshold"
