@@ -64,11 +64,12 @@ const DataMonitor = ({ parentName }) => {
           return;
         }
         // get notifier name from ID
-        if (monitorData[0].notifier == null) {
+        const currNotifierId = monitorData[0].notifier_id;
+        if (currNotifierId == null) {
           return;
         }
-        setNotifierId(monitorData[0].notifier);
-        const notifierResponse = await fetch(`/api/notifier?id=${notifierId}`);
+        setNotifierId(currNotifierId);
+        const notifierResponse = await fetch(`/api/notifier?id=${currNotifierId}`);
         const notifierData = await notifierResponse.json();
         if (!notifierResponse.ok) {
           toast.error(notifierData.message);
