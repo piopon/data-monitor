@@ -8,7 +8,7 @@ const Select = ({ size = "small", options, value, disabled, setter }) => {
       options={options}
       getOptionLabel={(option) => option.text}
       getOptionValue={(option) => option.value}
-      value={options.find((o) => o.value === value)}
+      value={options.find((o) => o.text === value)}
       isDisabled={disabled}
       onChange={setter}
     />
