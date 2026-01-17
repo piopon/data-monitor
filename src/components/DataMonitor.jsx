@@ -102,11 +102,12 @@ const DataMonitor = ({ parentName }) => {
       toast.warn(`Notifications are disabled for demo session.`);
       return;
     }
-    if (userId === -1) {
+    const user = userId();
+    if (user === -1) {
       toast.error(`Missing user ID, please re-login and try again.`);
       return;
     }
-    const monitor = { parent: parentId, enabled, threshold, condition, notifier: notifierId, interval, user: userId };
+    const monitor = { parent: parentId, enabled, threshold, condition, notifier: notifierId, interval, user };
     try {
       const exists = MONITOR_DEFAULTS.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;

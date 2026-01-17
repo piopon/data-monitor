@@ -35,8 +35,11 @@ const LoginProvider = ({ children }) => {
     setId(-1);
   };
 
-  const userId = id;
-  const isDemo = DEMO_USER_ID === userId;
+  const userId = () => {
+    return id === -1 ? localStorage.getItem("id") : id;
+  };
+
+  const isDemo = DEMO_USER_ID === userId();
   const userLogged = !!token;
 
   return (
