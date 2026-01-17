@@ -6,7 +6,7 @@ import { LoginContext } from "@/context/Contexts";
 const LoginProvider = ({ children }) => {
   const DEMO_USER_ID = 7357;
 
-  const [userId, setUserId] = useState(-1);
+  const [id, setId] = useState(-1);
   const [challenge, setChallenge] = useState(null);
   const [token, setToken] = useState(null);
   const isDemo = DEMO_USER_ID === userId;
@@ -20,9 +20,10 @@ const LoginProvider = ({ children }) => {
   }, []);
 
   const login = (id, data) => {
-    setUserId(id);
+    setId(id);
     setChallenge(data.challenge);
     setToken(data.token);
+    localStorage.setItem("id", id);
     localStorage.setItem("token", data.token);
   };
 
@@ -30,10 +31,13 @@ const LoginProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("id");
     setToken(null);
     setChallenge(null);
-    setUserId(-1);
+    setId(-1);
   };
+
+  const userId = id;
 
   return (
     <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, demo, isDemo, userId }}>
