@@ -115,10 +115,22 @@ async function checkData(user) {
           console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
           return;
         }
+        // get monitor's notifier type based on ID
+        const notifierResponse = await fetch(`api/notifier?id=${monitor.notifier_id}`);
+        const notifierData = await notifierResponse.json();
+        if (!notifierResponse.ok) {
+          return;
+        }
+        if (0 === notifierData.length) {
+          return;
+        }
+        if (1 !== notifierData.length) {
+          return;
+        }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
         NotifierCatalog.getSupportedNotifiers()
           .keys()
-          .filter((notifier) => monitor.notifier === notifier)
+          .filter((notifier) => notifierData[0].type === notifier)
           .forEach(async (notifier) => {
             const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
             const message = `Monitored value reached its threshold condition: ${condition}`;
