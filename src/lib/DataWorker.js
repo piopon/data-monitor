@@ -116,7 +116,7 @@ async function checkData(user) {
           return;
         }
         // get monitor's notifier type based on ID
-        const notifierResponse = await fetch(`api/notifier?id=${monitor.notifier_id}`);
+        const notifierResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?id=${monitor.notifier_id}`);
         const notifierData = await notifierResponse.json();
         if (!notifierResponse.ok) {
           console.error(`Worker error: Cannot get notifier data: ${notifierData.message}`);
