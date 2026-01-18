@@ -119,12 +119,15 @@ async function checkData(user) {
         const notifierResponse = await fetch(`api/notifier?id=${monitor.notifier_id}`);
         const notifierData = await notifierResponse.json();
         if (!notifierResponse.ok) {
+          console.error(`Worker error: Cannot get notifier data: ${notifierData.message}`);
           return;
         }
         if (0 === notifierData.length) {
+          console.error(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`);
           return;
         }
         if (1 !== notifierData.length) {
+          console.error(`Worker error: Received multiple notifiers for monitor ${monitor.parent}!`);
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
