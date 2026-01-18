@@ -9,6 +9,8 @@ const LoginProvider = ({ children }) => {
   const [id, setId] = useState(-1);
   const [challenge, setChallenge] = useState(null);
   const [token, setToken] = useState(null);
+  const isDemo = DEMO_USER_ID === id;
+  const userLogged = !!token;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -38,9 +40,6 @@ const LoginProvider = ({ children }) => {
   const userId = () => {
     return id === -1 ? localStorage.getItem("id") : id;
   };
-
-  const isDemo = DEMO_USER_ID === userId();
-  const userLogged = !!token;
 
   return (
     <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, demo, isDemo, userId }}>
