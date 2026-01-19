@@ -92,7 +92,7 @@ function updateSendTimestamp(user, monitorId) {
  * @param {Object} user Parent user for which we want to check data
  */
 async function checkData(user) {
-  const enabledMonitors = await MonitorService.filterMonitors({ enabled: true });
+  const enabledMonitors = await MonitorService.filterMonitors({ user: user.id, enabled: true });
   enabledMonitors.forEach(async (monitor) => {
     try {
       // get scraper data item value for specified user's enabled monitor
@@ -115,10 +115,25 @@ async function checkData(user) {
           console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
           return;
         }
+        // get monitor's notifier type based on ID
+        const notifierResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?id=${monitor.notifier_id}`);
+        const notifierData = await notifierResponse.json();
+        if (!notifierResponse.ok) {
+          console.error(`Worker error: Cannot get notifier data: ${notifierData.message}`);
+          return;
+        }
+        if (0 === notifierData.length) {
+          console.error(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`);
+          return;
+        }
+        if (1 !== notifierData.length) {
+          console.error(`Worker error: Received multiple notifiers for monitor ${monitor.parent}!`);
+          return;
+        }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
         NotifierCatalog.getSupportedNotifiers()
           .keys()
-          .filter((notifier) => monitor.notifier === notifier)
+          .filter((notifier) => notifierData[0].type === notifier)
           .forEach(async (notifier) => {
             const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
             const message = `Monitored value reached its threshold condition: ${condition}`;

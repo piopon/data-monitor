@@ -33,17 +33,17 @@ div.page-container {
 }
 
 nav.page-head {
-  @apply flex flex-row sm:flex-col items-center justify-center w-full;
+  @apply flex flex-col items-center justify-center w-full;
   @apply bg-indigo-600 border-b border-indigo-500;
 }
 
 div.page-head-logo-div {
-  @apply flex w-full sm:w-[80%] h-20;
+  @apply flex w-full sm:w-[80%] mt-2 sm:mt-5 mb-2 sm:mb-5;
 }
 
 div.page-head-menu-div {
-  @apply flex items-center justify-center sm:justify-end flex-col sm:flex-row;
-  @apply sm:w-[80%] h-full sm:h-10;
+  @apply flex items-center justify-evenly sm:justify-end flex-row;
+  @apply w-full sm:w-[80%] mb-2;
   @apply animate-menu-drop-down;
 }
 
@@ -80,6 +80,49 @@ section.menu-section button.menu-item-button {
 div.page-content {
   @apply static flex items-center justify-center h-full w-full sm:w-[80%];
   @apply bg-white;
+}
+
+/****************************** WIDGETS *******************************/
+
+div.data-card-monitor .select-small .react-select__control {
+  @apply min-w-16;
+}
+
+div.data-card-monitor .select-big .react-select__control {
+  @apply min-w-32;
+}
+
+div.data-card-monitor .react-select__control {
+  @apply m-1 px-1.5 py-2 relative;
+  @apply rounded-lg text-sm bg-white border-0;
+}
+
+div.data-card-monitor .react-select__control--is-focused {
+  @apply ring-2 ring-black;
+}
+
+div.data-card-monitor .react-select__control--is-disabled {
+  @apply opacity-50 pointer-events-none;
+}
+
+div.data-card-monitor .react-select__value-container {
+  @apply p-0;
+}
+
+div.data-card-monitor .react-select__single-value {
+  @apply text-black;
+}
+
+div.data-card-monitor .react-select__indicators {
+  @apply flex items-center shrink-0;
+}
+
+div.data-card-monitor .react-select__indicator {
+  @apply pl-1 pr-0 py-0;
+}
+
+div.data-card-monitor .react-select__menu {
+  @apply mt-0.5;
 }
 
 /***************************** LOGIN PAGE *****************************/
@@ -203,12 +246,6 @@ div.data-card-monitor form {
   @apply flex flex-row w-full;
 }
 
-div.data-card-monitor select {
-  @apply m-1 px-4 py-3 pe-9 rounded-lg text-sm;
-  @apply disabled:opacity-50 disabled:pointer-events-none;
-  @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
-}
-
 div.data-card-monitor input.data-threshold {
   @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
   @apply disabled:opacity-50 disabled:pointer-events-none;
@@ -242,6 +279,72 @@ div#empty-cards-placeholder span.empty-title {
 
 div#empty-cards-placeholder span.empty-footer {
   @apply mt-1 ml-0 sm:ml-80 font-light text-xs;
+}
+
+/***************************** NOTIFIER PAGE ********************************/
+
+section#notifiers-section {
+  @apply w-full h-[calc(100dvh-125px)] flex flex-col;
+}
+
+section#notifiers-section div.notifier-cards-div {
+  @apply flex-1 overflow-y-auto;
+  @apply flex flex-col items-start gap-5;
+  @apply my-5 sm:my-2 mx-5 sm:mx-0;
+}
+
+section#notifiers-section div.notifier-card {
+  @apply w-full mt-2 p-5;
+  @apply rounded-xl shadow-lg relative;
+  @apply bg-gray-200;
+}
+
+section#notifiers-section h3.notifier-card-title {
+  @apply text-center text-lg sm:text-2xl uppercase font-bold my-2;
+}
+
+section#notifiers-section div.notifier-card-items {
+  @apply my-2;
+}
+
+section#notifiers-section button.add-notifier {
+  @apply sticky bottom-5 w-full h-12 my-5;
+  @apply rounded-xl shadow-lg;
+  @apply bg-indigo-600 text-white hover:bg-indigo-500 hover:cursor-pointer;
+  @apply disabled:bg-gray-500 disabled:opacity-50 disabled:pointer-events-none;
+}
+
+input.notifier-origin {
+  @apply w-full px-1.5 py-2 relative;
+  @apply rounded-sm text-sm bg-white border-1 border-gray-300;
+  @apply focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+}
+
+input.notifier-sender {
+  @apply w-full px-1.5 py-2 relative;
+  @apply rounded-sm text-sm bg-white border-1 border-gray-300;
+  @apply focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+}
+
+input.notifier-pass {
+  @apply w-full px-1.5 py-2 relative;
+  @apply rounded-sm text-sm bg-white border-1 border-gray-300;
+  @apply focus:outline-none focus:ring-1 focus:ring-indigo-600 focus:border-indigo-600;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+}
+
+button.notifier-save-btn {
+  @apply w-50 mt-7 py-3 font-medium rounded-sm bg-green-600 text-white;
+  @apply hover:bg-green-500 hover:cursor-pointer focus:outline-hidden focus:bg-green-600;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+}
+
+button.notifier-delete-btn {
+  @apply w-50 mt-7 ml-3 py-3 font-medium rounded-sm bg-red-600 text-white;
+  @apply hover:bg-red-500 hover:cursor-pointer focus:outline-hidden focus:bg-red-600;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
 }
 
 /***************************** PAGE NOT FOUND *******************************/

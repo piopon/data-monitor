@@ -1,12 +1,21 @@
 import { AppConfig } from "@/config/AppConfig";
 import { ScraperRequest } from "@/lib/ScraperRequest";
 import { MonitorService } from "@/model/MonitorService";
+import { NotifierService } from "@/model/NotifierService";
 import { UserService } from "@/model/UserService";
 
 export async function GET(request) {
   const userInitResult = await UserService.initializeTable();
   if (!userInitResult.result) {
     const result = { init: false, message: userInitResult.message };
+    return new Response(JSON.stringify(result), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const notifierInitResult = await NotifierService.initializeTable();
+  if (!notifierInitResult.result) {
+    const result = { init: false, message: notifierInitResult.message };
     return new Response(JSON.stringify(result), {
       status: 500,
       headers: { "Content-Type": "application/json" },

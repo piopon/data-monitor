@@ -3,6 +3,7 @@ import "./index.css";
 import { ToastContainer } from "react-toastify";
 import PageHeader from "@/components/PageHeader";
 import LoginProvider from "@/context/LoginProvider";
+import PageProvider from "@/context/PageProvider";
 
 export const metadata = {
   title: "data-monitor",
@@ -18,9 +19,11 @@ export default function RootLayout({ children }) {
       <body>
         <LoginProvider>
           <div className="page-container">
-            <PageHeader />
-            <div className="page-content">{children}</div>
-            <ToastContainer position="bottom-right" />
+            <PageProvider>
+              <PageHeader />
+              <div className="page-content">{children}</div>
+              <ToastContainer position="bottom-right" />
+            </PageProvider>
           </div>
         </LoginProvider>
       </body>

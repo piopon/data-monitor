@@ -53,7 +53,7 @@ export default function HomePage({ demoEnabled, initError }) {
         return;
       }
       await action(await response.json());
-      router.replace("/data");
+      router.replace("/monitors");
       toast.success("Login successful!");
     } catch (e) {
       toast.error(`Error: ${e.message}`);

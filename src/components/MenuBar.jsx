@@ -4,16 +4,27 @@ import { useContext } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { AppConfig } from "@/config/AppConfig";
-import { LoginContext } from "@/context/Contexts";
+import { LoginContext, PageContext } from "@/context/Contexts";
 
 const MenuBar = () => {
   const config = AppConfig.getConfig();
   const router = useRouter();
   const { isDemo, challenge, logout } = useContext(LoginContext);
+  const { pageId } = useContext(PageContext);
 
   const viewConfig = async (event) => {
     event.preventDefault();
     router.push(`${config.scraper.public}${config.scraper.endpoints.edit}${challenge}`);
+  };
+
+  const viewNotifiers = async (event) => {
+    event.preventDefault();
+    router.replace("/notifiers");
+  };
+
+  const viewMonitors = async (event) => {
+    event.preventDefault();
+    router.replace("/monitors");
   };
 
   const userLogout = async (event) => {
@@ -36,12 +47,34 @@ const MenuBar = () => {
 
   return (
     <div className="page-head-menu-div">
+      {"monitors" === pageId && (
+        <section className="menu-section">
+          <form className="menu-item-form" onSubmit={viewNotifiers}>
+            <div className="menu-item-div">
+              <button type="submit" className="menu-item-button">
+                notifiers
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
+      {"notifiers" === pageId && (
+        <section className="menu-section">
+          <form className="menu-item-form" onSubmit={viewMonitors}>
+            <div className="menu-item-div">
+              <button type="submit" className="menu-item-button">
+                monitors
+              </button>
+            </div>
+          </form>
+        </section>
+      )}
       {config.scraper.public && challenge && (
         <section className="menu-section">
           <form className="menu-item-form" onSubmit={viewConfig}>
             <div className="menu-item-div">
               <button type="submit" className="menu-item-button">
-                config
+                scraper
               </button>
             </div>
           </form>

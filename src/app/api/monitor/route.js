@@ -15,6 +15,7 @@ export async function GET(request) {
         headers: { "Content-Type": "application/json" },
       });
     }
+    const id = searchParams.get("id");
     const parent = searchParams.get("parent");
     const enabled = searchParams.get("enabled");
     const threshold = searchParams.get("threshold");
@@ -23,6 +24,7 @@ export async function GET(request) {
     const interval = searchParams.get("interval");
     const user = searchParams.get("user");
     const monitors = await MonitorService.filterMonitors({
+      ...(id && { id }),
       ...(parent && { parent }),
       ...(enabled && { enabled }),
       ...(threshold && { threshold }),

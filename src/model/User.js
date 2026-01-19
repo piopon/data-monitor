@@ -9,6 +9,7 @@ export class User {
    */
   constructor(object) {
     const input = ModelUtils.getValueOrDefault(object, {});
+    this.id = ModelUtils.getValueOrDefault(input.id, undefined);
     this.email = ModelUtils.getValueOrDefault(input.email, "");
     this.jwt = ModelUtils.getValueOrDefault(input.jwt, "");
   }

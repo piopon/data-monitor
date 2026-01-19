@@ -2,17 +2,18 @@
 
 import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { LoginContext } from "@/context/Contexts";
+import { LoginContext, PageContext } from "@/context/Contexts";
 import UserAccess from "@/components/UserAccess";
-import DataPage from "@/pages/DataPage";
+import MonitorsPage from "@/pages/MonitorsPage";
 
-export default function Data() {
+export default function Monitors() {
   const MAX_ATTEMPTS = 5;
   const WAIT_TIME_MS = 500;
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isDemo, token } = useContext(LoginContext);
+  const { setPageId } = useContext(PageContext);
 
   useEffect(() => {
     const getData = async () => {
@@ -44,11 +45,12 @@ export default function Data() {
       }
     };
     getData();
-  }, [isDemo, token]);
+    setPageId("monitors");
+  }, [isDemo, setPageId, token]);
 
   return (
     <UserAccess>
-      <DataPage loading={loading} data={data} />
+      <MonitorsPage loading={loading} data={data} />
     </UserAccess>
   );
 }
