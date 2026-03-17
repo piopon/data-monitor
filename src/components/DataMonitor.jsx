@@ -128,8 +128,23 @@ const DataMonitor = ({ parentName }) => {
   };
 
   const testMonitor = async () => {
-    const message = "This is only a TEST message with FAKE values sent from data-monitor!";
-    toast.success(`Test notification OK: ${await notifyResponse.json()}`);
+    try {
+      const message = "This is only a TEST message with FAKE values sent from data-monitor!";
+      const notifyResponse = await fetch(`/api/notifier?type=${notifierType}`, {
+        method: "POST",
+        body: JSON.stringify({
+          name: parentName,
+          details: { message, data: "123.456", threshold },
+        }),
+      });
+      if (!notifyResponse.ok) {
+        toast.error(`Test notification ERROR: ${await notifyResponse.json()}`);
+        return;
+      }
+      toast.success(`Test notification OK: ${await notifyResponse.json()}`);
+    } catch (e) {
+      toast.error(`Error: ${e.message}`);
+    }
   };
 
   const conditionSelected = (selection) => setCondition(selection.value);
