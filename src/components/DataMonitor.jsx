@@ -20,6 +20,13 @@ const MONITOR_DEFAULTS = {
   interval: 300_000,
 };
 
+const parseNotifierValue = (input) => {
+  const [typeRaw = "", idRaw = ""] = String(input).split(OPTION_VALUE_DELIMITER);
+  const type = typeRaw.trim();
+  const id = Number.parseInt(idRaw.trim(), 10);
+  return { type, id: Number.isNaN(id) ? null : id };
+};
+
 const DataMonitor = ({ parentName }) => {
   const parentId = DataUtils.nameToId(parentName);
   const { isDemo, userId } = useContext(LoginContext);
@@ -87,8 +94,10 @@ const DataMonitor = ({ parentName }) => {
         setEnabled(monitorData[0].enabled ?? MONITOR_DEFAULTS.enabled);
         setCondition(monitorData[0].condition ?? MONITOR_DEFAULTS.condition);
         setThreshold(monitorData[0].threshold ?? MONITOR_DEFAULTS.threshold);
-        setNotifierType(notifierData[0].type ?? MONITOR_DEFAULTS.notifier);
         setInterval(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
+        if (notifierData[0].type) {
+          setNotifierType(`${notifierData[0].type}${OPTION_VALUE_DELIMITER}${currNotifierId}`);
+        }
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
@@ -129,8 +138,13 @@ const DataMonitor = ({ parentName }) => {
 
   const testMonitor = async () => {
     try {
+      const { type } = parseNotifierValue(notifierType);
+      if ("" === type || "config" === type) {
+        toast.warning("Please select a configured notifier before running test notification.");
+        return;
+      }
       const message = "This is only a TEST message with FAKE values sent from data-monitor!";
-      const notifyResponse = await fetch(`/api/notifier?type=${notifierType}`, {
+      const notifyResponse = await fetch(`/api/notifier?type=${encodeURIComponent(type)}`, {
         method: "POST",
         body: JSON.stringify({
           name: parentName,
@@ -155,16 +169,12 @@ const DataMonitor = ({ parentName }) => {
       router.replace("/notifiers");
     }
     setNotifierType(input);
-    if (input.includes(OPTION_VALUE_DELIMITER)) {
-      const idString = input.split(OPTION_VALUE_DELIMITER)[1].trim();
-      if ("" === idString || isNaN(idString)) {
-        toast.warning(`Notifier ID is invalid: ${input}`);
-        return;
-      }
-      setNotifierId(parseInt(idString));
-    } else {
+    const { id: parsedNotifierId } = parseNotifierValue(input);
+    if (parsedNotifierId == null) {
       toast.warning(`Notifier does not have an ID: ${input}`);
+      return;
     }
+    setNotifierId(parsedNotifierId);
   };
 
   const submitMonitor = async (event) => {
