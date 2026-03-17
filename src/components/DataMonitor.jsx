@@ -167,9 +167,14 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
+  const submitMonitor = async (event) => {
+    event.preventDefault();
+    await saveMonitor();
+  };
+
   return (
     <div className="data-card-monitor">
-      <form action={saveMonitor}>
+      <form onSubmit={submitMonitor}>
         <Toggle id={parentId} label="enabled" enabled={enabled} setter={setEnabled} />
         <Select options={Monitor.CONDITIONS} value={condition} disabled={!enabled} setter={conditionSelected} />
         <input
@@ -180,7 +185,14 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select size="big" options={notifierOpts} placeholder="notifier" value={notifierType} disabled={!enabled} setter={notifierSelected} />
+        <Select
+          size="big"
+          options={notifierOpts}
+          placeholder="notifier"
+          value={notifierType}
+          disabled={!enabled}
+          setter={notifierSelected}
+        />
         <input
           type="text"
           className="data-interval"
@@ -189,7 +201,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setInterval(event.target.value)}
           disabled={!enabled}
         />
-        <button className="test-monitor" type="submit" disabled={!enabled} formAction={testMonitor}>
+        <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
           test
         </button>
         <button className="save-monitor" type="submit">
