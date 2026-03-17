@@ -58,6 +58,9 @@ export class DiscordNotifier {
    * @returns string containing the used avatar URL
    */
   #getAvatar(dataAvatar) {
+    if (dataAvatar == null) {
+      return this.#config.avatar;
+    }
     for (let index = 0; index < DiscordNotifier.#AVATAR_EXTENSIONS.length; index++) {
       const extension = DiscordNotifier.#AVATAR_EXTENSIONS[index];
       if (dataAvatar.endsWith(extension)) {
