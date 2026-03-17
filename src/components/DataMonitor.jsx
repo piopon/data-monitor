@@ -189,7 +189,7 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setInterval(event.target.value)}
           disabled={!enabled}
         />
-        <button className="test-monitor" type="submit" formAction={testMonitor}>
+        <button className="test-monitor" type="submit" disabled={!enabled} formAction={testMonitor}>
           test
         </button>
         <button className="save-monitor" type="submit">

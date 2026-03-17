@@ -264,6 +264,12 @@ div.data-card-monitor button.save-monitor {
   @apply bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-hidden focus:bg-indigo-600;
 }
 
+div.data-card-monitor button.test-monitor {
+  @apply m-1 px-4 py-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg;
+  @apply disabled:opacity-50 disabled:pointer-events-none;
+  @apply bg-green-500 text-white hover:bg-green-600 focus:outline-hidden focus:bg-green-600;
+}
+
 section#data-section div#empty-cards-placeholder {
   @apply flex flex-col justify-center items-center;
   @apply h-full;
