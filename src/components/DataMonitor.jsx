@@ -137,6 +137,10 @@ const DataMonitor = ({ parentName }) => {
   };
 
   const testMonitor = async () => {
+    if (isDemo) {
+      toast.warn(`Notifications are disabled for demo session.`);
+      return;
+    }
     try {
       const { type } = parseNotifierValue(notifierType);
       if ("" === type || "config" === type) {
