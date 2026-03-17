@@ -96,8 +96,7 @@ const DataMonitor = ({ parentName }) => {
     initialize();
   }, []);
 
-  const saveMonitor = async (event) => {
-    event.preventDefault();
+  const saveMonitor = async () => {
     if (isDemo) {
       toast.warn(`Notifications are disabled for demo session.`);
       return;
@@ -128,6 +127,11 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
+  const testMonitor = async () => {
+    const message = "This is only a TEST message with FAKE values sent from data-monitor!";
+    toast.success(`Test notification OK: ${await notifyResponse.json()}`);
+  };
+
   const conditionSelected = (selection) => setCondition(selection.value);
 
   const notifierSelected = (selection) => {
@@ -150,7 +154,7 @@ const DataMonitor = ({ parentName }) => {
 
   return (
     <div className="data-card-monitor">
-      <form onSubmit={saveMonitor}>
+      <form action={saveMonitor}>
         <Toggle id={parentId} label="enabled" enabled={enabled} setter={setEnabled} />
         <Select options={Monitor.CONDITIONS} value={condition} disabled={!enabled} setter={conditionSelected} />
         <input
@@ -170,6 +174,9 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setInterval(event.target.value)}
           disabled={!enabled}
         />
+        <button className="test-monitor" type="submit" formAction={testMonitor}>
+          test
+        </button>
         <button className="save-monitor" type="submit">
           save
         </button>
