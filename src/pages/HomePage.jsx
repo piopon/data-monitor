@@ -68,7 +68,7 @@ export default function HomePage({ demoEnabled, initError }) {
         toast.error(saveResult.message);
         return;
       }
-      login(saveResult.id, loginData);
+      login(saveResult.id, email, loginData);
     };
     await doLogin(userLoginAction, { email, password });
   };
