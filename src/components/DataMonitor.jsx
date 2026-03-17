@@ -29,7 +29,7 @@ const parseNotifierValue = (input) => {
 
 const DataMonitor = ({ parentName }) => {
   const parentId = DataUtils.nameToId(parentName);
-  const { isDemo, userId } = useContext(LoginContext);
+  const { isDemo, userId, email } = useContext(LoginContext);
   const router = useRouter();
 
   const [id, setId] = useState(MONITOR_DEFAULTS.id);
@@ -143,11 +143,16 @@ const DataMonitor = ({ parentName }) => {
         toast.warning("Please select a configured notifier before running test notification.");
         return;
       }
+      if ("email" === type && email == null) {
+        toast.error(`Missing user email to send notification. Please re-login and try again.`);
+        return;
+      }
       const message = "This is only a TEST message with FAKE values sent from data-monitor!";
       const notifyResponse = await fetch(`/api/notifier?type=${encodeURIComponent(type)}`, {
         method: "POST",
         body: JSON.stringify({
           name: parentName,
+          receiver: email,
           details: { message, data: "123.456", threshold },
         }),
       });
