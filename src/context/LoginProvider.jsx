@@ -9,6 +9,7 @@ const LoginProvider = ({ children }) => {
   const [id, setId] = useState(-1);
   const [challenge, setChallenge] = useState(null);
   const [token, setToken] = useState(null);
+  const [email, setEmail] = useState(null);
   const isDemo = DEMO_USER_ID === id;
   const userLogged = !!token;
 
@@ -19,21 +20,23 @@ const LoginProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (id, data) => {
+  const login = (id, email, data) => {
     setId(id);
+    setEmail(email);
     setChallenge(data.challenge);
     setToken(data.token);
     localStorage.setItem("id", id);
     localStorage.setItem("token", data.token);
   };
 
-  const demo = (data) => login(DEMO_USER_ID, data);
+  const demo = (data) => login(DEMO_USER_ID, null, data);
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("id");
     setToken(null);
     setChallenge(null);
+    setEmail(null);
     setId(-1);
   };
 
@@ -42,7 +45,7 @@ const LoginProvider = ({ children }) => {
   };
 
   return (
-    <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, demo, isDemo, userId }}>
+    <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, demo, isDemo, userId, email }}>
       {children}
     </LoginContext.Provider>
   );

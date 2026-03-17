@@ -20,9 +20,16 @@ const MONITOR_DEFAULTS = {
   interval: 300_000,
 };
 
+const parseNotifierValue = (input) => {
+  const [typeRaw = "", idRaw = ""] = String(input).split(OPTION_VALUE_DELIMITER);
+  const type = typeRaw.trim();
+  const id = Number.parseInt(idRaw.trim(), 10);
+  return { type, id: Number.isNaN(id) ? null : id };
+};
+
 const DataMonitor = ({ parentName }) => {
   const parentId = DataUtils.nameToId(parentName);
-  const { isDemo, userId } = useContext(LoginContext);
+  const { isDemo, userId, email } = useContext(LoginContext);
   const router = useRouter();
 
   const [id, setId] = useState(MONITOR_DEFAULTS.id);
@@ -87,8 +94,10 @@ const DataMonitor = ({ parentName }) => {
         setEnabled(monitorData[0].enabled ?? MONITOR_DEFAULTS.enabled);
         setCondition(monitorData[0].condition ?? MONITOR_DEFAULTS.condition);
         setThreshold(monitorData[0].threshold ?? MONITOR_DEFAULTS.threshold);
-        setNotifierType(notifierData[0].type ?? MONITOR_DEFAULTS.notifier);
         setInterval(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
+        if (notifierData[0].type) {
+          setNotifierType(`${notifierData[0].type}${OPTION_VALUE_DELIMITER}${currNotifierId}`);
+        }
       } catch (error) {
         toast.error(`Failed to get monitor: ${error.message}`);
       }
@@ -96,8 +105,7 @@ const DataMonitor = ({ parentName }) => {
     initialize();
   }, []);
 
-  const saveMonitor = async (event) => {
-    event.preventDefault();
+  const saveMonitor = async () => {
     if (isDemo) {
       toast.warn(`Notifications are disabled for demo session.`);
       return;
@@ -128,6 +136,40 @@ const DataMonitor = ({ parentName }) => {
     }
   };
 
+  const testMonitor = async () => {
+    if (isDemo) {
+      toast.warn(`Notifications are disabled for demo session.`);
+      return;
+    }
+    try {
+      const { type } = parseNotifierValue(notifierType);
+      if ("" === type || "config" === type) {
+        toast.warning("Please select a configured notifier before running test notification.");
+        return;
+      }
+      if ("email" === type && email == null) {
+        toast.error(`Missing user email to send notification. Please re-login and try again.`);
+        return;
+      }
+      const message = "This is only a TEST message with FAKE values sent from data-monitor!";
+      const notifyResponse = await fetch(`/api/notifier?type=${encodeURIComponent(type)}`, {
+        method: "POST",
+        body: JSON.stringify({
+          name: parentName,
+          receiver: email,
+          details: { message, data: "123.456", threshold },
+        }),
+      });
+      if (!notifyResponse.ok) {
+        toast.error(`Test notification ERROR: ${await notifyResponse.json()}`);
+        return;
+      }
+      toast.success(`Test notification OK: ${await notifyResponse.json()}`);
+    } catch (e) {
+      toast.error(`Error: ${e.message}`);
+    }
+  };
+
   const conditionSelected = (selection) => setCondition(selection.value);
 
   const notifierSelected = (selection) => {
@@ -136,21 +178,22 @@ const DataMonitor = ({ parentName }) => {
       router.replace("/notifiers");
     }
     setNotifierType(input);
-    if (input.includes(OPTION_VALUE_DELIMITER)) {
-      const idString = input.split(OPTION_VALUE_DELIMITER)[1].trim();
-      if ("" === idString || isNaN(idString)) {
-        toast.warning(`Notifier ID is invalid: ${input}`);
-        return;
-      }
-      setNotifierId(parseInt(idString));
-    } else {
+    const { id: parsedNotifierId } = parseNotifierValue(input);
+    if (parsedNotifierId == null) {
       toast.warning(`Notifier does not have an ID: ${input}`);
+      return;
     }
+    setNotifierId(parsedNotifierId);
+  };
+
+  const submitMonitor = async (event) => {
+    event.preventDefault();
+    await saveMonitor();
   };
 
   return (
     <div className="data-card-monitor">
-      <form onSubmit={saveMonitor}>
+      <form onSubmit={submitMonitor}>
         <Toggle id={parentId} label="enabled" enabled={enabled} setter={setEnabled} />
         <Select options={Monitor.CONDITIONS} value={condition} disabled={!enabled} setter={conditionSelected} />
         <input
@@ -161,7 +204,14 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setThreshold(event.target.value)}
           disabled={!enabled}
         />
-        <Select size="big" options={notifierOpts} placeholder="notifier" value={notifierType} disabled={!enabled} setter={notifierSelected} />
+        <Select
+          size="big"
+          options={notifierOpts}
+          placeholder="notifier"
+          value={notifierType}
+          disabled={!enabled}
+          setter={notifierSelected}
+        />
         <input
           type="text"
           className="data-interval"
@@ -170,6 +220,9 @@ const DataMonitor = ({ parentName }) => {
           onChange={(event) => setInterval(event.target.value)}
           disabled={!enabled}
         />
+        <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
+          test
+        </button>
         <button className="save-monitor" type="submit">
           save
         </button>
