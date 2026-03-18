@@ -13,6 +13,7 @@ const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PO
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
 const SEND_TIMESTAMPS = new Map();
 const NOTIFIER_TYPES = new Map();
+const RUNNING_USER_CHECKS = new Set();
 const SEND_ROOT_DIR = "users";
 
 /**
@@ -119,63 +120,79 @@ async function getNotifierType(monitor) {
  * @param {Object} user Parent user for which we want to check data
  */
 async function checkData(user) {
-  const enabledMonitors = await MonitorService.filterMonitors({ user: user.id, enabled: true });
-  enabledMonitors.forEach(async (monitor) => {
-    try {
-      const sendInterval = monitor.interval || SEND_INTERVAL;
-      if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
-        console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
-        return;
-      }
-      // get scraper data item value for specified user's enabled monitor
-      const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${user.jwt}` },
-      });
-      if (!scraperResponse.ok) {
-        console.error("Worker error: ", await scraperResponse.text());
-        return;
-      }
-      const scraperData = await scraperResponse.json();
-      if (scraperData.length !== 1) {
-        console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
-        return;
-      }
-      if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        const notifierType = await getNotifierType(monitor);
-        if (!notifierType) {
-          return;
-        }
-        console.log(`Sending notification: ${monitor.parent} over threshold!`);
-        NotifierCatalog.getSupportedNotifiers()
-          .keys()
-          .filter((notifier) => notifierType === notifier)
-          .forEach(async (notifier) => {
-            const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
-            const message = `Monitored value reached its threshold condition: ${condition}`;
-            const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
-              method: "POST",
-              body: JSON.stringify({
-                name: monitor.parent,
-                receiver: user.email,
-                avatar: scraperData[0].icon,
-                details: { message, data: scraperData[0].data, threshold: monitor.threshold },
-              }),
-            });
-            if (!notifyResponse.ok) {
-              console.error(`Notification ERROR: ${await notifyResponse.json()}`);
+  const userCheckKey = String(user.id || user.email);
+  if (RUNNING_USER_CHECKS.has(userCheckKey)) {
+    console.log(`Worker info: previous check for user ${user.email} is still running. Skipping this run.`);
+    return;
+  }
+  RUNNING_USER_CHECKS.add(userCheckKey);
+  try {
+    const enabledMonitors = await MonitorService.filterMonitors({ user: user.id, enabled: true });
+    await Promise.allSettled(
+      enabledMonitors.map(async (monitor) => {
+        try {
+          const sendInterval = monitor.interval || SEND_INTERVAL;
+          if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
+            console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
+            return;
+          }
+          // get scraper data item value for specified user's enabled monitor
+          const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${user.jwt}` },
+          });
+          if (!scraperResponse.ok) {
+            console.error("Worker error: ", await scraperResponse.text());
+            return;
+          }
+          const scraperData = await scraperResponse.json();
+          if (scraperData.length !== 1) {
+            console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
+            return;
+          }
+          if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
+            const notifierType = await getNotifierType(monitor);
+            if (!notifierType) {
               return;
             }
-            updateSendTimestamp(user, monitor.parent);
-            console.log(`Notification OK: ${await notifyResponse.json()}`);
-          });
-      } else {
-        console.log(`${monitor.parent} does not meet its threshold value...`);
-      }
-    } catch (error) {
-      console.error("Worker error: ", error.message);
-    }
-  });
+            console.log(`Sending notification: ${monitor.parent} over threshold!`);
+            const matchedNotifiers = NotifierCatalog.getSupportedNotifiers()
+              .keys()
+              .filter((notifier) => notifierType === notifier);
+            await Promise.allSettled(
+              matchedNotifiers.map(async (notifier) => {
+                const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
+                const message = `Monitored value reached its threshold condition: ${condition}`;
+                const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
+                  method: "POST",
+                  body: JSON.stringify({
+                    name: monitor.parent,
+                    receiver: user.email,
+                    avatar: scraperData[0].icon,
+                    details: { message, data: scraperData[0].data, threshold: monitor.threshold },
+                  }),
+                });
+                if (!notifyResponse.ok) {
+                  console.error(`Notification ERROR: ${await notifyResponse.json()}`);
+                  return;
+                }
+                updateSendTimestamp(user, monitor.parent);
+                console.log(`Notification OK: ${await notifyResponse.json()}`);
+              })
+            );
+          } else {
+            console.log(`${monitor.parent} does not meet its threshold value...`);
+          }
+        } catch (error) {
+          console.error("Worker error: ", error.message);
+        }
+      })
+    );
+  } catch (error) {
+    console.error("Worker error: ", error.message);
+  } finally {
+    RUNNING_USER_CHECKS.delete(userCheckKey);
+  }
 }
 
 // check notifiers configuration correctness
