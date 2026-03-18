@@ -95,6 +95,11 @@ async function checkData(user) {
   const enabledMonitors = await MonitorService.filterMonitors({ user: user.id, enabled: true });
   enabledMonitors.forEach(async (monitor) => {
     try {
+      const sendInterval = monitor.interval || SEND_INTERVAL;
+      if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
+        console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
+        return;
+      }
       // get scraper data item value for specified user's enabled monitor
       const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
         method: "GET",
@@ -110,11 +115,6 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        const sendInterval = monitor.interval || SEND_INTERVAL;
-        if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
-          console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
-          return;
-        }
         // get monitor's notifier type based on ID
         const notifierResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?id=${monitor.notifier_id}`);
         const notifierData = await notifierResponse.json();
