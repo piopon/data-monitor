@@ -57,6 +57,15 @@ function getUserTimestampFile(user) {
 }
 
 /**
+ * Method used to retrieve cache key for current user data maps
+ * @param {Object} user The user for which we want to get cache key
+ * @returns stable cache key for user-related in-memory maps
+ */
+function getUserCacheKey(user) {
+  return String(user.id || user.email);
+}
+
+/**
  * Method used to check if notification send timestamp is within provided time frame
  * @param {Object} user The user for which we want to check the send timestamp value
  * @param {String} monitorId The monitor name identifier for which we want to check
@@ -120,7 +129,7 @@ async function getNotifierType(monitor) {
  * @param {Object} user Parent user for which we want to check data
  */
 async function checkData(user) {
-  const userCheckKey = String(user.id || user.email);
+  const userCheckKey = getUserCacheKey(user);
   if (RUNNING_USER_CHECKS.has(userCheckKey)) {
     console.log(`Worker info: previous check for user ${user.email} is still running. Skipping this run.`);
     return;
