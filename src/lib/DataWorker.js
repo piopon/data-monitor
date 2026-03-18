@@ -158,30 +158,50 @@ async function checkData(user) {
   }
   RUNNING_USER_CHECKS.add(userCheckKey);
   try {
+    // filter out enabled monitors which were not notified in their timeframe (cooldown)
     const enabledMonitors = await MonitorService.filterMonitors({ user: user.id, enabled: true });
+    const monitorsToCheck = enabledMonitors.filter((monitor) => {
+      const sendInterval = monitor.interval || SEND_INTERVAL;
+      if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
+        console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
+        return false;
+      }
+      return true;
+    });
+    if (monitorsToCheck.length === 0) {
+      return;
+    }
+    // perform a bulk request of all scraper items (should be faster and cheaper than multiple small requests)
+    const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${user.jwt}` },
+    });
+    if (!scraperResponse.ok) {
+      console.error("Worker error: ", await scraperResponse.text());
+      return;
+    }
+    const scraperData = await scraperResponse.json();
+    if (!Array.isArray(scraperData)) {
+      console.error("Worker error: cannot parse scraper data response.");
+      return;
+    }
+    console.log(scraperData)
+    const scraperDataByName = new Map();
+    scraperData.forEach((item) => {
+      if (item?.name && !scraperDataByName.has(item.name)) {
+        scraperDataByName.set(item.name, item);
+      }
+    });
+    // notify all monitors with true condition
     await Promise.allSettled(
-      enabledMonitors.map(async (monitor) => {
+      monitorsToCheck.map(async (monitor) => {
         try {
-          const sendInterval = monitor.interval || SEND_INTERVAL;
-          if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
-            console.log(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
-            return;
-          }
-          // get scraper data item value for specified user's enabled monitor
-          const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items?name=${monitor.parent}`, {
-            method: "GET",
-            headers: { Authorization: `Bearer ${user.jwt}` },
-          });
-          if (!scraperResponse.ok) {
-            console.error("Worker error: ", await scraperResponse.text());
-            return;
-          }
-          const scraperData = await scraperResponse.json();
-          if (scraperData.length !== 1) {
+          const scraperItem = scraperDataByName.get(monitor.parent);
+          if (!scraperItem) {
             console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
             return;
           }
-          if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
+          if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
             const notifierType = await getNotifierType(monitor);
             if (!notifierType) {
               return;
@@ -192,15 +212,15 @@ async function checkData(user) {
               .filter((notifier) => notifierType === notifier);
             await Promise.allSettled(
               matchedNotifiers.map(async (notifier) => {
-                const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
+                const condition = `${scraperItem.data} ${monitor.condition} ${monitor.threshold}`;
                 const message = `Monitored value reached its threshold condition: ${condition}`;
                 const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
                   method: "POST",
                   body: JSON.stringify({
                     name: monitor.parent,
                     receiver: user.email,
-                    avatar: scraperData[0].icon,
-                    details: { message, data: scraperData[0].data, threshold: monitor.threshold },
+                    avatar: scraperItem.icon,
+                    details: { message, data: scraperItem.data, threshold: monitor.threshold },
                   }),
                 });
                 if (!notifyResponse.ok) {
