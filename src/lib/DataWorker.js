@@ -11,7 +11,7 @@ const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
-const SEND_TIMESTAMPS = new Map();
+const USER_SEND_TIMESTAMPS = new Map();
 const NOTIFIER_TYPES = new Map();
 const RUNNING_USER_CHECKS = new Set();
 const SEND_ROOT_DIR = "users";
@@ -66,6 +66,27 @@ function getUserCacheKey(user) {
 }
 
 /**
+ * Method used to retrieve user's notification timestamps map
+ * @param {Object} user The user for which we want to get notification timestamps
+ * @returns map with monitor identifiers and their last send timestamps
+ */
+function getUserTimestamps(user) {
+  const userCacheKey = getUserCacheKey(user);
+  if (!USER_SEND_TIMESTAMPS.has(userCacheKey)) {
+    const userTimestamps = new Map();
+    const timestampFile = getUserTimestampFile(user);
+    if (fs.existsSync(timestampFile)) {
+      const fileContent = JSON.parse(fs.readFileSync(timestampFile));
+      for (const [key, value] of Object.entries(fileContent)) {
+        userTimestamps.set(key, value);
+      }
+    }
+    USER_SEND_TIMESTAMPS.set(userCacheKey, userTimestamps);
+  }
+  return USER_SEND_TIMESTAMPS.get(userCacheKey);
+}
+
+/**
  * Method used to check if notification send timestamp is within provided time frame
  * @param {Object} user The user for which we want to check the send timestamp value
  * @param {String} monitorId The monitor name identifier for which we want to check
@@ -73,17 +94,11 @@ function getUserCacheKey(user) {
  * @returns true when notification was sent in the time frame, false otherwise
  */
 function checkSendTimestamp(user, monitorId, time) {
-  const timestampFile = getUserTimestampFile(user);
-  if (SEND_TIMESTAMPS.size === 0 && fs.existsSync(timestampFile)) {
-    const fileContent = JSON.parse(fs.readFileSync(timestampFile));
-    for (const [key, value] of Object.entries(fileContent)) {
-      SEND_TIMESTAMPS.set(key, value);
-    }
-  }
-  if (SEND_TIMESTAMPS.has(monitorId) === false) {
+  const userTimestamps = getUserTimestamps(user);
+  if (userTimestamps.has(monitorId) === false) {
     return false;
   }
-  const sentDiff = Math.abs(Date.now() - SEND_TIMESTAMPS.get(monitorId));
+  const sentDiff = Math.abs(Date.now() - userTimestamps.get(monitorId));
   return sentDiff <= time;
 }
 
@@ -93,8 +108,9 @@ function checkSendTimestamp(user, monitorId, time) {
  * @param {String} monitorId The monitor name identificer for which we want to update timestamp
  */
 function updateSendTimestamp(user, monitorId) {
-  SEND_TIMESTAMPS.set(monitorId, Date.now());
-  const fileContent = JSON.stringify(Object.fromEntries(SEND_TIMESTAMPS));
+  const userTimestamps = getUserTimestamps(user);
+  userTimestamps.set(monitorId, Date.now());
+  const fileContent = JSON.stringify(Object.fromEntries(userTimestamps));
   fs.writeFileSync(getUserTimestampFile(user), fileContent);
 }
 
