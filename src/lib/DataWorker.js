@@ -12,6 +12,7 @@ const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
+const MONITOR_CONCURRENCY = Math.max(1, Number(process.env.CHECK_MONITOR_CONCURRENCY || 10));
 const USER_SEND_TIMESTAMPS = new Map();
 const NOTIFIER_TYPES = new Map();
 const RUNNING_USER_CHECKS = new Set();
@@ -195,54 +196,57 @@ async function checkData(user) {
         }
       }
     });
-    // notify all monitors with true condition
-    await Promise.allSettled(
-      monitorsToCheck.map(async (monitor) => {
-        try {
-          const monitorItemId = DataUtils.nameToId(monitor.parent);
-          const scraperItem = scraperDataByName.get(monitorItemId);
-          if (!scraperItem) {
-            console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
-            return;
-          }
-          if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
-            const notifierType = await getNotifierType(monitor);
-            if (!notifierType) {
+    // notify all monitors with true condition using bounded concurrency
+    for (let index = 0; index < monitorsToCheck.length; index += MONITOR_CONCURRENCY) {
+      const monitorBatch = monitorsToCheck.slice(index, index + MONITOR_CONCURRENCY);
+      await Promise.allSettled(
+        monitorBatch.map(async (monitor) => {
+          try {
+            const monitorItemId = DataUtils.nameToId(monitor.parent);
+            const scraperItem = scraperDataByName.get(monitorItemId);
+            if (!scraperItem) {
+              console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
               return;
             }
-            console.log(`Sending notification: ${monitor.parent} over threshold!`);
-            const matchedNotifiers = NotifierCatalog.getSupportedNotifiers()
-              .keys()
-              .filter((notifier) => notifierType === notifier);
-            await Promise.allSettled(
-              matchedNotifiers.map(async (notifier) => {
-                const condition = `${scraperItem.data} ${monitor.condition} ${monitor.threshold}`;
-                const message = `Monitored value reached its threshold condition: ${condition}`;
-                const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
-                  method: "POST",
-                  body: JSON.stringify({
-                    name: monitor.parent,
-                    receiver: user.email,
-                    avatar: scraperItem.icon,
-                    details: { message, data: scraperItem.data, threshold: monitor.threshold },
-                  }),
-                });
-                if (!notifyResponse.ok) {
-                  console.error(`Notification ERROR: ${await notifyResponse.json()}`);
-                  return;
-                }
-                updateSendTimestamp(user, monitor.parent);
-                console.log(`Notification OK: ${await notifyResponse.json()}`);
-              })
-            );
-          } else {
-            console.log(`${monitor.parent} does not meet its threshold value...`);
+            if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
+              const notifierType = await getNotifierType(monitor);
+              if (!notifierType) {
+                return;
+              }
+              console.log(`Sending notification: ${monitor.parent} over threshold!`);
+              const matchedNotifiers = NotifierCatalog.getSupportedNotifiers()
+                .keys()
+                .filter((notifier) => notifierType === notifier);
+              await Promise.allSettled(
+                matchedNotifiers.map(async (notifier) => {
+                  const condition = `${scraperItem.data} ${monitor.condition} ${monitor.threshold}`;
+                  const message = `Monitored value reached its threshold condition: ${condition}`;
+                  const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
+                    method: "POST",
+                    body: JSON.stringify({
+                      name: monitor.parent,
+                      receiver: user.email,
+                      avatar: scraperItem.icon,
+                      details: { message, data: scraperItem.data, threshold: monitor.threshold },
+                    }),
+                  });
+                  if (!notifyResponse.ok) {
+                    console.error(`Notification ERROR: ${await notifyResponse.json()}`);
+                    return;
+                  }
+                  updateSendTimestamp(user, monitor.parent);
+                  console.log(`Notification OK: ${await notifyResponse.json()}`);
+                })
+              );
+            } else {
+              console.log(`${monitor.parent} does not meet its threshold value...`);
+            }
+          } catch (error) {
+            console.error("Worker error: ", error.message);
           }
-        } catch (error) {
-          console.error("Worker error: ", error.message);
-        }
-      })
-    );
+        })
+      );
+    }
   } catch (error) {
     console.error("Worker error: ", error.message);
   } finally {
