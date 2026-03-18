@@ -114,6 +114,12 @@ function updateSendTimestamp(user, monitorId) {
   fs.writeFileSync(getUserTimestampFile(user), fileContent);
 }
 
+/**
+ * Method used to retrieve notifier type for provided monitor's notifier ID
+ * @note This method caches notifier ID -> type mapping to limit API requests
+ * @param {Object} monitor Parent monitor for which we want to resolve notifier type
+ * @returns notifier type when available, null otherwise
+ */
 async function getNotifierType(monitor) {
   const notifierId = String(monitor.notifier_id);
   if (NOTIFIER_TYPES.has(notifierId)) {
