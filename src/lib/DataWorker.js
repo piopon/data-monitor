@@ -2,6 +2,7 @@ import { MonitorService } from "../model/MonitorService.js";
 import { NotifierCatalog } from "../notifiers/core/NotifierCatalog.js";
 import { NotifierValidator } from "../notifiers/core/NotifierValidator.js";
 import { UserService } from "../model/UserService.js";
+import { DataUtils } from "./DataUtils.js";
 
 import waitOn from "wait-on";
 import fs from "fs";
@@ -185,18 +186,21 @@ async function checkData(user) {
       console.error("Worker error: cannot parse scraper data response.");
       return;
     }
-    console.log(scraperData)
     const scraperDataByName = new Map();
     scraperData.forEach((item) => {
-      if (item?.name && !scraperDataByName.has(item.name)) {
-        scraperDataByName.set(item.name, item);
+      if (item?.name) {
+        const itemId = DataUtils.nameToId(item.name);
+        if (!scraperDataByName.has(itemId)) {
+          scraperDataByName.set(itemId, item);
+        }
       }
     });
     // notify all monitors with true condition
     await Promise.allSettled(
       monitorsToCheck.map(async (monitor) => {
         try {
-          const scraperItem = scraperDataByName.get(monitor.parent);
+          const monitorItemId = DataUtils.nameToId(monitor.parent);
+          const scraperItem = scraperDataByName.get(monitorItemId);
           if (!scraperItem) {
             console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
             return;
