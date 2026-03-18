@@ -12,6 +12,7 @@ const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
 const SEND_TIMESTAMPS = new Map();
+const NOTIFIER_TYPES = new Map();
 const SEND_ROOT_DIR = "users";
 
 /**
@@ -87,6 +88,32 @@ function updateSendTimestamp(user, monitorId) {
   fs.writeFileSync(getUserTimestampFile(user), fileContent);
 }
 
+async function getNotifierType(monitor) {
+  const notifierId = String(monitor.notifier_id);
+  if (NOTIFIER_TYPES.has(notifierId)) {
+    return NOTIFIER_TYPES.get(notifierId);
+  }
+
+  const notifierResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?id=${notifierId}`);
+  const notifierData = await notifierResponse.json();
+  if (!notifierResponse.ok) {
+    console.error(`Worker error: Cannot get notifier data: ${notifierData.message}`);
+    return null;
+  }
+  if (0 === notifierData.length) {
+    console.error(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`);
+    return null;
+  }
+  if (1 !== notifierData.length) {
+    console.error(`Worker error: Received multiple notifiers for monitor ${monitor.parent}!`);
+    return null;
+  }
+
+  const notifierType = notifierData[0].type;
+  NOTIFIER_TYPES.set(notifierId, notifierType);
+  return notifierType;
+}
+
 /**
  * Main worker method used to check scraper data against threshold
  * @param {Object} user Parent user for which we want to check data
@@ -115,25 +142,14 @@ async function checkData(user) {
         return;
       }
       if (verify(parseFloat(scraperData[0].data), monitor.condition, parseFloat(monitor.threshold))) {
-        // get monitor's notifier type based on ID
-        const notifierResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?id=${monitor.notifier_id}`);
-        const notifierData = await notifierResponse.json();
-        if (!notifierResponse.ok) {
-          console.error(`Worker error: Cannot get notifier data: ${notifierData.message}`);
-          return;
-        }
-        if (0 === notifierData.length) {
-          console.error(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`);
-          return;
-        }
-        if (1 !== notifierData.length) {
-          console.error(`Worker error: Received multiple notifiers for monitor ${monitor.parent}!`);
+        const notifierType = await getNotifierType(monitor);
+        if (!notifierType) {
           return;
         }
         console.log(`Sending notification: ${monitor.parent} over threshold!`);
         NotifierCatalog.getSupportedNotifiers()
           .keys()
-          .filter((notifier) => notifierData[0].type === notifier)
+          .filter((notifier) => notifierType === notifier)
           .forEach(async (notifier) => {
             const condition = `${scraperData[0].data} ${monitor.condition} ${monitor.threshold}`;
             const message = `Monitored value reached its threshold condition: ${condition}`;
