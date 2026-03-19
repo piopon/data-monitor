@@ -150,6 +150,11 @@ const DataMonitor = ({ parentName }) => {
       toast.error(`Missing user ID, please re-login and try again.`);
       return;
     }
+    const interval = intervalToMilliseconds(intervalValue, intervalUnit);
+    if (interval == null) {
+      toast.error("Interval must be a positive integer value.");
+      return;
+    }
     const monitor = { parent: parentId, enabled, threshold, condition, notifier: notifierId, interval, user };
     try {
       const exists = MONITOR_DEFAULTS.id !== id;
@@ -207,6 +212,16 @@ const DataMonitor = ({ parentName }) => {
 
   const conditionSelected = (selection) => setCondition(selection.value);
 
+  const intervalValueChanged = (event) => {
+    const value = event.target.value;
+    if ("" !== value && !/^\d+$/.test(value)) {
+      return;
+    }
+    setIntervalValue(value);
+  };
+
+  const intervalUnitChanged = (event) => setIntervalUnit(event.target.value);
+
   const notifierSelected = (selection) => {
     const input = selection.value;
     if (CONFIG_NOTIFIER_OPTION.value === input) {
@@ -247,14 +262,23 @@ const DataMonitor = ({ parentName }) => {
           disabled={!enabled}
           setter={notifierSelected}
         />
-        <input
-          type="text"
-          className="data-interval"
-          placeholder="interval (ms)"
-          value={intervalValue}
-          onChange={(event) => setIntervalValue(event.target.value)}
-          disabled={!enabled}
-        />
+        <div className={`data-interval-picker${!enabled ? " is-disabled" : ""}`}>
+          <input
+            type="text"
+            className="data-interval-value"
+            placeholder="interval"
+            value={intervalValue}
+            onChange={intervalValueChanged}
+            disabled={!enabled}
+          />
+          <select className="data-interval-unit" value={intervalUnit} onChange={intervalUnitChanged} disabled={!enabled}>
+            {INTERVAL_UNITS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.text}
+              </option>
+            ))}
+          </select>
+        </div>
         <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
           test
         </button>

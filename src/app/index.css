@@ -249,13 +249,27 @@ div.data-card-monitor form {
 div.data-card-monitor input.data-threshold {
   @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
   @apply disabled:opacity-50 disabled:pointer-events-none;
-  @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
+  @apply bg-white border-black;
 }
 
-div.data-card-monitor input.data-interval {
-  @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
-  @apply disabled:opacity-50 disabled:pointer-events-none;
-  @apply bg-white border-black focus:border-indigo-500 focus:ring-indigo-500;
+div.data-card-monitor div.data-interval-picker {
+  @apply m-1 w-full flex rounded-lg  bg-white;
+  @apply focus-within:ring-2 focus-within:ring-black;
+}
+
+div.data-card-monitor div.data-interval-picker.is-disabled {
+  @apply opacity-50 pointer-events-none;
+}
+
+div.data-card-monitor input.data-interval-value {
+  @apply w-full px-4 py-3 text-sm rounded-l-lg border-0 bg-transparent;
+  @apply focus:outline-none;
+}
+
+div.data-card-monitor select.data-interval-unit {
+  @apply px-2 py-3 text-sm rounded-r-lg border-l border-gray-200 bg-gray-100;
+  @apply focus:outline-none;
+  width: 4.5rem;
 }
 
 div.data-card-monitor button.save-monitor {
