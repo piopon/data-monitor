@@ -9,8 +9,9 @@ import { ScraperRequest } from "@/lib/ScraperRequest";
 export async function GET(request) {
   const searchParams = request.nextUrl.searchParams;
   const itemName = searchParams.get("name");
+  const endpoint = AppConfig.getConfig().scraper.endpoints.items;
   return ScraperRequest.GET(
-    `${AppConfig.getConfig().scraper.endpoints.items}?name=${itemName}`,
+    itemName ? `${endpoint}?name=${encodeURIComponent(itemName)}` : endpoint,
     { Authorization: request.headers.get("authorization") || "" }
   );
 }
