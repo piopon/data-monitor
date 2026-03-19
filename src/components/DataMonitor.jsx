@@ -62,10 +62,12 @@ const DataMonitor = ({ parentName }) => {
   const parentId = DataUtils.nameToId(parentName);
   const { isDemo, userId, email } = useContext(LoginContext);
   const router = useRouter();
+  const defaultIntervalParts = intervalDecompose(MONITOR_DEFAULTS.interval);
 
   const [id, setId] = useState(MONITOR_DEFAULTS.id);
   const [enabled, setEnabled] = useState(MONITOR_DEFAULTS.enabled);
-  const [interval, setInterval] = useState(MONITOR_DEFAULTS.interval);
+  const [intervalValue, setIntervalValue] = useState(defaultIntervalParts.value);
+  const [intervalUnit, setIntervalUnit] = useState(defaultIntervalParts.unit);
   const [threshold, setThreshold] = useState(MONITOR_DEFAULTS.threshold);
   const [condition, setCondition] = useState(MONITOR_DEFAULTS.condition);
   const [notifierId, setNotifierId] = useState(-1);
@@ -125,7 +127,9 @@ const DataMonitor = ({ parentName }) => {
         setEnabled(monitorData[0].enabled ?? MONITOR_DEFAULTS.enabled);
         setCondition(monitorData[0].condition ?? MONITOR_DEFAULTS.condition);
         setThreshold(monitorData[0].threshold ?? MONITOR_DEFAULTS.threshold);
-        setInterval(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
+        const intervalParts = intervalDecompose(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
+        setIntervalValue(intervalParts.value);
+        setIntervalUnit(intervalParts.unit);
         if (notifierData[0].type) {
           setNotifierType(`${notifierData[0].type}${OPTION_VALUE_DELIMITER}${currNotifierId}`);
         }
@@ -247,8 +251,8 @@ const DataMonitor = ({ parentName }) => {
           type="text"
           className="data-interval"
           placeholder="interval (ms)"
-          value={interval}
-          onChange={(event) => setInterval(event.target.value)}
+          value={intervalValue}
+          onChange={(event) => setIntervalValue(event.target.value)}
           disabled={!enabled}
         />
         <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
