@@ -13,7 +13,7 @@ const DELAY = process.env.CHECK_DELAY || 5_000;
 const WAIT = process.env.CHECK_WAIT || 1_000;
 const SERVER_ADDRESS = `http://${process.env.SERVER_URL}:${process.env.SERVER_PORT}`;
 const SEND_INTERVAL = process.env.CHECK_NOTIFY || 1 * 60 * 60 * 1_000;
-const MONITOR_CONCURRENCY = Math.max(1, Number(process.env.CHECK_MONITOR_CONCURRENCY || 10));
+const MONITOR_CONCURRENCY = Number.parseInt(process.env.CHECK_MONITOR_CONCURRENCY, 10) || 10;
 const USER_SEND_TIMESTAMPS = new Map();
 const NOTIFIER_TYPES = new Map();
 const RUNNING_USER_CHECKS = new Set();
@@ -79,9 +79,14 @@ function getUserTimestamps(user) {
     const userTimestamps = new Map();
     const timestampFile = getUserTimestampFile(user);
     if (fs.existsSync(timestampFile)) {
-      const fileContent = JSON.parse(fs.readFileSync(timestampFile));
-      for (const [key, value] of Object.entries(fileContent)) {
-        userTimestamps.set(key, value);
+      try {
+        const fileContent = JSON.parse(fs.readFileSync(timestampFile));
+        for (const [key, value] of Object.entries(fileContent)) {
+          userTimestamps.set(key, value);
+        }
+      } catch (error) {
+        // file is unreadable or contains invalid JSON
+        console.warn(`Worker warning: timestamp file is unreadable for user: ${user}`)
       }
     }
     USER_SEND_TIMESTAMPS.set(userCacheKey, userTimestamps);
@@ -141,7 +146,7 @@ async function getNotifierType(monitor) {
     return null;
   }
   if (0 === notifierData.length) {
-    console.error(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`);
+    console.warn(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`);
     return null;
   }
   if (1 !== notifierData.length) {
@@ -209,8 +214,9 @@ async function checkData(user) {
       }
     });
     // notify all monitors with true condition using bounded concurrency
-    for (let index = 0; index < monitorsToCheck.length; index += MONITOR_CONCURRENCY) {
-      const monitorBatch = monitorsToCheck.slice(index, index + MONITOR_CONCURRENCY);
+    const concurrentBound = Number.isFinite(MONITOR_CONCURRENCY) && MONITOR_CONCURRENCY > 0 ? MONITOR_CONCURRENCY : 10;
+    for (let index = 0; index < monitorsToCheck.length; index += concurrentBound) {
+      const monitorBatch = monitorsToCheck.slice(index, index + concurrentBound);
       await Promise.allSettled(
         monitorBatch.map(async (monitor) => {
           try {
@@ -254,7 +260,7 @@ async function checkData(user) {
                   }
                   updateSendTimestamp(user, monitor.parent);
                   console.log(`Notification ok: ${await notifyResponse.json()}`);
-                })
+                }),
               );
             } else {
               console.log(`${monitor.parent} does not meet its threshold value...`);
@@ -262,7 +268,7 @@ async function checkData(user) {
           } catch (error) {
             console.error("Worker error: ", error.message);
           }
-        })
+        }),
       );
     }
   } catch (error) {
