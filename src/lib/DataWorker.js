@@ -3,6 +3,7 @@ import { NotifierCatalog } from "../notifiers/core/NotifierCatalog.js";
 import { NotifierValidator } from "../notifiers/core/NotifierValidator.js";
 import { UserService } from "../model/UserService.js";
 import { DataUtils } from "./DataUtils.js";
+import { RequestUtils } from "./RequestUtils.js";
 
 import waitOn from "wait-on";
 import fs from "fs";
@@ -127,8 +128,13 @@ async function getNotifierType(monitor) {
   if (NOTIFIER_TYPES.has(notifierId)) {
     return NOTIFIER_TYPES.get(notifierId);
   }
-
-  const notifierResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?id=${notifierId}`);
+  let notifierResponse;
+  try {
+    notifierResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/notifier?id=${notifierId}`);
+  } catch (error) {
+    console.error(`Worker error: Cannot get notifier data: ${error.message}`);
+    return null;
+  }
   const notifierData = await notifierResponse.json();
   if (!notifierResponse.ok) {
     console.error(`Worker error: Cannot get notifier data: ${notifierData.message}`);
@@ -174,10 +180,16 @@ async function checkData(user) {
       return;
     }
     // perform a bulk request of all scraper items (should be faster and cheaper than multiple small requests)
-    const scraperResponse = await fetch(`${SERVER_ADDRESS}/api/scraper/items`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${user.jwt}` },
-    });
+    let scraperResponse;
+    try {
+      scraperResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/scraper/items`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${user.jwt}` },
+      });
+    } catch (error) {
+      console.error(`Worker error: cannot get scraper data: ${error.message}`);
+      return;
+    }
     if (!scraperResponse.ok) {
       console.error("Worker error: ", await scraperResponse.text());
       return;
@@ -221,15 +233,21 @@ async function checkData(user) {
                 matchedNotifiers.map(async (notifier) => {
                   const condition = `${scraperItem.data} ${monitor.condition} ${monitor.threshold}`;
                   const message = `Monitored value reached its threshold condition: ${condition}`;
-                  const notifyResponse = await fetch(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
-                    method: "POST",
-                    body: JSON.stringify({
-                      name: monitor.parent,
-                      receiver: user.email,
-                      avatar: scraperItem.icon,
-                      details: { message, data: scraperItem.data, threshold: monitor.threshold },
-                    }),
-                  });
+                  let notifyResponse;
+                  try {
+                    notifyResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
+                      method: "POST",
+                      body: JSON.stringify({
+                        name: monitor.parent,
+                        receiver: user.email,
+                        avatar: scraperItem.icon,
+                        details: { message, data: scraperItem.data, threshold: monitor.threshold },
+                      }),
+                    });
+                  } catch (error) {
+                    console.error(`Notification ERROR: ${error.message}`);
+                    return;
+                  }
                   if (!notifyResponse.ok) {
                     console.error(`Notification ERROR: ${await notifyResponse.json()}`);
                     return;
