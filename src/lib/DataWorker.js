@@ -86,7 +86,7 @@ function getUserTimestamps(user) {
         }
       } catch (error) {
         // file is unreadable or contains invalid JSON
-        console.warn(`Worker warning: timestamp file is unreadable for user: ${user}`)
+        console.warn(`Worker warning: timestamp file is unreadable for user: ${user.email}`)
       }
     }
     USER_SEND_TIMESTAMPS.set(userCacheKey, userTimestamps);
@@ -129,6 +129,10 @@ function updateSendTimestamp(user, monitorId) {
  * @returns notifier type when available, null otherwise
  */
 async function getNotifierType(monitor) {
+  if (monitor?.notifier_id == null) {
+    console.warn(`Worker warning: Monitor ${monitor.parent} has no notifier configured.`);
+    return null;
+  }
   const notifierId = String(monitor.notifier_id);
   if (NOTIFIER_TYPES.has(notifierId)) {
     return NOTIFIER_TYPES.get(notifierId);
