@@ -86,7 +86,7 @@ function getUserTimestamps(user) {
         }
       } catch (error) {
         // file is unreadable or contains invalid JSON
-        console.warn(`Worker warning: timestamp file is unreadable for user: ${user.email}`)
+        console.warn(`Worker warning: timestamp file is unreadable for user: ${user.email}`);
       }
     }
     USER_SEND_TIMESTAMPS.set(userCacheKey, userTimestamps);
@@ -245,15 +245,18 @@ async function checkData(user) {
                   const message = `Monitored value reached its threshold condition: ${condition}`;
                   let notifyResponse;
                   try {
-                    notifyResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/notifier?type=${notifier}`, {
-                      method: "POST",
-                      body: JSON.stringify({
-                        name: monitor.parent,
-                        receiver: user.email,
-                        avatar: scraperItem.icon,
-                        details: { message, data: scraperItem.data, threshold: monitor.threshold },
-                      }),
-                    });
+                    notifyResponse = await RequestUtils.fetchWithRetry(
+                      `${SERVER_ADDRESS}/api/notifier?type=${notifier}`,
+                      {
+                        method: "POST",
+                        body: JSON.stringify({
+                          name: monitor.parent,
+                          receiver: user.email,
+                          avatar: scraperItem.icon,
+                          details: { message, data: scraperItem.data, threshold: monitor.threshold },
+                        }),
+                      },
+                    );
                   } catch (error) {
                     console.error(`Notification error: ${error.message}`);
                     return;
