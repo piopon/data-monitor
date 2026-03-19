@@ -1,4 +1,5 @@
 export class RequestUtils {
+  static #RETRYABLE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
   static #DEFAULT_TIMEOUT = 8_000;
   static #DEFAULT_RETRIES = 2;
   static #DEFAULT_RETRY_DELAY = 250;
@@ -33,6 +34,26 @@ export class RequestUtils {
   }
 
   /**
+   * Method used to release response body resources before retrying
+   * @param {Response} response Response object to be cleaned up
+   */
+  static async #cancelResponseBody(response) {
+    try {
+      if (response?.body && !response.body.locked) {
+        if ("function" === typeof response.body.cancel) {
+          await response.body.cancel();
+        }
+      } else if (response?.arrayBuffer) {
+        if ("function" === typeof response.arrayBuffer) {
+          await response.arrayBuffer();
+        }
+      }
+    } catch {
+      // Ignore cleanup errors and proceed with retry logic.
+    }
+  }
+
+  /**
    * Method used to retrieve request retry configuration values from environment
    * @returns timeout/retry configuration object
    */
@@ -46,27 +67,34 @@ export class RequestUtils {
 
   /**
    * Method used to execute a fetch request with timeout and retry policy
+   * @note Retries are performed only for idempotent methods
    * @param {String} url Request URL
    * @param {Object} options Fetch options
    * @param {Object} config Request timeout and retry configuration
    * @returns final fetch response object
    */
   static async fetchWithRetry(url, options = {}, config = this.getRequestRetryConfig()) {
+    const method = String(options?.method || "GET").toUpperCase();
+    const canRetry = this.#RETRYABLE_METHODS.has(method);
     for (let attempt = 0; attempt <= config.retries; attempt++) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), config.timeout);
       try {
         const response = await fetch(url, { ...options, signal: controller.signal });
-        if (!this.#isRetryableStatus(response.status) || attempt === config.retries) {
+        if (!canRetry || !this.#isRetryableStatus(response.status) || attempt === config.retries) {
           return response;
         }
-        console.warn(`Request failed with status ${response.status}. Retrying ${attempt + 1}/${config.retries}...`);
+
+        await this.#cancelResponseBody(response);
+        console.warn(
+          `Request ${method} failed with status ${response.status}. Retrying ${attempt + 1}/${config.retries}...`,
+        );
       } catch (error) {
-        if (attempt === config.retries) {
+        if (!canRetry || attempt === config.retries) {
           throw error;
         }
         const message = error.name === "AbortError" ? `Request timeout after ${config.timeout} ms` : error.message;
-        console.warn(`Request failed: ${message}. Retrying ${attempt + 1}/${config.retries}...`);
+        console.warn(`Request ${method} failed: ${message}. Retrying ${attempt + 1}/${config.retries}...`);
       } finally {
         clearTimeout(timeoutId);
       }
