@@ -132,7 +132,7 @@ async function getNotifierType(monitor) {
   try {
     notifierResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/notifier?id=${notifierId}`);
   } catch (error) {
-    console.error(`Worker error: Cannot get notifier data: ${error.message}`);
+    console.error(`Worker error: Cannot fetch notifier data: ${error.message}`);
     return null;
   }
   const notifierData = await notifierResponse.json();
@@ -187,16 +187,16 @@ async function checkData(user) {
         headers: { Authorization: `Bearer ${user.jwt}` },
       });
     } catch (error) {
-      console.error(`Worker error: cannot get scraper data: ${error.message}`);
+      console.error(`Worker error: Cannot fetch scraper data: ${error.message}`);
       return;
     }
     if (!scraperResponse.ok) {
-      console.error("Worker error: ", await scraperResponse.text());
+      console.error("Worker error: Cannot get scraper data: ", await scraperResponse.text());
       return;
     }
     const scraperData = await scraperResponse.json();
     if (!Array.isArray(scraperData)) {
-      console.error("Worker error: cannot parse scraper data response.");
+      console.error("Worker error: Cannot parse scraper data response.");
       return;
     }
     const scraperDataByName = new Map();
@@ -217,7 +217,7 @@ async function checkData(user) {
             const monitorItemId = DataUtils.nameToId(monitor.parent);
             const scraperItem = scraperDataByName.get(monitorItemId);
             if (!scraperItem) {
-              console.error(`Worker error: cannot find ${monitor.parent} in scraper data...`);
+              console.error(`Worker error: Cannot find ${monitor.parent} in scraper data...`);
               return;
             }
             if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
@@ -245,15 +245,15 @@ async function checkData(user) {
                       }),
                     });
                   } catch (error) {
-                    console.error(`Notification ERROR: ${error.message}`);
+                    console.error(`Notification error: ${error.message}`);
                     return;
                   }
                   if (!notifyResponse.ok) {
-                    console.error(`Notification ERROR: ${await notifyResponse.json()}`);
+                    console.error(`Notification error: ${await notifyResponse.json()}`);
                     return;
                   }
                   updateSendTimestamp(user, monitor.parent);
-                  console.log(`Notification OK: ${await notifyResponse.json()}`);
+                  console.log(`Notification ok: ${await notifyResponse.json()}`);
                 })
               );
             } else {
