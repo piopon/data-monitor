@@ -20,6 +20,37 @@ const MONITOR_DEFAULTS = {
   interval: 300_000,
 };
 
+const INTERVAL_UNITS = [
+  { value: "ms", text: "ms", factor: 1 },
+  { value: "s", text: "sec", factor: 1_000 },
+  { value: "m", text: "min", factor: 60_000 },
+  { value: "h", text: "h", factor: 3_600_000 },
+  { value: "d", text: "d", factor: 86_400_000 },
+];
+
+const intervalToMilliseconds = (value, unit) => {
+  const selectedUnit = INTERVAL_UNITS.find((option) => option.value === unit);
+  const numericValue = Number.parseInt(String(value), 10);
+  if (!selectedUnit || Number.isNaN(numericValue) || numericValue <= 0) {
+    return null;
+  }
+  return numericValue * selectedUnit.factor;
+};
+
+const intervalDecompose = (intervalInMilliseconds) => {
+  const normalizedInterval = Number.parseInt(String(intervalInMilliseconds), 10);
+  if (Number.isNaN(normalizedInterval) || normalizedInterval <= 0) {
+    return { value: "1", unit: "s" };
+  }
+  for (const unit of ["d", "h", "m", "s"]) {
+    const selectedUnit = INTERVAL_UNITS.find((option) => option.value === unit);
+    if (selectedUnit && normalizedInterval % selectedUnit.factor === 0) {
+      return { value: String(normalizedInterval / selectedUnit.factor), unit };
+    }
+  }
+  return { value: String(normalizedInterval), unit: "ms" };
+};
+
 const parseNotifierValue = (input) => {
   const [typeRaw = "", idRaw = ""] = String(input).split(OPTION_VALUE_DELIMITER);
   const type = typeRaw.trim();
