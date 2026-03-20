@@ -19,8 +19,14 @@ const toMilliseconds = (rawValue, unitValue) => {
 
 const decomposeTime = (milliseconds) => {
   const normalizedTime = Number.parseInt(String(milliseconds), 10);
-  if (Number.isNaN(normalizedTime) || normalizedTime <= 0) {
-    return { value: "1", unit: "s" };
+  if (Number.isNaN(normalizedTime)) {
+    return { value: "", unit: "ms" };
+  }
+  if (normalizedTime < 0) {
+    return { value: "", unit: "ms" };
+  }
+  if (normalizedTime === 0) {
+    return { value: "0", unit: "ms" };
   }
   for (const unitValue of ["d", "h", "m", "s"]) {
     const selectedUnit = TIME_UNITS.find((option) => option.value === unitValue);

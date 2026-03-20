@@ -116,7 +116,8 @@ const DataMonitor = ({ parentName }) => {
       toast.error(`Missing user ID, please re-login and try again.`);
       return;
     }
-    if (interval == null) {
+    const intervalNumber = Number(interval);
+    if (!Number.isFinite(intervalNumber) || !Number.isInteger(intervalNumber) || intervalNumber <= 0) {
       toast.error("Interval must be a positive integer value.");
       return;
     }
