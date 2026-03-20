@@ -6,9 +6,9 @@ import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import { DataUtils } from "@/lib/DataUtils";
 import { Monitor } from "@/model/Monitor";
-import IntervalPicker from "@/components/IntervalPicker";
 import Toggle from "@/widgets/Toggle";
 import Select from "@/widgets/Select";
+import TimeSelect from "@/widgets/TimeSelect";
 
 const OPTION_VALUE_DELIMITER = "@";
 const CONFIG_NOTIFIER_OPTION = { value: `config${OPTION_VALUE_DELIMITER}-1`, text: "configure..." };
@@ -217,7 +217,7 @@ const DataMonitor = ({ parentName }) => {
           disabled={!enabled}
           setter={notifierSelected}
         />
-        <IntervalPicker intervalInMilliseconds={interval} disabled={!enabled} setter={setInterval} />
+        <TimeSelect milliseconds={interval} disabled={!enabled} setter={setInterval} />
         <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
           test
         </button>
