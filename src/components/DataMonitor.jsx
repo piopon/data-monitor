@@ -121,14 +121,21 @@ const DataMonitor = ({ parentName }) => {
       toast.error("Interval must be a positive integer value.");
       return;
     }
-    const monitor = { parent: parentId, enabled, threshold, condition, notifier: notifierId, interval, user };
     try {
       const exists = MONITOR_DEFAULTS.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;
       const monitorResponse = await fetch(`/api/monitor${idFilter}`, {
         method: exists ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(monitor),
+        body: JSON.stringify({
+          parent: parentId,
+          enabled,
+          threshold,
+          condition,
+          notifier: notifierId,
+          interval: intervalNumber,
+          user,
+        }),
       });
       const monitorData = await monitorResponse.json();
       if (!monitorResponse.ok) {
