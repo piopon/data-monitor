@@ -22,11 +22,8 @@ const decomposeTime = (milliseconds) => {
   if (Number.isNaN(normalizedTime)) {
     return { value: "", unit: "ms" };
   }
-  if (normalizedTime < 0) {
+  if (normalizedTime <= 0) {
     return { value: "", unit: "ms" };
-  }
-  if (normalizedTime === 0) {
-    return { value: "0", unit: "ms" };
   }
   for (const unitValue of ["d", "h", "m", "s"]) {
     const selectedUnit = TIME_UNITS.find((option) => option.value === unitValue);
