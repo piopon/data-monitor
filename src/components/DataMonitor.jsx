@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import { DataUtils } from "@/lib/DataUtils";
 import { Monitor } from "@/model/Monitor";
+import IntervalPicker from "@/components/IntervalPicker";
 import Toggle from "@/widgets/Toggle";
 import Select from "@/widgets/Select";
 
@@ -20,37 +21,6 @@ const MONITOR_DEFAULTS = {
   interval: 300_000,
 };
 
-const INTERVAL_UNITS = [
-  { value: "ms", text: "ms", factor: 1 },
-  { value: "s", text: "sec", factor: 1_000 },
-  { value: "m", text: "min", factor: 60_000 },
-  { value: "h", text: "h", factor: 3_600_000 },
-  { value: "d", text: "d", factor: 86_400_000 },
-];
-
-const intervalToMilliseconds = (value, unit) => {
-  const selectedUnit = INTERVAL_UNITS.find((option) => option.value === unit);
-  const numericValue = Number.parseInt(String(value), 10);
-  if (!selectedUnit || Number.isNaN(numericValue) || numericValue <= 0) {
-    return null;
-  }
-  return numericValue * selectedUnit.factor;
-};
-
-const intervalDecompose = (intervalInMilliseconds) => {
-  const normalizedInterval = Number.parseInt(String(intervalInMilliseconds), 10);
-  if (Number.isNaN(normalizedInterval) || normalizedInterval <= 0) {
-    return { value: "1", unit: "s" };
-  }
-  for (const unit of ["d", "h", "m", "s"]) {
-    const selectedUnit = INTERVAL_UNITS.find((option) => option.value === unit);
-    if (selectedUnit && normalizedInterval % selectedUnit.factor === 0) {
-      return { value: String(normalizedInterval / selectedUnit.factor), unit };
-    }
-  }
-  return { value: String(normalizedInterval), unit: "ms" };
-};
-
 const parseNotifierValue = (input) => {
   const [typeRaw = "", idRaw = ""] = String(input).split(OPTION_VALUE_DELIMITER);
   const type = typeRaw.trim();
@@ -62,12 +32,10 @@ const DataMonitor = ({ parentName }) => {
   const parentId = DataUtils.nameToId(parentName);
   const { isDemo, userId, email } = useContext(LoginContext);
   const router = useRouter();
-  const defaultIntervalParts = intervalDecompose(MONITOR_DEFAULTS.interval);
 
   const [id, setId] = useState(MONITOR_DEFAULTS.id);
   const [enabled, setEnabled] = useState(MONITOR_DEFAULTS.enabled);
-  const [intervalValue, setIntervalValue] = useState(defaultIntervalParts.value);
-  const [intervalUnit, setIntervalUnit] = useState(defaultIntervalParts.unit);
+  const [interval, setInterval] = useState(MONITOR_DEFAULTS.interval);
   const [threshold, setThreshold] = useState(MONITOR_DEFAULTS.threshold);
   const [condition, setCondition] = useState(MONITOR_DEFAULTS.condition);
   const [notifierId, setNotifierId] = useState(-1);
@@ -127,9 +95,7 @@ const DataMonitor = ({ parentName }) => {
         setEnabled(monitorData[0].enabled ?? MONITOR_DEFAULTS.enabled);
         setCondition(monitorData[0].condition ?? MONITOR_DEFAULTS.condition);
         setThreshold(monitorData[0].threshold ?? MONITOR_DEFAULTS.threshold);
-        const intervalParts = intervalDecompose(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
-        setIntervalValue(intervalParts.value);
-        setIntervalUnit(intervalParts.unit);
+        setInterval(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
         if (notifierData[0].type) {
           setNotifierType(`${notifierData[0].type}${OPTION_VALUE_DELIMITER}${currNotifierId}`);
         }
@@ -150,7 +116,6 @@ const DataMonitor = ({ parentName }) => {
       toast.error(`Missing user ID, please re-login and try again.`);
       return;
     }
-    const interval = intervalToMilliseconds(intervalValue, intervalUnit);
     if (interval == null) {
       toast.error("Interval must be a positive integer value.");
       return;
@@ -212,16 +177,6 @@ const DataMonitor = ({ parentName }) => {
 
   const conditionSelected = (selection) => setCondition(selection.value);
 
-  const intervalValueChanged = (event) => {
-    const value = event.target.value;
-    if ("" !== value && !/^\d+$/.test(value)) {
-      return;
-    }
-    setIntervalValue(value);
-  };
-
-  const intervalUnitChanged = (event) => setIntervalUnit(event.target.value);
-
   const notifierSelected = (selection) => {
     const input = selection.value;
     if (CONFIG_NOTIFIER_OPTION.value === input) {
@@ -262,23 +217,7 @@ const DataMonitor = ({ parentName }) => {
           disabled={!enabled}
           setter={notifierSelected}
         />
-        <div className={`data-interval-picker${!enabled ? " is-disabled" : ""}`}>
-          <input
-            type="text"
-            className="data-interval-value"
-            placeholder="interval"
-            value={intervalValue}
-            onChange={intervalValueChanged}
-            disabled={!enabled}
-          />
-          <select className="data-interval-unit" value={intervalUnit} onChange={intervalUnitChanged} disabled={!enabled}>
-            {INTERVAL_UNITS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.text}
-              </option>
-            ))}
-          </select>
-        </div>
+        <IntervalPicker intervalInMilliseconds={interval} disabled={!enabled} setter={setInterval} />
         <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
           test
         </button>
