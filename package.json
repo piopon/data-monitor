@@ -12,8 +12,8 @@
   "dependencies": {
     "data-monitor": "file:",
     "dotenv": "^17.2.1",
-    "next": "15.3.2",
-    "nodemailer": "^7.0.9",
+    "next": "^15.5.14",
+    "nodemailer": "^7.0.13",
     "pg": "^8.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -28,7 +28,7 @@
     "@tailwindcss/postcss": "^4",
     "concurrently": "^9.2.0",
     "eslint": "^9",
-    "eslint-config-next": "15.3.2",
+    "eslint-config-next": "^15.5.14",
     "tailwindcss": "^4"
   }
 }
