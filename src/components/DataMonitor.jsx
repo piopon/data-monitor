@@ -8,6 +8,7 @@ import { DataUtils } from "@/lib/DataUtils";
 import { Monitor } from "@/model/Monitor";
 import Toggle from "@/widgets/Toggle";
 import Select from "@/widgets/Select";
+import TimeSelect from "@/widgets/TimeSelect";
 
 const OPTION_VALUE_DELIMITER = "@";
 const CONFIG_NOTIFIER_OPTION = { value: `config${OPTION_VALUE_DELIMITER}-1`, text: "configure..." };
@@ -115,14 +116,26 @@ const DataMonitor = ({ parentName }) => {
       toast.error(`Missing user ID, please re-login and try again.`);
       return;
     }
-    const monitor = { parent: parentId, enabled, threshold, condition, notifier: notifierId, interval, user };
+    const intervalNumber = Number(interval);
+    if (!Number.isFinite(intervalNumber) || !Number.isInteger(intervalNumber) || intervalNumber <= 0) {
+      toast.error("Interval must be a positive integer value.");
+      return;
+    }
     try {
       const exists = MONITOR_DEFAULTS.id !== id;
       const idFilter = exists ? `?id=${id}` : ``;
       const monitorResponse = await fetch(`/api/monitor${idFilter}`, {
         method: exists ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(monitor),
+        body: JSON.stringify({
+          parent: parentId,
+          enabled,
+          threshold,
+          condition,
+          notifier: notifierId,
+          interval: intervalNumber,
+          user,
+        }),
       });
       const monitorData = await monitorResponse.json();
       if (!monitorResponse.ok) {
@@ -212,14 +225,7 @@ const DataMonitor = ({ parentName }) => {
           disabled={!enabled}
           setter={notifierSelected}
         />
-        <input
-          type="text"
-          className="data-interval"
-          placeholder="interval (ms)"
-          value={interval}
-          onChange={(event) => setInterval(event.target.value)}
-          disabled={!enabled}
-        />
+        <TimeSelect milliseconds={interval} disabled={!enabled} setter={setInterval} />
         <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
           test
         </button>
