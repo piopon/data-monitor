@@ -11,5 +11,16 @@ When needed it can also be configured to use the predefined notifiers and send a
 > The only requirement is that the JSON structure must match the one described in the scraper documentation.
 > For more information check [this sample JSON file](https://github.com/piopon/web-scraper/blob/main/docs/json/data.json)
 
+
+## Sensitive data encryption key
+
+To encrypt database fields containing secrets, configure the following environment variable before running the app:
+
+```
+DATA_MONITOR_CRYPTO_SECRET=<long-random-secret-value>
+```
+
+Use a long, random value and keep it private. The application uses this value to derive the encryption key used for sensitive model fields.
+
 ---
-<p align="center">Created by PNK with ❤ @ 2025</p>
+<p align="center">Created by PNK with ❤ @ 2025-2026</p>
