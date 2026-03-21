@@ -1,4 +1,5 @@
 import { DatabaseQuery } from "../lib/DatabaseQuery.js";
+import { SensitiveDataCodec } from "../lib/SensitiveDataCodec.js";
 import { User } from "./User.js";
 
 export class UserService {
@@ -26,7 +27,7 @@ export class UserService {
    */
   static async getUsers() {
     const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME}`);
-    return rows;
+    return rows.map((row) => UserService.#toPublicUser(row));
   }
 
   /**
@@ -37,6 +38,7 @@ export class UserService {
   static async filterUsers(filters) {
     const values = [];
     const conditions = [];
+    let jwtFilter = undefined;
 
     if (filters.id) {
       values.push(filters.id);
@@ -47,12 +49,15 @@ export class UserService {
       conditions.push(`email = $${values.length}`);
     }
     if (filters.jwt) {
-      values.push(filters.jwt);
-      conditions.push(`jwt = $${values.length}`);
+      jwtFilter = filters.jwt;
     }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME} ${whereClause}`, values);
-    return rows;
+    const users = rows.map((row) => UserService.#toPublicUser(row));
+    if (jwtFilter == null) {
+      return users;
+    }
+    return users.filter((user) => user.jwt === jwtFilter);
   }
 
   /**
@@ -62,11 +67,12 @@ export class UserService {
    */
   static async addUser(data) {
     const { email, jwt } = data;
+    const encryptedJwt = SensitiveDataCodec.encrypt(jwt);
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${UserService.#DB_TABLE_NAME} (email, jwt) VALUES ($1, $2) RETURNING *`,
-      [email, jwt]
+      [email, encryptedJwt]
     );
-    return rows[0];
+    return UserService.#toPublicUser(rows[0]);
   }
 
   /**
@@ -77,11 +83,12 @@ export class UserService {
    */
   static async editUser(id, data) {
     const { email, jwt } = data;
+    const encryptedJwt = SensitiveDataCodec.encrypt(jwt);
     const { rows } = await DatabaseQuery(
       `UPDATE ${UserService.#DB_TABLE_NAME} SET email = $1, jwt = $2 WHERE id = $3 RETURNING *`,
-      [email, jwt, id]
+      [email, encryptedJwt, id]
     );
-    return rows[0];
+    return UserService.#toPublicUser(rows[0]);
   }
 
   /**
@@ -92,5 +99,15 @@ export class UserService {
   static async deleteUser(id) {
     const { rowCount } = await DatabaseQuery(`DELETE FROM ${UserService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
     return rowCount > 0;
+  }
+
+  static #toPublicUser(row) {
+    if (row == null) {
+      return row;
+    }
+    return {
+      ...row,
+      jwt: SensitiveDataCodec.decrypt(row.jwt),
+    };
   }
 }
