@@ -1,11 +1,29 @@
 import { UserService } from "@/model/UserService";
 
+const PRIVATE_PLACEHOLDER = "PRIVATE";
+
+function normalizeSensitiveInput(value) {
+  return value === PRIVATE_PLACEHOLDER ? "" : value;
+}
+
+function normalizeUserInput(user) {
+  if (user == null) {
+    return user;
+  }
+  return {
+    ...user,
+    jwt: normalizeSensitiveInput(user.jwt),
+  };
+}
+
 function getSafeUser(user) {
   if (user == null) {
     return user;
   }
-  const { jwt, ...safeUser } = user;
-  return safeUser;
+  return {
+    ...user,
+    jwt: user.jwt ? PRIVATE_PLACEHOLDER : "",
+  };
 }
 
 export async function GET(request) {
@@ -41,7 +59,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const userData = await request.json();
+    const userData = normalizeUserInput(await request.json());
     const user = await UserService.addUser(userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
@@ -60,7 +78,7 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const userData = await request.json();
+    const userData = normalizeUserInput(await request.json());
     const user = await UserService.editUser(id, userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
