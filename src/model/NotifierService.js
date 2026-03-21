@@ -1,4 +1,5 @@
 import { DatabaseQuery } from "../lib/DatabaseQuery.js";
+import { SensitiveDataCodec } from "../lib/SensitiveDataCodec.js";
 import { Notifier } from "./Notifier.js";
 
 export class NotifierService {
@@ -26,7 +27,7 @@ export class NotifierService {
    */
   static async getNotifiers() {
     const { rows } = await DatabaseQuery(`SELECT * FROM ${NotifierService.#DB_TABLE_NAME}`);
-    return rows;
+    return rows.map((row) => NotifierService.#toPublicNotifier(row));
   }
 
   /**
@@ -37,6 +38,8 @@ export class NotifierService {
   static async filterNotifiers(filters) {
     const values = [];
     const conditions = [];
+    let originFilter = undefined;
+    let passwordFilter = undefined;
 
     if (filters.id) {
       values.push(filters.id);
@@ -47,20 +50,25 @@ export class NotifierService {
       conditions.push(`type = $${values.length}`);
     }
     if (filters.origin) {
-      values.push(filters.origin);
-      conditions.push(`origin = $${values.length}`);
+      originFilter = filters.origin;
     }
     if (filters.sender) {
       values.push(filters.sender);
       conditions.push(`sender = $${values.length}`);
     }
     if (filters.password) {
-      values.push(filters.password);
-      conditions.push(`password = $${values.length}`);
+      passwordFilter = filters.password;
     }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     const { rows } = await DatabaseQuery(`SELECT * FROM ${NotifierService.#DB_TABLE_NAME} ${whereClause}`, values);
-    return rows;
+    let notifiers = rows.map((row) => NotifierService.#toPublicNotifier(row));
+    if (originFilter != null) {
+      notifiers = notifiers.filter((notifier) => notifier.origin === originFilter);
+    }
+    if (passwordFilter != null) {
+      notifiers = notifiers.filter((notifier) => notifier.password === passwordFilter);
+    }
+    return notifiers;
   }
 
   /**
@@ -70,11 +78,13 @@ export class NotifierService {
    */
   static async addNotifier(data) {
     const { type, origin, sender, password } = data;
+    const encryptedOrigin = SensitiveDataCodec.encrypt(origin);
+    const encryptedPassword = SensitiveDataCodec.encrypt(password);
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${NotifierService.#DB_TABLE_NAME} (type, origin, sender, password) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [type, origin, sender, password]
+      [type, encryptedOrigin, sender, encryptedPassword]
     );
-    return rows[0];
+    return NotifierService.#toPublicNotifier(rows[0]);
   }
 
   /**
@@ -85,11 +95,13 @@ export class NotifierService {
    */
   static async editNotifier(id, data) {
     const { type, origin, sender, password } = data;
+    const encryptedOrigin = SensitiveDataCodec.encrypt(origin);
+    const encryptedPassword = SensitiveDataCodec.encrypt(password);
     const { rows } = await DatabaseQuery(
       `UPDATE ${NotifierService.#DB_TABLE_NAME} SET type = $1, origin = $2, sender = $3, password = $4 WHERE id = $5 RETURNING *`,
-      [type, origin, sender, password, id]
+      [type, encryptedOrigin, sender, encryptedPassword, id]
     );
-    return rows[0];
+    return NotifierService.#toPublicNotifier(rows[0]);
   }
 
   /**
@@ -100,5 +112,16 @@ export class NotifierService {
   static async deleteNotifier(id) {
     const { rowCount } = await DatabaseQuery(`DELETE FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
     return rowCount > 0;
+  }
+
+  static #toPublicNotifier(row) {
+    if (row == null) {
+      return row;
+    }
+    return {
+      ...row,
+      origin: SensitiveDataCodec.decrypt(row.origin),
+      password: SensitiveDataCodec.decrypt(row.password),
+    };
   }
 }
