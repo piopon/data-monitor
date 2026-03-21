@@ -53,7 +53,7 @@ export async function GET(request) {
     const notifiers = await NotifierService.filterNotifiers({
       ...(id && { id }),
       ...(type && { type }),
-      ...(origin && { threshold }),
+      ...(origin && { origin }),
       ...(sender && { sender }),
       ...(password && { password }),
     });

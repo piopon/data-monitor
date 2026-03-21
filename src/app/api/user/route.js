@@ -36,9 +36,9 @@ export async function GET(request) {
         headers: { "Content-Type": "application/json" },
       });
     }
-    const id = searchParams.get("parent");
-    const email = searchParams.get("enabled");
-    const jwt = searchParams.get("threshold");
+    const id = searchParams.get("id");
+    const email = searchParams.get("email");
+    const jwt = searchParams.get("jwt");
     const users = await UserService.filterUsers({
       ...(id && { id }),
       ...(email && { email }),
