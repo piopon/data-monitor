@@ -95,8 +95,20 @@ export class NotifierService {
    */
   static async editNotifier(id, data) {
     const { type, origin, sender, password } = data;
-    const encryptedOrigin = SensitiveDataCodec.encrypt(origin);
-    const encryptedPassword = SensitiveDataCodec.encrypt(password);
+    const { rows: existingRows } = await DatabaseQuery(
+      `SELECT origin, password FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1`,
+      [id]
+    );
+    if (existingRows.length === 0) {
+      return undefined;
+    }
+    const current = existingRows[0];
+    const encryptedOrigin = NotifierService.#hasSensitiveInput(origin)
+      ? SensitiveDataCodec.encrypt(origin)
+      : current.origin;
+    const encryptedPassword = NotifierService.#hasSensitiveInput(password)
+      ? SensitiveDataCodec.encrypt(password)
+      : current.password;
     const { rows } = await DatabaseQuery(
       `UPDATE ${NotifierService.#DB_TABLE_NAME} SET type = $1, origin = $2, sender = $3, password = $4 WHERE id = $5 RETURNING *`,
       [type, encryptedOrigin, sender, encryptedPassword, id]
@@ -149,5 +161,9 @@ export class NotifierService {
       origin: SensitiveDataCodec.decrypt(row.origin),
       password: SensitiveDataCodec.decrypt(row.password),
     };
+  }
+
+  static #hasSensitiveInput(value) {
+    return value != null && String(value) !== "";
   }
 }

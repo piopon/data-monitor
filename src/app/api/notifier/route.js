@@ -2,6 +2,17 @@ import { NotifierService } from "@/model/NotifierService";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 
+function getSafeNotifier(notifier) {
+  if (notifier == null) {
+    return notifier;
+  }
+  return {
+    ...notifier,
+    origin: "",
+    password: "",
+  };
+}
+
 /**
  * Method used to send the notifier GET request to retrieve notifier data
  * @param {Object} request Request object received from the frontend
@@ -12,7 +23,7 @@ export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
     if (0 === searchParams.size) {
       const notifiers = await NotifierService.getNotifiers();
-      return new Response(JSON.stringify(notifiers), {
+      return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
@@ -29,7 +40,7 @@ export async function GET(request) {
       ...(sender && { sender }),
       ...(password && { password }),
     });
-    return new Response(JSON.stringify(notifiers), {
+    return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -63,7 +74,7 @@ export async function POST(request) {
     }
     // no 'type' parameter provider hence we want to create new notifier
     const notifier = await NotifierService.addNotifier(await request.json());
-    return new Response(JSON.stringify(notifier), {
+    return new Response(JSON.stringify(getSafeNotifier(notifier)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -86,7 +97,7 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const notifierData = await request.json();
     const monitor = await NotifierService.editNotifier(id, notifierData);
-    return new Response(JSON.stringify(monitor), {
+    return new Response(JSON.stringify(getSafeNotifier(monitor)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

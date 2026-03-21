@@ -1,11 +1,19 @@
 import { UserService } from "@/model/UserService";
 
+function getSafeUser(user) {
+  if (user == null) {
+    return user;
+  }
+  const { jwt, ...safeUser } = user;
+  return safeUser;
+}
+
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     if (0 === searchParams.size) {
       const users = await UserService.getUsers();
-      return new Response(JSON.stringify(users), {
+      return new Response(JSON.stringify(users.map((user) => getSafeUser(user))), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
@@ -18,7 +26,7 @@ export async function GET(request) {
       ...(email && { email }),
       ...(jwt && { jwt }),
     });
-    return new Response(JSON.stringify(users), {
+    return new Response(JSON.stringify(users.map((user) => getSafeUser(user))), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -35,7 +43,7 @@ export async function POST(request) {
   try {
     const userData = await request.json();
     const user = await UserService.addUser(userData);
-    return new Response(JSON.stringify(user), {
+    return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -54,7 +62,7 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const userData = await request.json();
     const user = await UserService.editUser(id, userData);
-    return new Response(JSON.stringify(user), {
+    return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
