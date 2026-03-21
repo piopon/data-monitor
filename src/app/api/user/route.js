@@ -2,10 +2,20 @@ import { UserService } from "@/model/UserService";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
 
+/**
+ * Method used to normalize placeholder values before persisting sensitive fields
+ * @param {String} value Input value received from client
+ * @returns normalized value suitable for service layer updates
+ */
 function normalizeSensitiveInput(value) {
   return value === PRIVATE_PLACEHOLDER ? "" : value;
 }
 
+/**
+ * Method used to normalize incoming user payload before save/update operations
+ * @param {Object} user Input user payload from request body
+ * @returns normalized user payload
+ */
 function normalizeUserInput(user) {
   if (user == null) {
     return user;
@@ -16,6 +26,11 @@ function normalizeUserInput(user) {
   };
 }
 
+/**
+ * Method used to mask sensitive user fields in API responses
+ * @param {Object} user User object returned by service layer
+ * @returns user object with masked sensitive fields
+ */
 function getSafeUser(user) {
   if (user == null) {
     return user;

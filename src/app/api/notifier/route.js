@@ -4,10 +4,20 @@ import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
 
+/**
+ * Method used to normalize placeholder values before persisting sensitive fields
+ * @param {String} value Input value received from client
+ * @returns normalized value suitable for service layer updates
+ */
 function normalizeSensitiveInput(value) {
   return value === PRIVATE_PLACEHOLDER ? "" : value;
 }
 
+/**
+ * Method used to normalize incoming notifier payload before save/update operations
+ * @param {Object} notifier Input notifier payload from request body
+ * @returns normalized notifier payload
+ */
 function normalizeNotifierInput(notifier) {
   if (notifier == null) {
     return notifier;
@@ -19,6 +29,11 @@ function normalizeNotifierInput(notifier) {
   };
 }
 
+/**
+ * Method used to mask sensitive notifier fields in API responses
+ * @param {Object} notifier Notifier object returned by service layer
+ * @returns notifier object with masked sensitive fields
+ */
 function getSafeNotifier(notifier) {
   if (notifier == null) {
     return notifier;

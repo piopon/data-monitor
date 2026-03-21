@@ -72,6 +72,13 @@ export class SensitiveDataCodec {
     SensitiveDataCodec.#getKey();
   }
 
+  /**
+   * Method used to serialize encrypted binary data into a versioned text payload
+   * @param {Buffer} iv Initialization vector used during encryption
+   * @param {Buffer} authTag Authentication tag produced by AES-GCM
+   * @param {Buffer} payload Encrypted binary payload
+   * @returns string payload suitable for storing in database text columns
+   */
   static #encodePayload(iv, authTag, payload) {
     return [
       SensitiveDataCodec.#FORMAT_PREFIX,
@@ -82,6 +89,11 @@ export class SensitiveDataCodec {
     ].join(":");
   }
 
+  /**
+   * Method used to parse and validate a versioned encrypted text payload
+   * @param {String} value Encrypted text payload from database
+   * @returns object with parsed iv, authTag and encrypted payload buffers
+   */
   static #decodePayload(value) {
     const parts = String(value).split(":");
     if (parts.length !== 5) {
@@ -104,6 +116,10 @@ export class SensitiveDataCodec {
     }
   }
 
+  /**
+   * Method used to lazily derive and cache an encryption key from environment secret
+   * @returns Buffer containing encryption key
+   */
   static #getKey() {
     if (SensitiveDataCodec.#cachedKey) {
       return SensitiveDataCodec.#cachedKey;

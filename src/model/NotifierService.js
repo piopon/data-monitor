@@ -152,6 +152,11 @@ export class NotifierService {
     return updatedRows;
   }
 
+  /**
+   * Method used to convert database notifier row into response-safe model shape
+   * @param {Object} row Raw database row
+   * @returns notifier object with decoded sensitive fields
+   */
   static #toPublicNotifier(row) {
     if (row == null) {
       return row;
@@ -163,6 +168,11 @@ export class NotifierService {
     };
   }
 
+  /**
+   * Method used to verify whether new sensitive input should overwrite stored secret
+   * @param {String} value New input value for sensitive field
+   * @returns true when value should be treated as a replacement, false otherwise
+   */
   static #hasSensitiveInput(value) {
     return value != null && String(value) !== "";
   }

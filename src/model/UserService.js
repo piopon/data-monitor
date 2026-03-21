@@ -119,6 +119,11 @@ export class UserService {
     return updatedRows;
   }
 
+  /**
+   * Method used to convert database user row into response-safe model shape
+   * @param {Object} row Raw database row
+   * @returns user object with decoded sensitive fields
+   */
   static #toPublicUser(row) {
     if (row == null) {
       return row;
