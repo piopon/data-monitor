@@ -101,6 +101,24 @@ export class UserService {
     return rowCount > 0;
   }
 
+  /**
+   * Method used to migrate plain-text sensitive values to encrypted payload format
+   * @returns number of updated rows
+   */
+  static async migrateSensitiveData() {
+    const { rows } = await DatabaseQuery(`SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME}`);
+    let updatedRows = 0;
+    for (const row of rows) {
+      if (row?.jwt == null || row.jwt === "" || SensitiveDataCodec.isEncrypted(row.jwt)) {
+        continue;
+      }
+      const encryptedJwt = SensitiveDataCodec.encrypt(row.jwt);
+      await DatabaseQuery(`UPDATE ${UserService.#DB_TABLE_NAME} SET jwt = $1 WHERE id = $2`, [encryptedJwt, row.id]);
+      updatedRows += 1;
+    }
+    return updatedRows;
+  }
+
   static #toPublicUser(row) {
     if (row == null) {
       return row;

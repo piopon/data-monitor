@@ -114,6 +114,32 @@ export class NotifierService {
     return rowCount > 0;
   }
 
+  /**
+   * Method used to migrate plain-text sensitive values to encrypted payload format
+   * @returns number of updated rows
+   */
+  static async migrateSensitiveData() {
+    const { rows } = await DatabaseQuery(`SELECT id, origin, password FROM ${NotifierService.#DB_TABLE_NAME}`);
+    let updatedRows = 0;
+    for (const row of rows) {
+      const hasPlainOrigin = row?.origin != null && row.origin !== "" && !SensitiveDataCodec.isEncrypted(row.origin);
+      const hasPlainPassword =
+        row?.password != null && row.password !== "" && !SensitiveDataCodec.isEncrypted(row.password);
+      if (!hasPlainOrigin && !hasPlainPassword) {
+        continue;
+      }
+      const encryptedOrigin = hasPlainOrigin ? SensitiveDataCodec.encrypt(row.origin) : row.origin;
+      const encryptedPassword = hasPlainPassword ? SensitiveDataCodec.encrypt(row.password) : row.password;
+      await DatabaseQuery(`UPDATE ${NotifierService.#DB_TABLE_NAME} SET origin = $1, password = $2 WHERE id = $3`, [
+        encryptedOrigin,
+        encryptedPassword,
+        row.id,
+      ]);
+      updatedRows += 1;
+    }
+    return updatedRows;
+  }
+
   static #toPublicNotifier(row) {
     if (row == null) {
       return row;
