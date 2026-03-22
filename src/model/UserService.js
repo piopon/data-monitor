@@ -118,28 +118,50 @@ export class UserService {
    */
   static async migrateSensitiveData(options = {}) {
     const reencrypt = options.reencrypt === true;
-    const query = reencrypt
-      ? `SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME} WHERE jwt IS NOT NULL AND jwt <> ''`
-      : `SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME} WHERE jwt IS NOT NULL AND jwt <> '' AND jwt NOT LIKE 'enc:%'`;
+    if (reencrypt) {
+      return UserService.#reencryptSensitiveRows();
+    }
+    return UserService.#migratePlaintextSensitiveRows();
+  }
+
+  /**
+   * Method used to migrate plain-text sensitive rows into encrypted payload format
+   * @returns number of updated rows
+   */
+  static async #migratePlaintextSensitiveRows() {
+    const query = `SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME} WHERE jwt IS NOT NULL AND jwt <> '' AND jwt NOT LIKE 'enc:%'`;
     const { rows } = await DatabaseQuery(query);
     let updatedRows = 0;
     for (const row of rows) {
       if (row?.jwt == null || row.jwt === "") {
         continue;
       }
-      if (reencrypt) {
-        if (!DataCrypto.needsReencryption(row.jwt)) {
-          continue;
-        }
-        const encryptedJwt = DataCrypto.reencryptToActive(row.jwt);
-        await DatabaseQuery(`UPDATE ${UserService.#DB_TABLE_NAME} SET jwt = $1 WHERE id = $2`, [encryptedJwt, row.id]);
-        updatedRows += 1;
-        continue;
-      }
       if (DataCrypto.isEncrypted(row.jwt)) {
         continue;
       }
       const encryptedJwt = DataCrypto.encrypt(row.jwt);
+      await DatabaseQuery(`UPDATE ${UserService.#DB_TABLE_NAME} SET jwt = $1 WHERE id = $2`, [encryptedJwt, row.id]);
+      updatedRows += 1;
+    }
+    return updatedRows;
+  }
+
+  /**
+   * Method used to re-encrypt sensitive rows with active key
+   * @returns number of updated rows
+   */
+  static async #reencryptSensitiveRows() {
+    const query = `SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME} WHERE jwt IS NOT NULL AND jwt <> ''`;
+    const { rows } = await DatabaseQuery(query);
+    let updatedRows = 0;
+    for (const row of rows) {
+      if (row?.jwt == null || row.jwt === "") {
+        continue;
+      }
+      if (!DataCrypto.needsReencryption(row.jwt)) {
+        continue;
+      }
+      const encryptedJwt = DataCrypto.reencryptToActive(row.jwt);
       await DatabaseQuery(`UPDATE ${UserService.#DB_TABLE_NAME} SET jwt = $1 WHERE id = $2`, [encryptedJwt, row.id]);
       updatedRows += 1;
     }

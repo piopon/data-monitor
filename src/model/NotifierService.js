@@ -138,12 +138,18 @@ export class NotifierService {
    */
   static async migrateSensitiveData(options = {}) {
     const reencrypt = options.reencrypt === true;
-    const query = reencrypt
-      ? `SELECT id, origin, password
-         FROM ${NotifierService.#DB_TABLE_NAME}
-         WHERE (origin IS NOT NULL AND origin <> '')
-            OR (password IS NOT NULL AND password <> '')`
-      : `SELECT id, origin, password
+    if (reencrypt) {
+      return NotifierService.#reencryptSensitiveRows();
+    }
+    return NotifierService.#migratePlaintextSensitiveRows();
+  }
+
+  /**
+   * Method used to migrate plain-text sensitive rows into encrypted payload format
+   * @returns number of updated rows
+   */
+  static async #migratePlaintextSensitiveRows() {
+    const query = `SELECT id, origin, password
          FROM ${NotifierService.#DB_TABLE_NAME}
          WHERE (origin IS NOT NULL AND origin <> '' AND origin NOT LIKE 'enc:%')
             OR (password IS NOT NULL AND password <> '' AND password NOT LIKE 'enc:%')`;
@@ -155,22 +161,6 @@ export class NotifierService {
       if (!hasOrigin && !hasPassword) {
         continue;
       }
-      if (reencrypt) {
-        const shouldRotateOrigin = hasOrigin && DataCrypto.needsReencryption(row.origin);
-        const shouldRotatePassword = hasPassword && DataCrypto.needsReencryption(row.password);
-        if (!shouldRotateOrigin && !shouldRotatePassword) {
-          continue;
-        }
-        const encryptedOrigin = shouldRotateOrigin ? DataCrypto.reencryptToActive(row.origin) : row.origin;
-        const encryptedPassword = shouldRotatePassword ? DataCrypto.reencryptToActive(row.password) : row.password;
-        await DatabaseQuery(`UPDATE ${NotifierService.#DB_TABLE_NAME} SET origin = $1, password = $2 WHERE id = $3`, [
-          encryptedOrigin,
-          encryptedPassword,
-          row.id,
-        ]);
-        updatedRows += 1;
-        continue;
-      }
       const hasPlainOrigin = hasOrigin && !DataCrypto.isEncrypted(row.origin);
       const hasPlainPassword = hasPassword && !DataCrypto.isEncrypted(row.password);
       if (!hasPlainOrigin && !hasPlainPassword) {
@@ -178,6 +168,40 @@ export class NotifierService {
       }
       const encryptedOrigin = hasPlainOrigin ? DataCrypto.encrypt(row.origin) : row.origin;
       const encryptedPassword = hasPlainPassword ? DataCrypto.encrypt(row.password) : row.password;
+      await DatabaseQuery(`UPDATE ${NotifierService.#DB_TABLE_NAME} SET origin = $1, password = $2 WHERE id = $3`, [
+        encryptedOrigin,
+        encryptedPassword,
+        row.id,
+      ]);
+      updatedRows += 1;
+    }
+    return updatedRows;
+  }
+
+  /**
+   * Method used to re-encrypt sensitive rows with active key
+   * @returns number of updated rows
+   */
+  static async #reencryptSensitiveRows() {
+    const query = `SELECT id, origin, password
+         FROM ${NotifierService.#DB_TABLE_NAME}
+         WHERE (origin IS NOT NULL AND origin <> '')
+            OR (password IS NOT NULL AND password <> '')`;
+    const { rows } = await DatabaseQuery(query);
+    let updatedRows = 0;
+    for (const row of rows) {
+      const hasOrigin = row?.origin != null && row.origin !== "";
+      const hasPassword = row?.password != null && row.password !== "";
+      if (!hasOrigin && !hasPassword) {
+        continue;
+      }
+      const shouldRotateOrigin = hasOrigin && DataCrypto.needsReencryption(row.origin);
+      const shouldRotatePassword = hasPassword && DataCrypto.needsReencryption(row.password);
+      if (!shouldRotateOrigin && !shouldRotatePassword) {
+        continue;
+      }
+      const encryptedOrigin = shouldRotateOrigin ? DataCrypto.reencryptToActive(row.origin) : row.origin;
+      const encryptedPassword = shouldRotatePassword ? DataCrypto.reencryptToActive(row.password) : row.password;
       await DatabaseQuery(`UPDATE ${NotifierService.#DB_TABLE_NAME} SET origin = $1, password = $2 WHERE id = $3`, [
         encryptedOrigin,
         encryptedPassword,
