@@ -2,6 +2,49 @@ import { NotifierService } from "@/model/NotifierService";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 
+const PRIVATE_PLACEHOLDER = "PRIVATE";
+
+/**
+ * Method used to normalize placeholder values before persisting sensitive fields
+ * @param {String} value Input value received from client
+ * @returns normalized value suitable for service layer updates
+ */
+function normalizeSensitiveInput(value) {
+  return value === PRIVATE_PLACEHOLDER ? "" : value;
+}
+
+/**
+ * Method used to normalize incoming notifier payload before save/update operations
+ * @param {Object} notifier Input notifier payload from request body
+ * @returns normalized notifier payload
+ */
+function normalizeNotifierInput(notifier) {
+  if (notifier == null) {
+    return notifier;
+  }
+  return {
+    ...notifier,
+    origin: normalizeSensitiveInput(notifier.origin),
+    password: normalizeSensitiveInput(notifier.password),
+  };
+}
+
+/**
+ * Method used to mask sensitive notifier fields in API responses
+ * @param {Object} notifier Notifier object returned by service layer
+ * @returns notifier object with masked sensitive fields
+ */
+function getSafeNotifier(notifier) {
+  if (notifier == null) {
+    return notifier;
+  }
+  return {
+    ...notifier,
+    origin: notifier.origin ? PRIVATE_PLACEHOLDER : "",
+    password: notifier.password ? PRIVATE_PLACEHOLDER : "",
+  };
+}
+
 /**
  * Method used to send the notifier GET request to retrieve notifier data
  * @param {Object} request Request object received from the frontend
@@ -12,7 +55,7 @@ export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
     if (0 === searchParams.size) {
       const notifiers = await NotifierService.getNotifiers();
-      return new Response(JSON.stringify(notifiers), {
+      return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
@@ -25,11 +68,11 @@ export async function GET(request) {
     const notifiers = await NotifierService.filterNotifiers({
       ...(id && { id }),
       ...(type && { type }),
-      ...(origin && { threshold }),
+      ...(origin && { origin }),
       ...(sender && { sender }),
       ...(password && { password }),
     });
-    return new Response(JSON.stringify(notifiers), {
+    return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -62,8 +105,8 @@ export async function POST(request) {
       });
     }
     // no 'type' parameter provider hence we want to create new notifier
-    const notifier = await NotifierService.addNotifier(await request.json());
-    return new Response(JSON.stringify(notifier), {
+    const notifier = await NotifierService.addNotifier(normalizeNotifierInput(await request.json()));
+    return new Response(JSON.stringify(getSafeNotifier(notifier)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -84,9 +127,9 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const notifierData = await request.json();
+    const notifierData = normalizeNotifierInput(await request.json());
     const monitor = await NotifierService.editNotifier(id, notifierData);
-    return new Response(JSON.stringify(monitor), {
+    return new Response(JSON.stringify(getSafeNotifier(monitor)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

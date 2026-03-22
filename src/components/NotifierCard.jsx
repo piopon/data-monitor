@@ -77,7 +77,7 @@ const NotifierCard = ({ data, options, onChange, onDelete }) => {
         {notifierCardElement(
           labelOrigin,
           <input
-            type="text"
+            type="password"
             name="notifier-origin"
             className="notifier-origin"
             value={notifierOrigin}
