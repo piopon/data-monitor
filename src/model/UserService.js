@@ -112,15 +112,31 @@ export class UserService {
 
   /**
    * Method used to migrate plain-text sensitive values to encrypted payload format
+   * @param {Object} options Migration options
+   * @param {Boolean} options.reencrypt Indicates whether encrypted values should be re-encrypted using active key
    * @returns number of updated rows
    */
-  static async migrateSensitiveData() {
-    const { rows } = await DatabaseQuery(
-      `SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME} WHERE jwt IS NOT NULL AND jwt <> '' AND jwt NOT LIKE 'enc:v1:%'`
-    );
+  static async migrateSensitiveData(options = {}) {
+    const reencrypt = options.reencrypt === true;
+    const query = reencrypt
+      ? `SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME} WHERE jwt IS NOT NULL AND jwt <> ''`
+      : `SELECT id, jwt FROM ${UserService.#DB_TABLE_NAME} WHERE jwt IS NOT NULL AND jwt <> '' AND jwt NOT LIKE 'enc:%'`;
+    const { rows } = await DatabaseQuery(query);
     let updatedRows = 0;
     for (const row of rows) {
-      if (row?.jwt == null || row.jwt === "" || DataCrypto.isEncrypted(row.jwt)) {
+      if (row?.jwt == null || row.jwt === "") {
+        continue;
+      }
+      if (reencrypt) {
+        if (!DataCrypto.needsReencryption(row.jwt)) {
+          continue;
+        }
+        const encryptedJwt = DataCrypto.reencryptToActive(row.jwt);
+        await DatabaseQuery(`UPDATE ${UserService.#DB_TABLE_NAME} SET jwt = $1 WHERE id = $2`, [encryptedJwt, row.id]);
+        updatedRows += 1;
+        continue;
+      }
+      if (DataCrypto.isEncrypted(row.jwt)) {
         continue;
       }
       const encryptedJwt = DataCrypto.encrypt(row.jwt);
