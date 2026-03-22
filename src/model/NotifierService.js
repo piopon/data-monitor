@@ -131,7 +131,12 @@ export class NotifierService {
    * @returns number of updated rows
    */
   static async migrateSensitiveData() {
-    const { rows } = await DatabaseQuery(`SELECT id, origin, password FROM ${NotifierService.#DB_TABLE_NAME}`);
+    const { rows } = await DatabaseQuery(
+      `SELECT id, origin, password
+       FROM ${NotifierService.#DB_TABLE_NAME}
+       WHERE (origin IS NOT NULL AND origin <> '' AND origin NOT LIKE 'enc:v1:%')
+          OR (password IS NOT NULL AND password <> '' AND password NOT LIKE 'enc:v1:%')`
+    );
     let updatedRows = 0;
     for (const row of rows) {
       const hasPlainOrigin = row?.origin != null && row.origin !== "" && !SensitiveDataCodec.isEncrypted(row.origin);
