@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from "crypto";
 
-export class SensitiveDataCodec {
+export class DataCrypto {
   static #ALGORITHM = "aes-256-gcm";
   static #FORMAT_PREFIX = "enc";
   static #FORMAT_VERSION = "v1";
@@ -18,7 +18,7 @@ export class SensitiveDataCodec {
     if (typeof value !== "string") {
       return false;
     }
-    return value.startsWith(`${SensitiveDataCodec.#FORMAT_PREFIX}:${SensitiveDataCodec.#FORMAT_VERSION}:`);
+    return value.startsWith(`${DataCrypto.#FORMAT_PREFIX}:${DataCrypto.#FORMAT_VERSION}:`);
   }
 
   /**
@@ -30,17 +30,17 @@ export class SensitiveDataCodec {
     if (value == null || value === "") {
       return value;
     }
-    if (SensitiveDataCodec.isEncrypted(value)) {
+    if (DataCrypto.isEncrypted(value)) {
       return value;
     }
-    const key = SensitiveDataCodec.#getKey();
-    const iv = randomBytes(SensitiveDataCodec.#IV_BYTE_LENGTH);
-    const cipher = createCipheriv(SensitiveDataCodec.#ALGORITHM, key, iv);
+    const key = DataCrypto.#getKey();
+    const iv = randomBytes(DataCrypto.#IV_BYTE_LENGTH);
+    const cipher = createCipheriv(DataCrypto.#ALGORITHM, key, iv);
 
     const encrypted = Buffer.concat([cipher.update(String(value), "utf8"), cipher.final()]);
     const authTag = cipher.getAuthTag();
 
-    return SensitiveDataCodec.#encodePayload(iv, authTag, encrypted);
+    return DataCrypto.#encodePayload(iv, authTag, encrypted);
   }
 
   /**
@@ -52,13 +52,13 @@ export class SensitiveDataCodec {
     if (value == null || value === "") {
       return value;
     }
-    if (!SensitiveDataCodec.isEncrypted(value)) {
+    if (!DataCrypto.isEncrypted(value)) {
       return value;
     }
 
-    const { iv, authTag, payload } = SensitiveDataCodec.#decodePayload(value);
-    const key = SensitiveDataCodec.#getKey();
-    const decipher = createDecipheriv(SensitiveDataCodec.#ALGORITHM, key, iv);
+    const { iv, authTag, payload } = DataCrypto.#decodePayload(value);
+    const key = DataCrypto.#getKey();
+    const decipher = createDecipheriv(DataCrypto.#ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);
 
     const decrypted = Buffer.concat([decipher.update(payload), decipher.final()]);
@@ -69,7 +69,7 @@ export class SensitiveDataCodec {
    * Method used to fail-fast when sensitive data key is not configured correctly
    */
   static assertConfigured() {
-    SensitiveDataCodec.#getKey();
+    DataCrypto.#getKey();
   }
 
   /**
@@ -81,8 +81,8 @@ export class SensitiveDataCodec {
    */
   static #encodePayload(iv, authTag, payload) {
     return [
-      SensitiveDataCodec.#FORMAT_PREFIX,
-      SensitiveDataCodec.#FORMAT_VERSION,
+      DataCrypto.#FORMAT_PREFIX,
+      DataCrypto.#FORMAT_VERSION,
       iv.toString("base64url"),
       authTag.toString("base64url"),
       payload.toString("base64url"),
@@ -101,7 +101,7 @@ export class SensitiveDataCodec {
     }
 
     const [prefix, version, iv, authTag, payload] = parts;
-    if (prefix !== SensitiveDataCodec.#FORMAT_PREFIX || version !== SensitiveDataCodec.#FORMAT_VERSION) {
+    if (prefix !== DataCrypto.#FORMAT_PREFIX || version !== DataCrypto.#FORMAT_VERSION) {
       throw new Error("Unsupported encrypted payload format.");
     }
 
@@ -121,8 +121,8 @@ export class SensitiveDataCodec {
    * @returns Buffer containing encryption key
    */
   static #getKey() {
-    if (SensitiveDataCodec.#cachedKey) {
-      return SensitiveDataCodec.#cachedKey;
+    if (DataCrypto.#cachedKey) {
+      return DataCrypto.#cachedKey;
     }
 
     const secret = process.env.CRYPTO_SECRET;
@@ -130,7 +130,7 @@ export class SensitiveDataCodec {
       throw new Error("Missing or weak CRYPTO_SECRET environment variable.");
     }
 
-    SensitiveDataCodec.#cachedKey = scryptSync(secret, SensitiveDataCodec.#SALT, SensitiveDataCodec.#KEY_BYTE_LENGTH);
-    return SensitiveDataCodec.#cachedKey;
+    DataCrypto.#cachedKey = scryptSync(secret, DataCrypto.#SALT, DataCrypto.#KEY_BYTE_LENGTH);
+    return DataCrypto.#cachedKey;
   }
 }

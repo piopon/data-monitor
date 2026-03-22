@@ -1,5 +1,5 @@
 import { DatabaseQuery } from "../lib/DatabaseQuery.js";
-import { SensitiveDataCodec } from "../lib/SensitiveDataCodec.js";
+import { DataCrypto } from "../lib/DataCrypto.js";
 import { User } from "./User.js";
 
 export class UserService {
@@ -73,7 +73,7 @@ export class UserService {
    */
   static async addUser(data) {
     const { email, jwt } = data;
-    const encryptedJwt = SensitiveDataCodec.encrypt(jwt);
+    const encryptedJwt = DataCrypto.encrypt(jwt);
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${UserService.#DB_TABLE_NAME} (email, jwt) VALUES ($1, $2) RETURNING *`,
       [email, encryptedJwt]
@@ -94,7 +94,7 @@ export class UserService {
       return undefined;
     }
     const current = existingRows[0];
-    const encryptedJwt = UserService.#hasSensitiveInput(jwt) ? SensitiveDataCodec.encrypt(jwt) : current.jwt;
+    const encryptedJwt = UserService.#hasSensitiveInput(jwt) ? DataCrypto.encrypt(jwt) : current.jwt;
     const { rows } = await DatabaseQuery(
       `UPDATE ${UserService.#DB_TABLE_NAME} SET email = $1, jwt = $2 WHERE id = $3 RETURNING *`,
       [email, encryptedJwt, id]
@@ -122,10 +122,10 @@ export class UserService {
     );
     let updatedRows = 0;
     for (const row of rows) {
-      if (row?.jwt == null || row.jwt === "" || SensitiveDataCodec.isEncrypted(row.jwt)) {
+      if (row?.jwt == null || row.jwt === "" || DataCrypto.isEncrypted(row.jwt)) {
         continue;
       }
-      const encryptedJwt = SensitiveDataCodec.encrypt(row.jwt);
+      const encryptedJwt = DataCrypto.encrypt(row.jwt);
       await DatabaseQuery(`UPDATE ${UserService.#DB_TABLE_NAME} SET jwt = $1 WHERE id = $2`, [encryptedJwt, row.id]);
       updatedRows += 1;
     }
@@ -143,7 +143,7 @@ export class UserService {
     }
     return {
       ...row,
-      jwt: SensitiveDataCodec.decrypt(row.jwt),
+      jwt: DataCrypto.decrypt(row.jwt),
     };
   }
 

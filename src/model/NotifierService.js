@@ -1,5 +1,5 @@
 import { DatabaseQuery } from "../lib/DatabaseQuery.js";
-import { SensitiveDataCodec } from "../lib/SensitiveDataCodec.js";
+import { DataCrypto } from "../lib/DataCrypto.js";
 import { Notifier } from "./Notifier.js";
 
 export class NotifierService {
@@ -78,8 +78,8 @@ export class NotifierService {
    */
   static async addNotifier(data) {
     const { type, origin, sender, password } = data;
-    const encryptedOrigin = SensitiveDataCodec.encrypt(origin);
-    const encryptedPassword = SensitiveDataCodec.encrypt(password);
+    const encryptedOrigin = DataCrypto.encrypt(origin);
+    const encryptedPassword = DataCrypto.encrypt(password);
     const { rows } = await DatabaseQuery(
       `INSERT INTO ${NotifierService.#DB_TABLE_NAME} (type, origin, sender, password) VALUES ($1, $2, $3, $4) RETURNING *`,
       [type, encryptedOrigin, sender, encryptedPassword]
@@ -104,10 +104,10 @@ export class NotifierService {
     }
     const current = existingRows[0];
     const encryptedOrigin = NotifierService.#hasSensitiveInput(origin)
-      ? SensitiveDataCodec.encrypt(origin)
+      ? DataCrypto.encrypt(origin)
       : current.origin;
     const encryptedPassword = NotifierService.#hasSensitiveInput(password)
-      ? SensitiveDataCodec.encrypt(password)
+      ? DataCrypto.encrypt(password)
       : current.password;
     const { rows } = await DatabaseQuery(
       `UPDATE ${NotifierService.#DB_TABLE_NAME} SET type = $1, origin = $2, sender = $3, password = $4 WHERE id = $5 RETURNING *`,
@@ -139,14 +139,14 @@ export class NotifierService {
     );
     let updatedRows = 0;
     for (const row of rows) {
-      const hasPlainOrigin = row?.origin != null && row.origin !== "" && !SensitiveDataCodec.isEncrypted(row.origin);
+      const hasPlainOrigin = row?.origin != null && row.origin !== "" && !DataCrypto.isEncrypted(row.origin);
       const hasPlainPassword =
-        row?.password != null && row.password !== "" && !SensitiveDataCodec.isEncrypted(row.password);
+        row?.password != null && row.password !== "" && !DataCrypto.isEncrypted(row.password);
       if (!hasPlainOrigin && !hasPlainPassword) {
         continue;
       }
-      const encryptedOrigin = hasPlainOrigin ? SensitiveDataCodec.encrypt(row.origin) : row.origin;
-      const encryptedPassword = hasPlainPassword ? SensitiveDataCodec.encrypt(row.password) : row.password;
+      const encryptedOrigin = hasPlainOrigin ? DataCrypto.encrypt(row.origin) : row.origin;
+      const encryptedPassword = hasPlainPassword ? DataCrypto.encrypt(row.password) : row.password;
       await DatabaseQuery(`UPDATE ${NotifierService.#DB_TABLE_NAME} SET origin = $1, password = $2 WHERE id = $3`, [
         encryptedOrigin,
         encryptedPassword,
@@ -168,8 +168,8 @@ export class NotifierService {
     }
     return {
       ...row,
-      origin: SensitiveDataCodec.decrypt(row.origin),
-      password: SensitiveDataCodec.decrypt(row.password),
+      origin: DataCrypto.decrypt(row.origin),
+      password: DataCrypto.decrypt(row.password),
     };
   }
 

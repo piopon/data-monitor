@@ -1,5 +1,5 @@
 import { AppConfig } from "@/config/AppConfig";
-import { SensitiveDataCodec } from "@/lib/SensitiveDataCodec";
+import { DataCrypto } from "@/lib/DataCrypto";
 import { ScraperRequest } from "@/lib/ScraperRequest";
 import { MonitorService } from "@/model/MonitorService";
 import { NotifierService } from "@/model/NotifierService";
@@ -21,7 +21,7 @@ async function migrateSensitiveDataOnce() {
   }
 
   sensitiveMigrationPromise = (async () => {
-    SensitiveDataCodec.assertConfigured();
+    DataCrypto.assertConfigured();
     const migratedUsers = await UserService.migrateSensitiveData();
     const migratedNotifiers = await NotifierService.migrateSensitiveData();
     console.info(`Init info: sensitive-data migration done (users=${migratedUsers}, notifiers=${migratedNotifiers}).`);
