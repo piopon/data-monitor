@@ -125,9 +125,9 @@ export class SensitiveDataCodec {
       return SensitiveDataCodec.#cachedKey;
     }
 
-    const secret = process.env.DATA_MONITOR_CRYPTO_SECRET;
+    const secret = process.env.CRYPTO_SECRET;
     if (typeof secret !== "string" || secret.trim().length < 16) {
-      throw new Error("Missing or weak DATA_MONITOR_CRYPTO_SECRET environment variable.");
+      throw new Error("Missing or weak CRYPTO_SECRET environment variable.");
     }
 
     SensitiveDataCodec.#cachedKey = scryptSync(secret, SensitiveDataCodec.#SALT, SensitiveDataCodec.#KEY_BYTE_LENGTH);

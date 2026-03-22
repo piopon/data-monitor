@@ -5,7 +5,7 @@ import { MonitorService } from "@/model/MonitorService";
 import { NotifierService } from "@/model/NotifierService";
 import { UserService } from "@/model/UserService";
 
-const RUN_MIGRATION_ON_INIT = process.env.DATA_MONITOR_MIGRATE_ON_INIT !== "false";
+const RUN_MIGRATION_ON_INIT = process.env.CRYPTO_MIGRATE_ON_INIT !== "false";
 let sensitiveMigrationPromise = undefined;
 
 /**

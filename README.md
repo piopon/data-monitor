@@ -17,10 +17,12 @@ When needed it can also be configured to use the predefined notifiers and send a
 To encrypt database fields containing secrets, configure the following environment variable before running the app:
 
 ```
-DATA_MONITOR_CRYPTO_SECRET=<long-random-secret-value>
+CRYPTO_SECRET=<long-random-secret-value>
 ```
 
 Use a long, random value and keep it private. The application uses this value to derive the encryption key used for sensitive model fields.
+**Do not change or rotate this secret after data has been encrypted without a proper migration/re-encryption process**, as any values encrypted with the old key will become permanently undecryptable.
+Losing this secret will result in irreversible loss of access to the encrypted data, so make sure you have a secure backup strategy for it.
 
 ---
 <p align="center">Created by PNK with ❤ @ 2025-2026</p>
