@@ -13,7 +13,7 @@ let sensitiveMigrationPromise = undefined;
  * Method used to execute sensitive-data migration once per process lifetime
  * @returns object with migration counts
  */
-async function migrateSensitiveDataOnce() {
+async function migrateSensitiveData() {
   if (!RUN_MIGRATION_ON_INIT) {
     return { users: 0, notifiers: 0 };
   }
@@ -24,7 +24,7 @@ async function migrateSensitiveDataOnce() {
     DataCrypto.assertConfigured();
     const migratedUsers = await UserService.migrateSensitiveData({ reencrypt: RUN_REENCRYPT_ON_INIT });
     const migratedNotifiers = await NotifierService.migrateSensitiveData({ reencrypt: RUN_REENCRYPT_ON_INIT });
-    console.info(`Init info: sensitive-data migration done (users=${migratedUsers}, notifiers=${migratedNotifiers}).`);
+    console.info(`Sensitive-data migration done (users=${migratedUsers}, notifiers=${migratedNotifiers}).`);
     return { users: migratedUsers, notifiers: migratedNotifiers };
   })();
   try {
@@ -61,7 +61,7 @@ export async function GET(request) {
     });
   }
   try {
-    await migrateSensitiveDataOnce();
+    await migrateSensitiveData();
   } catch (error) {
     const result = { init: false, message: `Cannot migrate sensitive data: ${error.message}` };
     return new Response(JSON.stringify(result), {
