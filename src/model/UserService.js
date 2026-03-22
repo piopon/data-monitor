@@ -51,12 +51,10 @@ export class UserService {
     if (filters.jwt) {
       jwtFilter = filters.jwt;
     }
-
     // Prevent unbounded scans when filtering by sensitive value.
     if (jwtFilter != null && conditions.length === 0) {
       throw new Error("JWT filter requires at least one indexed filter (id or email).");
     }
-
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     const { rows } = await DatabaseQuery(`SELECT * FROM ${UserService.#DB_TABLE_NAME} ${whereClause}`, values);
     const users = rows.map((row) => UserService.#toPublicUser(row));

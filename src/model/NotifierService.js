@@ -59,6 +59,10 @@ export class NotifierService {
     if (filters.password) {
       passwordFilter = filters.password;
     }
+    // Prevent unbounded scans when filtering by sensitive values.
+    if ((originFilter != null || passwordFilter != null) && conditions.length === 0) {
+      throw new Error("Origin/password filter requires at least one non-sensitive filter (id, type or sender).");
+    }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
     const { rows } = await DatabaseQuery(`SELECT * FROM ${NotifierService.#DB_TABLE_NAME} ${whereClause}`, values);
     let notifiers = rows.map((row) => NotifierService.#toPublicNotifier(row));

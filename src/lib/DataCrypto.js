@@ -5,6 +5,7 @@ export class DataCrypto {
   static #FORMAT_PREFIX = "enc";
   static #FORMAT_VERSION = "v1";
   static #IV_BYTE_LENGTH = 12;
+  static #AUTH_TAG_BYTE_LENGTH = 16;
   static #KEY_BYTE_LENGTH = 32;
   static #SALT = "data-monitor-sensitive-data-v1";
   static #cachedKey = undefined;
@@ -18,7 +19,32 @@ export class DataCrypto {
     if (typeof value !== "string") {
       return false;
     }
-    return value.startsWith(`${DataCrypto.#FORMAT_PREFIX}:${DataCrypto.#FORMAT_VERSION}:`);
+    const parts = String(value).split(":");
+    if (parts.length !== 5) {
+      return false;
+    }
+    const [prefix, version, iv, authTag, payload] = parts;
+    if (prefix !== DataCrypto.#FORMAT_PREFIX || version !== DataCrypto.#FORMAT_VERSION) {
+      return false;
+    }
+    if (!DataCrypto.#isValidBase64Url(iv) || !DataCrypto.#isValidBase64Url(authTag) || !DataCrypto.#isValidBase64Url(payload)) {
+      return false;
+    }
+    try {
+      const ivBuffer = Buffer.from(iv, "base64url");
+      const authTagBuffer = Buffer.from(authTag, "base64url");
+      const payloadBuffer = Buffer.from(payload, "base64url");
+      return (
+        ivBuffer.length === DataCrypto.#IV_BYTE_LENGTH &&
+        authTagBuffer.length === DataCrypto.#AUTH_TAG_BYTE_LENGTH &&
+        payloadBuffer.length > 0 &&
+        ivBuffer.toString("base64url") === iv &&
+        authTagBuffer.toString("base64url") === authTag &&
+        payloadBuffer.toString("base64url") === payload
+      );
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -31,15 +57,18 @@ export class DataCrypto {
       return value;
     }
     if (DataCrypto.isEncrypted(value)) {
-      return value;
+      try {
+        DataCrypto.decrypt(value);
+        return value;
+      } catch {
+        // Input only looks encrypted; treat it as plain text and encrypt safely.
+      }
     }
     const key = DataCrypto.#getKey();
     const iv = randomBytes(DataCrypto.#IV_BYTE_LENGTH);
     const cipher = createCipheriv(DataCrypto.#ALGORITHM, key, iv);
-
     const encrypted = Buffer.concat([cipher.update(String(value), "utf8"), cipher.final()]);
     const authTag = cipher.getAuthTag();
-
     return DataCrypto.#encodePayload(iv, authTag, encrypted);
   }
 
@@ -55,12 +84,10 @@ export class DataCrypto {
     if (!DataCrypto.isEncrypted(value)) {
       return value;
     }
-
     const { iv, authTag, payload } = DataCrypto.#decodePayload(value);
     const key = DataCrypto.#getKey();
     const decipher = createDecipheriv(DataCrypto.#ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);
-
     const decrypted = Buffer.concat([decipher.update(payload), decipher.final()]);
     return decrypted.toString("utf8");
   }
@@ -99,12 +126,10 @@ export class DataCrypto {
     if (parts.length !== 5) {
       throw new Error("Invalid encrypted payload format.");
     }
-
     const [prefix, version, iv, authTag, payload] = parts;
     if (prefix !== DataCrypto.#FORMAT_PREFIX || version !== DataCrypto.#FORMAT_VERSION) {
       throw new Error("Unsupported encrypted payload format.");
     }
-
     try {
       return {
         iv: Buffer.from(iv, "base64url"),
@@ -124,13 +149,27 @@ export class DataCrypto {
     if (DataCrypto.#cachedKey) {
       return DataCrypto.#cachedKey;
     }
-
-    const secret = process.env.CRYPTO_SECRET;
-    if (typeof secret !== "string" || secret.trim().length < 16) {
-      throw new Error("Missing or weak CRYPTO_SECRET environment variable.");
+    const secretRaw = process.env.CRYPTO_SECRET;
+    if (typeof secretRaw !== "string") {
+      throw new Error("Missing or invalid CRYPTO_SECRET environment variable.");
     }
-
+    const secret = secretRaw.trim();
+    if (secret.length < 16) {
+      throw new Error("Weak CRYPTO_SECRET environment variable value.");
+    }
     DataCrypto.#cachedKey = scryptSync(secret, DataCrypto.#SALT, DataCrypto.#KEY_BYTE_LENGTH);
     return DataCrypto.#cachedKey;
+  }
+
+  /**
+   * Method used to verify if input can be represented as base64url text
+   * @param {String} value Input value to verify
+   * @returns true when input is a valid base64url candidate, false otherwise
+   */
+  static #isValidBase64Url(value) {
+    if (typeof value !== "string" || value.length === 0) {
+      return false;
+    }
+    return /^[A-Za-z0-9_-]+$/.test(value);
   }
 }
