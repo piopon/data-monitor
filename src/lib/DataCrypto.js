@@ -8,7 +8,7 @@ export class DataCrypto {
   static #AUTH_TAG_BYTE_LENGTH = 16;
   static #KEY_BYTE_LENGTH = 32;
   static #SALT = "data-monitor-sensitive-data-v1";
-  static #cachedKey = undefined;
+  static #cachedCryptoConfig = undefined;
 
   /**
    * Method used to verify if input value is encoded with app sensitive-data format
@@ -64,7 +64,7 @@ export class DataCrypto {
         // Input only looks encrypted; treat it as plain text and encrypt safely.
       }
     }
-    const key = DataCrypto.#getKey();
+    const key = DataCrypto.#getActiveKey();
     const iv = randomBytes(DataCrypto.#IV_BYTE_LENGTH);
     const cipher = createCipheriv(DataCrypto.#ALGORITHM, key, iv);
     const encrypted = Buffer.concat([cipher.update(String(value), "utf8"), cipher.final()]);
@@ -85,18 +85,70 @@ export class DataCrypto {
       return value;
     }
     const { iv, authTag, payload } = DataCrypto.#decodePayload(value);
-    const key = DataCrypto.#getKey();
-    const decipher = createDecipheriv(DataCrypto.#ALGORITHM, key, iv);
-    decipher.setAuthTag(authTag);
-    const decrypted = Buffer.concat([decipher.update(payload), decipher.final()]);
-    return decrypted.toString("utf8");
+    const decryptKeys = DataCrypto.#getDecryptKeys();
+    for (const key of decryptKeys) {
+      try {
+        const decrypted = DataCrypto.#decryptPayload(payload, iv, authTag, key);
+        return decrypted.toString("utf8");
+      } catch {
+        // Try next configured key.
+      }
+    }
+    throw new Error("Cannot decrypt payload with configured CRYPTO_SECRET / CRYPTO_LEGACY_SECRETS values.");
+  }
+
+  /**
+   * Method used to verify whether value should be re-encrypted with currently active key
+   * @param {String} value Input value to verify
+   * @returns true when value should be re-encrypted, false otherwise
+   */
+  static needsReencryption(value) {
+    if (value == null || value === "") {
+      return false;
+    }
+    if (!DataCrypto.isEncrypted(value)) {
+      return true;
+    }
+    const { iv, authTag, payload } = DataCrypto.#decodePayload(value);
+    try {
+      DataCrypto.#decryptPayload(payload, iv, authTag, DataCrypto.#getActiveKey());
+      return false;
+    } catch {
+      // Value might have been encrypted with one of legacy keys.
+    }
+    const legacyKeys = DataCrypto.#getDecryptKeys().slice(1);
+    for (const key of legacyKeys) {
+      try {
+        DataCrypto.#decryptPayload(payload, iv, authTag, key);
+        return true;
+      } catch {
+        // Try next legacy key.
+      }
+    }
+    throw new Error("Cannot verify re-encryption state for payload with configured keys.");
+  }
+
+  /**
+   * Method used to re-encrypt data with currently active key configuration
+   * @param {String} value Input value to re-encrypt
+   * @returns value encrypted with active key
+   */
+  static reencryptToActive(value) {
+    if (value == null || value === "") {
+      return value;
+    }
+    if (!DataCrypto.needsReencryption(value)) {
+      return value;
+    }
+    const plainValue = DataCrypto.decrypt(value);
+    return DataCrypto.encrypt(plainValue);
   }
 
   /**
    * Method used to fail-fast when sensitive data key is not configured correctly
    */
   static assertConfigured() {
-    DataCrypto.#getKey();
+    DataCrypto.#getCryptoConfig();
   }
 
   /**
@@ -142,23 +194,100 @@ export class DataCrypto {
   }
 
   /**
-   * Method used to lazily derive and cache an encryption key from environment secret
-   * @returns Buffer containing encryption key
+   * Method used to decrypt binary payload with provided encryption key
+   * @param {Buffer} payload Encrypted binary payload
+   * @param {Buffer} iv Initialization vector used during encryption
+   * @param {Buffer} authTag Authentication tag produced by AES-GCM
+   * @param {Buffer} key Encryption key to use
+   * @returns Buffer containing decrypted value
    */
-  static #getKey() {
-    if (DataCrypto.#cachedKey) {
-      return DataCrypto.#cachedKey;
+  static #decryptPayload(payload, iv, authTag, key) {
+    const decipher = createDecipheriv(DataCrypto.#ALGORITHM, key, iv);
+    decipher.setAuthTag(authTag);
+    return Buffer.concat([decipher.update(payload), decipher.final()]);
+  }
+
+  /**
+   * Method used to return currently active encryption key
+   * @returns Buffer containing active encryption key
+   */
+  static #getActiveKey() {
+    return DataCrypto.#getCryptoConfig().activeKey;
+  }
+
+  /**
+   * Method used to return all configured decryption keys (active first, then legacy)
+   * @returns array containing decryption keys
+   */
+  static #getDecryptKeys() {
+    return DataCrypto.#getCryptoConfig().decryptKeys;
+  }
+
+  /**
+   * Method used to lazily derive and cache active/legacy keys from environment
+   * @returns object with active key and decryption keys list
+   */
+  static #getCryptoConfig() {
+    if (DataCrypto.#cachedCryptoConfig) {
+      return DataCrypto.#cachedCryptoConfig;
     }
     const secretRaw = process.env.CRYPTO_SECRET;
     if (typeof secretRaw !== "string") {
       throw new Error("Missing or invalid CRYPTO_SECRET environment variable.");
     }
-    const secret = secretRaw.trim();
-    if (secret.length < 16) {
+    const activeSecret = secretRaw.trim();
+    if (activeSecret.length < 16) {
       throw new Error("Weak CRYPTO_SECRET environment variable value.");
     }
-    DataCrypto.#cachedKey = scryptSync(secret, DataCrypto.#SALT, DataCrypto.#KEY_BYTE_LENGTH);
-    return DataCrypto.#cachedKey;
+    const activeKey = DataCrypto.#deriveKey(activeSecret);
+    const decryptKeys = [activeKey];
+    const legacySecrets = DataCrypto.#parseLegacySecrets(process.env.CRYPTO_LEGACY_SECRETS);
+    legacySecrets.forEach((legacySecret) => {
+      const legacyKey = DataCrypto.#deriveKey(legacySecret);
+      if (!decryptKeys.some((key) => key.equals(legacyKey))) {
+        decryptKeys.push(legacyKey);
+      }
+    });
+    DataCrypto.#cachedCryptoConfig = { activeKey, decryptKeys };
+    return DataCrypto.#cachedCryptoConfig;
+  }
+
+  /**
+   * Method used to parse CRYPTO_LEGACY_SECRETS from supported formats
+   * @param {String} rawSecrets Legacy secrets from environment
+   * @returns array of normalized legacy secrets
+   */
+  static #parseLegacySecrets(rawSecrets) {
+    if (typeof rawSecrets !== "string" || rawSecrets.trim().length === 0) {
+      return [];
+    }
+    const normalized = rawSecrets.trim();
+    if (normalized.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(normalized);
+        if (!Array.isArray(parsed)) {
+          throw new Error("CRYPTO_LEGACY_SECRETS JSON must be an array of strings.");
+        }
+        return parsed
+          .map((secret) => String(secret).trim())
+          .filter((secret) => secret.length > 0);
+      } catch (error) {
+        throw new Error(`Cannot parse CRYPTO_LEGACY_SECRETS: ${error.message}`);
+      }
+    }
+    return normalized
+      .split(",")
+      .map((secret) => secret.trim())
+      .filter((secret) => secret.length > 0);
+  }
+
+  /**
+   * Method used to derive key material from plain-text secret
+   * @param {String} secret Secret value used as key input
+   * @returns Buffer containing derived key
+   */
+  static #deriveKey(secret) {
+    return scryptSync(secret, DataCrypto.#SALT, DataCrypto.#KEY_BYTE_LENGTH);
   }
 
   /**
