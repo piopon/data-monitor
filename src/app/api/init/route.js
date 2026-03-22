@@ -20,7 +20,6 @@ async function migrateSensitiveDataOnce() {
   if (sensitiveMigrationPromise) {
     return sensitiveMigrationPromise;
   }
-
   sensitiveMigrationPromise = (async () => {
     DataCrypto.assertConfigured();
     const migratedUsers = await UserService.migrateSensitiveData({ reencrypt: RUN_REENCRYPT_ON_INIT });
@@ -28,7 +27,6 @@ async function migrateSensitiveDataOnce() {
     console.info(`Init info: sensitive-data migration done (users=${migratedUsers}, notifiers=${migratedNotifiers}).`);
     return { users: migratedUsers, notifiers: migratedNotifiers };
   })();
-
   try {
     return await sensitiveMigrationPromise;
   } catch (error) {
@@ -62,7 +60,6 @@ export async function GET(request) {
       headers: { "Content-Type": "application/json" },
     });
   }
-
   try {
     await migrateSensitiveDataOnce();
   } catch (error) {
@@ -72,7 +69,6 @@ export async function GET(request) {
       headers: { "Content-Type": "application/json" },
     });
   }
-
   const featuresResponse = await ScraperRequest.GET(AppConfig.getConfig().scraper.endpoints.features);
   if (!featuresResponse.ok) {
     const result = { init: false, message: await featuresResponse.text() };
