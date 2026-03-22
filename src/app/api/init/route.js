@@ -6,6 +6,7 @@ import { NotifierService } from "@/model/NotifierService";
 import { UserService } from "@/model/UserService";
 
 const RUN_MIGRATION_ON_INIT = process.env.CRYPTO_MIGRATE_ON_INIT !== "false";
+const RUN_REENCRYPT_ON_INIT = process.env.CRYPTO_REENCRYPT_ON_INIT === "true";
 let sensitiveMigrationPromise = undefined;
 
 /**
@@ -22,8 +23,8 @@ async function migrateSensitiveDataOnce() {
 
   sensitiveMigrationPromise = (async () => {
     DataCrypto.assertConfigured();
-    const migratedUsers = await UserService.migrateSensitiveData();
-    const migratedNotifiers = await NotifierService.migrateSensitiveData();
+    const migratedUsers = await UserService.migrateSensitiveData({ reencrypt: RUN_REENCRYPT_ON_INIT });
+    const migratedNotifiers = await NotifierService.migrateSensitiveData({ reencrypt: RUN_REENCRYPT_ON_INIT });
     console.info(`Init info: sensitive-data migration done (users=${migratedUsers}, notifiers=${migratedNotifiers}).`);
     return { users: migratedUsers, notifiers: migratedNotifiers };
   })();
