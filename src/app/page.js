@@ -1,4 +1,4 @@
-import HomePage from "@/pages/HomePage";
+import HomePage from "@/views/HomePage";
 import GuestAccess from "@/components/GuestAccess";
 
 export default async function Home() {

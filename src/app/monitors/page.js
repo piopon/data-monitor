@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LoginContext, PageContext } from "@/context/Contexts";
 import UserAccess from "@/components/UserAccess";
-import MonitorsPage from "@/pages/MonitorsPage";
+import MonitorsPage from "@/views/MonitorsPage";
 
 export default function Monitors() {
   const MAX_ATTEMPTS = 5;
