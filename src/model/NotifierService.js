@@ -59,7 +59,7 @@ export class NotifierService {
     if (filters.password) {
       passwordFilter = filters.password;
     }
-    // Prevent unbounded scans when filtering by sensitive values.
+    // prevent unbounded scans when filtering by sensitive values
     if ((originFilter != null || passwordFilter != null) && conditions.length === 0) {
       throw new Error("Origin/password filter requires at least one non-sensitive filter (id, type or sender).");
     }

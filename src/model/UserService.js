@@ -51,7 +51,7 @@ export class UserService {
     if (filters.jwt) {
       jwtFilter = filters.jwt;
     }
-    // Prevent unbounded scans when filtering by sensitive value.
+    // prevent unbounded scans when filtering by sensitive value
     if (jwtFilter != null && conditions.length === 0) {
       throw new Error("JWT filter requires at least one indexed filter (id or email).");
     }

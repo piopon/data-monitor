@@ -61,7 +61,7 @@ export class DataCrypto {
         DataCrypto.decrypt(value);
         return value;
       } catch {
-        // Input only looks encrypted; treat it as plain text and encrypt safely.
+        // input only looks encrypted - treat it as plain text and encrypt safely
       }
     }
     const key = DataCrypto.#getActiveKey();
@@ -91,7 +91,7 @@ export class DataCrypto {
         const decrypted = DataCrypto.#decryptPayload(payload, iv, authTag, key);
         return decrypted.toString("utf8");
       } catch {
-        // Try next configured key.
+        // try next configured key
       }
     }
     throw new Error("Cannot decrypt payload with configured CRYPTO_SECRET / CRYPTO_LEGACY_SECRETS values.");
@@ -114,7 +114,7 @@ export class DataCrypto {
       DataCrypto.#decryptPayload(payload, iv, authTag, DataCrypto.#getActiveKey());
       return false;
     } catch {
-      // Value might have been encrypted with one of legacy keys.
+      // value might have been encrypted with one of legacy keys
     }
     const legacyKeys = DataCrypto.#getDecryptKeys().slice(1);
     for (const key of legacyKeys) {
@@ -122,7 +122,7 @@ export class DataCrypto {
         DataCrypto.#decryptPayload(payload, iv, authTag, key);
         return true;
       } catch {
-        // Try next legacy key.
+        // try next legacy key
       }
     }
     throw new Error("Cannot verify re-encryption state for payload with configured keys.");
