@@ -1,0 +1,76 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: data-monitor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-data_monitor}
+      POSTGRES_USER: ${DB_USER:-data_monitor}
+      POSTGRES_PASSWORD: ${DB_PASS:-data_monitor}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-data_monitor} -d ${DB_NAME:-data_monitor}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - data-monitor-net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: data-monitor:local
+    container_name: data-monitor-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - users-data:/app/users
+    networks:
+      - data-monitor-net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: data-monitor:local
+    container_name: data-monitor-worker
+    restart: unless-stopped
+    command: ["node", "./src/lib/DataWorker.js"]
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - users-data:/app/users
+    networks:
+      - data-monitor-net
+
+volumes:
+  postgres-data:
+  users-data:
+
+networks:
+  data-monitor-net:
+    driver: bridge
