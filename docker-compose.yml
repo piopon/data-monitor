@@ -143,6 +143,33 @@ services:
     networks:
       - data-monitor-net
 
+  init:
+    image: curlimages/curl:8.11.1
+    container_name: data-monitor-init
+    restart: "no"
+    depends_on:
+      web:
+        condition: service_healthy
+    command: >-
+      sh -c '
+        attempts=0;
+        until [ "$$attempts" -ge 30 ]; do
+          code=$$(curl -sS -o /tmp/init-response -w "%{http_code}" http://web:3000/api/init || true);
+          if [ "$$code" = "200" ]; then
+            echo "Init endpoint completed successfully.";
+            cat /tmp/init-response;
+            exit 0;
+          fi;
+          attempts=$$((attempts+1));
+          echo "Init attempt $$attempts failed with HTTP $$code. Retrying in 5s...";
+          sleep 5;
+        done;
+        echo "Init failed after 30 attempts.";
+        exit 1;
+      '
+    networks:
+      - data-monitor-net
+
 volumes:
   postgres-data:
   users-data:
