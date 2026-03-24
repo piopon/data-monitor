@@ -71,6 +71,9 @@ jobs:
             eslint.config.mjs \
             jsconfig.json \
             postcss.config.mjs \
+            Dockerfile \
+            .dockerignore \
+            docker-compose.yml \
             README.md \
             LICENSE \
             public \

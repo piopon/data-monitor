@@ -1,0 +1,182 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: data-monitor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-data_monitor}
+      POSTGRES_USER: ${DB_USER:-data_monitor}
+      POSTGRES_PASSWORD: ${DB_PASS:?Set DB_PASS in your .env file}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-data_monitor} -d ${DB_NAME:-data_monitor}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - data-monitor-net
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: data-monitor:local
+    container_name: data-monitor-web
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # node env vars
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      DB_PASSWORD: ${DB_PASS:?Set DB_PASS in your .env file}
+      # application env vars
+      SERVER_URL: web
+      SERVER_PORT: 3000
+      INIT_ON_START: "false"
+      NEXT_PUBLIC_SCRAPER_URL: ${NEXT_PUBLIC_SCRAPER_URL:-data_monitor}
+      SCRAPER_HOST: ${SCRAPER_HOST:-host.docker.internal}
+      SCRAPER_PORT: ${SCRAPER_PORT:-5000}
+      SCRAPER_URL_LOGIN: ${SCRAPER_URL_LOGIN:-data_monitor}
+      SCRAPER_URL_LOGOUT: ${SCRAPER_URL_LOGOUT:-data_monitor}
+      SCRAPER_URL_DATA: ${SCRAPER_URL_DATA:-data_monitor}
+      SCRAPER_URL_ITEMS: ${SCRAPER_URL_ITEMS:-data_monitor}
+      SCRAPER_URL_EDIT: ${SCRAPER_URL_EDIT:-data_monitor}
+      SCRAPER_URL_FEATURES: ${SCRAPER_URL_FEATURES:-data_monitor}
+      DB_USER: ${DB_USER:-data_monitor}
+      DB_PASS: ${DB_PASS:?Set DB_PASS in your .env file}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-data_monitor}
+      CRYPTO_SECRET: ${CRYPTO_SECRET:?Set CRYPTO_SECRET in your .env file}
+      CRYPTO_LEGACY_SECRETS: ${CRYPTO_LEGACY_SECRETS:-}
+      CRYPTO_MIGRATE_ON_INIT: ${CRYPTO_MIGRATE_ON_INIT:-true}
+      CRYPTO_REENCRYPT_ON_INIT: ${CRYPTO_REENCRYPT_ON_INIT:-false}
+      CHECK_INTERVAL: ${CHECK_INTERVAL:-60000}
+      CHECK_DELAY: ${CHECK_DELAY:-5000}
+      CHECK_WAIT: ${CHECK_WAIT:-1000}
+      CHECK_NOTIFY: ${CHECK_NOTIFY:-3600000}
+      CHECK_MONITOR_CONCURRENCY: ${CHECK_MONITOR_CONCURRENCY:-10}
+      NOTIFIER_DISCORD_HOOK: ${NOTIFIER_DISCORD_HOOK:-}
+      NOTIFIER_DISCORD_NAME: ${NOTIFIER_DISCORD_NAME:-data-monitor}
+      NOTIFIER_DISCORD_AVATAR: ${NOTIFIER_DISCORD_AVATAR:-}
+      NOTIFIER_MAIL_SERVICE: ${NOTIFIER_MAIL_SERVICE:-}
+      NOTIFIER_MAIL_ADDRESS: ${NOTIFIER_MAIL_ADDRESS:-}
+      NOTIFIER_MAIL_PASSWORD: ${NOTIFIER_MAIL_PASSWORD:-}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-8000}
+      REQUEST_RETRIES: ${REQUEST_RETRIES:-2}
+      REQUEST_RETRY_DELAY: ${REQUEST_RETRY_DELAY:-250}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    volumes:
+      - users-data:/app/users
+    networks:
+      - data-monitor-net
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: data-monitor:local
+    container_name: data-monitor-worker
+    restart: unless-stopped
+    command: ["node", "./src/lib/DataWorker.js"]
+    depends_on:
+      web:
+        condition: service_healthy
+      init:
+        condition: service_completed_successfully
+    environment:
+      # node env vars
+      NODE_ENV: production
+      DB_PASSWORD: ${DB_PASS:?Set DB_PASS in your .env file}
+      # application env vars
+      SERVER_URL: web
+      SERVER_PORT: 3000
+      NEXT_PUBLIC_SCRAPER_URL: ${NEXT_PUBLIC_SCRAPER_URL:-data_monitor}
+      SCRAPER_HOST: ${SCRAPER_HOST:-host.docker.internal}
+      SCRAPER_PORT: ${SCRAPER_PORT:-5000}
+      SCRAPER_URL_LOGIN: ${SCRAPER_URL_LOGIN:-data_monitor}
+      SCRAPER_URL_LOGOUT: ${SCRAPER_URL_LOGOUT:-data_monitor}
+      SCRAPER_URL_DATA: ${SCRAPER_URL_DATA:-data_monitor}
+      SCRAPER_URL_ITEMS: ${SCRAPER_URL_ITEMS:-data_monitor}
+      SCRAPER_URL_EDIT: ${SCRAPER_URL_EDIT:-data_monitor}
+      SCRAPER_URL_FEATURES: ${SCRAPER_URL_FEATURES:-data_monitor}
+      DB_USER: ${DB_USER:-data_monitor}
+      DB_PASS: ${DB_PASS:?Set DB_PASS in your .env file}
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-data_monitor}
+      CRYPTO_SECRET: ${CRYPTO_SECRET:?Set CRYPTO_SECRET in your .env file}
+      CRYPTO_LEGACY_SECRETS: ${CRYPTO_LEGACY_SECRETS:-}
+      CRYPTO_MIGRATE_ON_INIT: ${CRYPTO_MIGRATE_ON_INIT:-true}
+      CRYPTO_REENCRYPT_ON_INIT: ${CRYPTO_REENCRYPT_ON_INIT:-false}
+      CHECK_INTERVAL: ${CHECK_INTERVAL:-60000}
+      CHECK_DELAY: ${CHECK_DELAY:-5000}
+      CHECK_WAIT: ${CHECK_WAIT:-1000}
+      CHECK_NOTIFY: ${CHECK_NOTIFY:-3600000}
+      CHECK_MONITOR_CONCURRENCY: ${CHECK_MONITOR_CONCURRENCY:-10}
+      NOTIFIER_DISCORD_HOOK: ${NOTIFIER_DISCORD_HOOK:-}
+      NOTIFIER_DISCORD_NAME: ${NOTIFIER_DISCORD_NAME:-data-monitor}
+      NOTIFIER_DISCORD_AVATAR: ${NOTIFIER_DISCORD_AVATAR:-}
+      NOTIFIER_MAIL_SERVICE: ${NOTIFIER_MAIL_SERVICE:-}
+      NOTIFIER_MAIL_ADDRESS: ${NOTIFIER_MAIL_ADDRESS:-}
+      NOTIFIER_MAIL_PASSWORD: ${NOTIFIER_MAIL_PASSWORD:-}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-8000}
+      REQUEST_RETRIES: ${REQUEST_RETRIES:-2}
+      REQUEST_RETRY_DELAY: ${REQUEST_RETRY_DELAY:-250}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - users-data:/app/users
+    networks:
+      - data-monitor-net
+
+  init:
+    image: curlimages/curl:8.11.1
+    container_name: data-monitor-init
+    restart: "no"
+    depends_on:
+      web:
+        condition: service_healthy
+    command: >-
+      sh -c '
+        attempts=0;
+        until [ "$$attempts" -ge 30 ]; do
+          code=$$(curl -sS -o /tmp/init-response -w "%{http_code}" http://web:3000/api/init || true);
+          if [ "$$code" = "200" ]; then
+            echo "Init endpoint completed successfully.";
+            cat /tmp/init-response;
+            exit 0;
+          fi;
+          attempts=$$((attempts+1));
+          echo "Init attempt $$attempts failed with HTTP $$code. Retrying in 5s...";
+          sleep 5;
+        done;
+        echo "Init failed after 30 attempts.";
+        exit 1;
+      '
+    networks:
+      - data-monitor-net
+
+volumes:
+  postgres-data:
+  users-data:
+
+networks:
+  data-monitor-net:
+    driver: bridge
