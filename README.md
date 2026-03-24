@@ -73,7 +73,7 @@ NOTIFIER_MAIL_ADDRESS=
 NOTIFIER_MAIL_PASSWORD=
 
 # RETRY FETCHING SETTINGS
-REQUEST_TIMEOUT=8_000
+REQUEST_TIMEOUT=8000
 REQUEST_RETRIES=2
 REQUEST_RETRY_DELAY=250
 ```
@@ -100,7 +100,7 @@ docker compose logs -f web
 docker compose logs -f worker
 ```
 
-By default, web app is exposed on `http://localhost:3000` (or custom `SERVER_PORT` from `.env`).
+By default, web app is exposed on `http://localhost:3000`.
 
 
 ## Sensitive data encryption key
