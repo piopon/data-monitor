@@ -38,6 +38,7 @@ services:
       # application env vars
       SERVER_URL: web
       SERVER_PORT: 3000
+      INIT_ON_START: "false"
       NEXT_PUBLIC_SCRAPER_URL: ${NEXT_PUBLIC_SCRAPER_URL:-data_monitor}
       SCRAPER_HOST: ${SCRAPER_HOST:-host.docker.internal}
       SCRAPER_PORT: ${SCRAPER_PORT:-5000}
@@ -97,6 +98,8 @@ services:
     depends_on:
       web:
         condition: service_healthy
+      init:
+        condition: service_completed_successfully
     environment:
       # node env vars
       NODE_ENV: production
