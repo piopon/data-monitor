@@ -1,0 +1,90 @@
+name: CD data-monitor
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cd-data-monitor-${{ github.event.release.tag_name || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --include=optional
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run build
+        run: npm run build
+
+      - name: Run unit tests (if present)
+        run: npm run test --if-present
+
+  bundle:
+    name: Create Release Bundle
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve bundle tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+          else
+            echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build release archive
+        shell: bash
+        run: |
+          mkdir -p dist
+          tar -czf "dist/data-monitor-${BUNDLE_TAG}.tar.gz" \
+            package.json \
+            package-lock.json \
+            next.config.mjs \
+            eslint.config.mjs \
+            jsconfig.json \
+            postcss.config.mjs \
+            README.md \
+            LICENSE \
+            public \
+            src
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-monitor-${{ env.BUNDLE_TAG }}
+          path: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
+          if-no-files-found: error
+
+      - name: Attach archive to GitHub release
+        if: ${{ github.event_name == 'release' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
