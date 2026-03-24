@@ -11,6 +11,97 @@ When needed it can also be configured to use the predefined notifiers and send a
 > The only requirement is that the JSON structure must match the one described in the scraper documentation.
 > For more information check [this sample JSON file](https://github.com/piopon/web-scraper/blob/main/docs/json/data.json)
 
+## Docker compose self-host runbook
+
+This repository now includes a production-oriented Docker setup for self-hosted deployments.
+The compose stack starts these containers:
+
+- `postgres`: application database
+- `web`: Next.js production server
+- `worker`: background monitor/notifier process
+- `init`: DB initialization process
+
+### Quick start
+
+Create `.env` in the repository root with the following sample values:
+
+```env
+# CONNECTION PARAMETERS
+SERVER_URL=localhost
+SERVER_PORT=3000
+
+# MONITOR SERVICE
+INIT_ON_START=true
+
+# BACKEND SCRAPER SERVICE
+NEXT_PUBLIC_SCRAPER_URL=
+SCRAPER_HOST=localhost
+SCRAPER_PORT=5000
+SCRAPER_URL_LOGIN=/auth/token
+SCRAPER_URL_LOGOUT=/auth/logout
+SCRAPER_URL_DATA=/api/v1/data
+SCRAPER_URL_ITEMS=/api/v1/data/items
+SCRAPER_URL_EDIT=?challenge=
+SCRAPER_URL_FEATURES=/api/v1/settings/features
+
+# DATABASE SERVICE
+DB_USER=
+DB_PASS=
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=data-monitor
+
+# CRYPTOGRAPHY
+CRYPTO_SECRET=
+CRYPTO_LEGACY_SECRETS=
+CRYPTO_MIGRATE_ON_INIT=false
+CRYPTO_REENCRYPT_ON_INIT=false
+
+# DATA CHECK SETTINGS
+CHECK_INTERVAL=60000
+CHECK_DELAY=5000
+CHECK_WAIT=1000
+CHECK_NOTIFY=3600000
+CHECK_MONITOR_CONCURRENCY=5
+
+# NOTIFIERS SETTINGS
+NOTIFIER_DISCORD_HOOK=
+NOTIFIER_DISCORD_NAME=data-monitor
+NOTIFIER_DISCORD_AVATAR=
+NOTIFIER_MAIL_SERVICE=
+NOTIFIER_MAIL_ADDRESS=
+NOTIFIER_MAIL_PASSWORD=
+
+# RETRY FETCHING SETTINGS
+REQUEST_TIMEOUT=8_000
+REQUEST_RETRIES=2
+REQUEST_RETRY_DELAY=250
+```
+
+Remember to add ALL user/password/secret keys and don't share them with anyone.
+Also fill notifier section based on your needs.
+
+Then start the stack:
+
+```bash
+docker compose up --build -d
+```
+
+Useful commands:
+
+```bash
+# Check all containers
+docker compose ps
+
+# Follow web logs
+docker compose logs -f web
+
+# Follow worker logs
+docker compose logs -f worker
+```
+
+By default, web app is exposed on `http://localhost:3000` (or custom `SERVER_PORT` from `.env`).
+
 
 ## Sensitive data encryption key
 
