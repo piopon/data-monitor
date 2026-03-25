@@ -17,37 +17,9 @@ This repository is prepared for both local development and self-hosted deploymen
 > The only requirement is that the JSON structure must match the one described in the scraper documentation.
 > For more information check [this sample JSON file](https://github.com/piopon/web-scraper/blob/main/docs/json/data.json)
 
-## Release runbook
+## Docker self-host runbook
 
-Use this runbook when publishing and deploying a release.
-
-1. Ensure CI is green for the target commit/PR.
-2. Create a GitHub release (tag + publish).
-3. Wait for `CD data-monitor` workflow to finish successfully.
-4. Download the generated archive from the release assets.
-5. Extract the archive on the target host.
-6. Prepare `.env` with production values.
-7. Start services using Docker Compose:
-
-```bash
-docker compose up --build -d
-```
-
-8. Verify startup state:
-
-```bash
-docker compose ps
-docker compose logs -f init
-docker compose logs -f web
-docker compose logs -f worker
-```
-
-9. Validate application availability in browser and confirm notifications/worker behavior.
-10. If deployment fails, roll back to the previous release bundle and restart Compose with the previous version.
-
-## Docker compose self-host runbook
-
-This repository now includes a production-oriented Docker setup for self-hosted deployments.
+This repository includes a production-oriented Docker setup for self-hosted deployments.
 The compose stack starts these containers:
 
 - `postgres`: application database
@@ -177,6 +149,57 @@ CRYPTO_LEGACY_SECRETS=["old-secret-1","old-secret-2"]
 
 > [!IMPORTANT]
 > Keep legacy secrets configured until all encrypted rows are re-encrypted and all running instances use the new active secret.
+
+## Release runbook
+
+Use this runbook when publishing and deploying a release.
+
+1. Ensure CI is green for the target commit/PR.
+2. Create a GitHub release (tag + publish).
+3. Wait for `CD data-monitor` workflow to finish successfully.
+4. Download the generated archive from the release assets.
+5. Extract the archive on the target host.
+6. Prepare `.env` with production values.
+7. Start services using Docker Compose:
+
+```bash
+docker compose up --build -d
+```
+
+8. Verify startup state:
+
+```bash
+docker compose ps
+docker compose logs -f init
+docker compose logs -f web
+docker compose logs -f worker
+```
+
+9. Validate application availability in browser and confirm notifications/worker behavior.
+10. If deployment fails, roll back to the previous release bundle and restart Compose with the previous version.
+
+## Project structure
+
+Top-level structure (one level below root):
+
+- `src/`: application source code (app routes, API handlers, components, context providers, models, utilities, notifier implementations, and UI views/widgets).
+- `public/`: static assets served by Next.js.
+- `assets/`: repository assets used by the project.
+- `users/`: runtime worker timestamp files persisted per user.
+- `data_test/`: HTTP request collections and manual test data.
+- `.github/workflows/`: CI/CD workflow definitions.
+- `Dockerfile`: container image definition for the app runtime.
+- `docker-compose.yml`: self-host deployment stack (postgres, web, worker, init).
+- `.dockerignore`: Docker build context exclusions.
+- `README.md`: project documentation and operational runbooks.
+- `package.json`: scripts and dependency definitions.
+- `package-lock.json`: locked dependency tree for reproducible installs.
+- `next.config.mjs`: Next.js runtime/build configuration.
+- `eslint.config.mjs`: linting configuration.
+- `postcss.config.mjs`: CSS/PostCSS pipeline configuration.
+- `jsconfig.json`: path aliasing and editor tooling configuration.
+- `LICENSE`: repository license.
+- `CODEOWNERS`: code ownership and review routing.
 
 ---
 <p align="center">Created by PNK with ❤ @ 2025-2026</p>
