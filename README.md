@@ -32,63 +32,64 @@ The compose stack starts these containers:
 Create `.env` in the repository root with the following sample values:
 
 ```env
-# CONNECTION PARAMETERS
-SERVER_URL=localhost
-SERVER_PORT=3000
+# ------------------------------------------------- CONNECTION PARAMETERS
+SERVER_URL=localhost                                # service address
+SERVER_PORT=3000                                    # service port number
 
-# MONITOR SERVICE
-INIT_ON_START=true
+# ------------------------------------------------- MONITOR SERVICE
+INIT_ON_START=true                                  # should DB init be done on service start
 
-# BACKEND SCRAPER SERVICE
-NEXT_PUBLIC_SCRAPER_URL=
-SCRAPER_HOST=localhost
-SCRAPER_PORT=5000
-SCRAPER_URL_LOGIN=/auth/token
-SCRAPER_URL_LOGOUT=/auth/logout
-SCRAPER_URL_DATA=/api/v1/data
-SCRAPER_URL_ITEMS=/api/v1/data/items
-SCRAPER_URL_EDIT=?challenge=
-SCRAPER_URL_FEATURES=/api/v1/settings/features
+# ------------------------------------------------- BACKEND SCRAPER SERVICE
+NEXT_PUBLIC_SCRAPER_URL=                            # URL used in scraper link menu button
+SCRAPER_HOST=localhost                              # scraper IP address for internal communication
+SCRAPER_PORT=5000                                   # scraper port number for internal communication
+SCRAPER_URL_LOGIN=/auth/token                       # endpoint for scraper login
+SCRAPER_URL_LOGOUT=/auth/logout                     # endpoint for scraper logout
+SCRAPER_URL_DATA=/api/v1/data                       # endpoint for retrieving all scraper data
+SCRAPER_URL_ITEMS=/api/v1/data/items                # endpoint for retrieving scraper data items
+SCRAPER_URL_EDIT=?challenge=                        # endpoint for scraper edit menu
+SCRAPER_URL_FEATURES=/api/v1/settings/features      # endpoint for retrieving scraper feature list
 
-# DATABASE SERVICE
-DB_USER=
-DB_PASS=
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=data-monitor
+# ------------------------------------------------- DATABASE SERVICE
+DB_USER=                                            # database user (authentication)
+DB_PASS=                                            # database password (authentication)
+DB_HOST=localhost                                   # the IP address for database
+DB_PORT=5432                                        # the port for database connection
+DB_NAME=data-monitor                                # the name of the database
 
-# CRYPTOGRAPHY
-CRYPTO_SECRET=
-CRYPTO_LEGACY_SECRETS=
-CRYPTO_MIGRATE_ON_INIT=false
-CRYPTO_REENCRYPT_ON_INIT=false
+# ------------------------------------------------- CRYPTOGRAPHY
+CRYPTO_SECRET=                                      # encoding/decoding secret key
+CRYPTO_LEGACY_SECRETS=                              # comma-separated list of old secret keys (rotation)
+CRYPTO_MIGRATE_ON_INIT=false                        # should plain sensitive data be encoded at init
+CRYPTO_REENCRYPT_ON_INIT=false                      # should re-encription be invoked at init
 
-# DATA CHECK SETTINGS
-CHECK_INTERVAL=60000
-CHECK_DELAY=5000
-CHECK_WAIT=1000
-CHECK_NOTIFY=3600000
-CHECK_MONITOR_CONCURRENCY=5
+# ------------------------------------------------- DATA CHECK SETTINGS
+CHECK_INTERVAL=60000                                # monitor worker runtime interval (ms)
+CHECK_DELAY=5000                                    # worker's delay for service alive check (ms)
+CHECK_WAIT=1000                                     # worker's service alive check interal (ms)
+CHECK_NOTIFY=3600000                                # global notify timeframe window (ms)
+CHECK_MONITOR_CONCURRENCY=5                         # number of concurrently running monitors
 
-# NOTIFIERS SETTINGS
-NOTIFIER_DISCORD_HOOK=
-NOTIFIER_DISCORD_NAME=data-monitor
-NOTIFIER_DISCORD_AVATAR=
-NOTIFIER_MAIL_SERVICE=
-NOTIFIER_MAIL_ADDRESS=
-NOTIFIER_MAIL_PASSWORD=
+# ------------------------------------------------- NOTIFIERS SETTINGS
+NOTIFIER_DISCORD_HOOK=                              # URL address for Discord notifier
+NOTIFIER_DISCORD_NAME=data-monitor                  # Discord notifier bot name
+NOTIFIER_DISCORD_AVATAR=                            # Discord notifier bot avatar
+NOTIFIER_MAIL_SERVICE=                              # E-mail notifier service name
+NOTIFIER_MAIL_ADDRESS=                              # E-mail notifier sender email
+NOTIFIER_MAIL_PASSWORD=                             # E-mail notifier sender password
 
-# RETRY FETCHING SETTINGS
-REQUEST_TIMEOUT=8000
-REQUEST_RETRIES=2
-REQUEST_RETRY_DELAY=250
+# ------------------------------------------------- RETRY FETCHING SETTINGS
+REQUEST_TIMEOUT=8000                                # Default timeout for retrying requests (ms)
+REQUEST_RETRIES=2                                   # Number of request retries
+REQUEST_RETRY_DELAY=250                             # Delay time between request retries (ms)
 ```
 
 `INIT_ON_START=true` in this sample is mainly for local non-Docker development convenience.
 When running through Docker Compose, web service forces `INIT_ON_START=false` and relies on the dedicated `init` container.
 
-Remember to add ALL user/password/secret keys and don't share them with anyone.
-Also fill notifier section based on your needs.
+> [!IMPORTANT]
+> Remember to **add ALL user/password/secret keys** and <ins>don't share them with anyone</ins>.
+> Also fill notifier section based on your needs.
 
 Then start the stack:
 
@@ -194,26 +195,26 @@ docker compose logs -f worker
 
 ## Project structure
 
-Top-level structure (one level below root):
-
-- `src/`: application source code (app routes, API handlers, components, context providers, models, utilities, notifier implementations, and UI views/widgets).
-- `public/`: static assets served by Next.js.
-- `assets/`: repository assets used by the project.
-- `users/`: runtime worker timestamp files persisted per user.
-- `data_test/`: HTTP request collections and manual test data.
-- `.github/workflows/`: CI/CD workflow definitions.
-- `Dockerfile`: container image definition for the app runtime.
-- `docker-compose.yml`: self-host deployment stack (postgres, web, worker, init).
-- `.dockerignore`: Docker build context exclusions.
-- `README.md`: project documentation and operational runbooks.
-- `package.json`: scripts and dependency definitions.
-- `package-lock.json`: locked dependency tree for reproducible installs.
-- `next.config.mjs`: Next.js runtime/build configuration.
-- `eslint.config.mjs`: linting configuration.
-- `postcss.config.mjs`: CSS/PostCSS pipeline configuration.
-- `jsconfig.json`: path aliasing and editor tooling configuration.
-- `LICENSE`: repository license.
-- `CODEOWNERS`: code ownership and review routing.
+```
+data-monitor/
+├── .github/workflows/     # GitHub CI/CD workflow definitions.
+├── .vscode/               # VS Code settings related to Tailwind CSS syntax
+├── public/                # static assets served by Next.js.
+├── src/                   # application source code
+├── .dockerignore          # List of files ignored by Docker
+├── .gitignore             # List of files ignored by GIT
+├── CODEOWNERS             # List of code owners and review routing.
+├── docker-compose.yml     # Docker self-host deployment stack (postgres, web, worker, init)
+├── Dockerfile             # Docker container image definition for the app runtime
+├── eslint.config.mjs      # Linting configuration
+├── jsconfig.json          # Path aliasing and editor tooling configuration.
+├── LICENSE                # GPL-2.0 license description
+├── next.config.mjs        # Next.js runtime/build configuration.
+├── package-lock.json      # Node.js snapshot of the dependency tree
+├── package.json           # Node.js project metadata (scripts and dependency definitions)
+├── postcss.config.mjs     # CSS/PostCSS pipeline configuration.
+└── README.md              # Top-level project description and operational runbooks
+```
 
 ## Contributing 🤝
 
