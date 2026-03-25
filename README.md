@@ -215,5 +215,21 @@ Top-level structure (one level below root):
 - `LICENSE`: repository license.
 - `CODEOWNERS`: code ownership and review routing.
 
+## Contributing 🤝
+
+Contributions are welcome! To contribute:
+- Fork the repository.
+- Create a new branch for your feature or bugfix.
+- Submit a pull request with a clear description of your changes.
+
+## License 📜
+
+This project is licensed under the GPL-2.0 license.
+See the [LICENSE](./LICENSE) file for details.
+
+## Contact 💬
+
+For questions or suggestions, feel free to contact me through GitHub or via [email](mailto:piopon.github@gmail.com).
+
 ---
 <p align="center">Created by PNK with ❤ @ 2025-2026</p>
