@@ -17,7 +17,7 @@ This repository is prepared for both local development and self-hosted deploymen
 > The only requirement is that the JSON structure must match the one described in the scraper documentation.
 > For more information check [this sample JSON file](https://github.com/piopon/web-scraper/blob/main/docs/json/data.json)
 
-## Docker self-host runbook
+## Docker self-host runbook 🐳
 
 This repository includes a production-oriented Docker setup for self-hosted deployments.
 The compose stack starts these containers:
@@ -27,7 +27,7 @@ The compose stack starts these containers:
 - `worker`: background monitor/notifier process
 - `init`: DB initialization process
 
-### Quick start
+### Quick start ⚡
 
 Create `.env` in the repository root with the following sample values:
 
@@ -112,7 +112,7 @@ docker compose logs -f worker
 
 By default, web app is exposed on `http://localhost:3000`.
 
-### Dev mode vs Docker mode
+### Dev mode vs Docker mode 💻
 
 Use one of the two run modes depending on your goal.
 
@@ -124,7 +124,7 @@ Important behavior note:
 - In Docker Compose, `INIT_ON_START` is forced to `false` for the `web` service, so root-page init is disabled there by design.
 - In local non-Docker runs, `INIT_ON_START` can be enabled when you want convenient auto-init during development.
 
-## Sensitive data encryption key
+## Sensitive data encryption key 🔐
 
 To encrypt database fields containing secrets, configure this environment variable before running the app:
 
@@ -135,7 +135,7 @@ CRYPTO_SECRET=<long-random-secret-value>
 Use a long, random value and keep it private. The application derives the encryption key for sensitive model fields from this value.
 Losing this secret results in irreversible loss of access to encrypted data, so keep a secure backup.
 
-### Optional migration and rotation flags
+### Optional migration and rotation flags 🔏
 
 ```bash
 # Run plaintext -> encrypted migration on init (default: true)
@@ -152,7 +152,7 @@ CRYPTO_LEGACY_SECRETS=old-secret-1,old-secret-2
 CRYPTO_LEGACY_SECRETS=["old-secret-1","old-secret-2"]
 ```
 
-### Secret rotation runbook
+### Secret rotation runbook 📑
 
 1. Generate a new long random secret and set it as `CRYPTO_SECRET`.
 2. Put previous secret values in `CRYPTO_LEGACY_SECRETS`.
@@ -165,7 +165,7 @@ CRYPTO_LEGACY_SECRETS=["old-secret-1","old-secret-2"]
 > [!IMPORTANT]
 > Keep legacy secrets configured until all encrypted rows are re-encrypted and all running instances use the new active secret.
 
-## Release runbook
+## Release runbook 📝
 
 Use this runbook when publishing and deploying a release.
 
@@ -193,7 +193,7 @@ docker compose logs -f worker
 9. Validate application availability in browser and confirm notifications/worker behavior.
 10. If deployment fails, roll back to the previous release bundle and restart Compose with the previous version.
 
-## Project structure
+## Project structure 📊
 
 ```
 data-monitor/
