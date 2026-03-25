@@ -1,15 +1,49 @@
 # data-monitor
 
-> [!WARNING]
-> This repository is currently under heavy development and currently this readme file documentation presents only the idea of the logic in the wish-list form.
+Data Monitor is a Next.js application for tracking external data sources (for example data from the [scraper backend service](https://github.com/piopon/web-scraper)), defining threshold-based monitors, and sending notifications when configured conditions are met.
 
-This single page application is used to display the data provided by the [scraper backend service](https://github.com/piopon/web-scraper) in a minimalist form factor.
-When needed it can also be configured to use the predefined notifiers and send a message when the received data values meet the defined criterias. For example: when the received data represent a price value then we can send a notification message when this price is lower than a specific threshold.
+The project combines:
+
+- data retrieval through backend API routes
+- monitor configuration and threshold checks
+- notifier integrations (for example Discord and email)
+- a background worker for periodic checks
+- PostgreSQL persistence and encrypted storage of sensitive fields
+
+This repository is prepared for both local development and self-hosted deployments, including GitHub CI/CD workflows and Docker Compose runtime setup.
 
 > [!TIP]
 > Although it's explicitly stated that the scraper service is used as the data provider, this application can use any REST API server as its backend.
 > The only requirement is that the JSON structure must match the one described in the scraper documentation.
 > For more information check [this sample JSON file](https://github.com/piopon/web-scraper/blob/main/docs/json/data.json)
+
+## Release runbook
+
+Use this runbook when publishing and deploying a release.
+
+1. Ensure CI is green for the target commit/PR.
+2. Create a GitHub release (tag + publish).
+3. Wait for `CD data-monitor` workflow to finish successfully.
+4. Download the generated archive from the release assets.
+5. Extract the archive on the target host.
+6. Prepare `.env` with production values.
+7. Start services using Docker Compose:
+
+```bash
+docker compose up --build -d
+```
+
+8. Verify startup state:
+
+```bash
+docker compose ps
+docker compose logs -f init
+docker compose logs -f web
+docker compose logs -f worker
+```
+
+9. Validate application availability in browser and confirm notifications/worker behavior.
+10. If deployment fails, roll back to the previous release bundle and restart Compose with the previous version.
 
 ## Docker compose self-host runbook
 
