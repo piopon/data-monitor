@@ -84,6 +84,9 @@ REQUEST_RETRIES=2
 REQUEST_RETRY_DELAY=250
 ```
 
+`INIT_ON_START=true` in this sample is mainly for local non-Docker development convenience.
+When running through Docker Compose, web service forces `INIT_ON_START=false` and relies on the dedicated `init` container.
+
 Remember to add ALL user/password/secret keys and don't share them with anyone.
 Also fill notifier section based on your needs.
 
@@ -108,6 +111,17 @@ docker compose logs -f worker
 
 By default, web app is exposed on `http://localhost:3000`.
 
+### Dev mode vs Docker mode
+
+Use one of the two run modes depending on your goal.
+
+- Dev mode (`npm run dev`): best for local coding with hot reload and fast iteration. In this mode you can set `INIT_ON_START=true` in local `.env` so the home route can trigger `/api/init` automatically.
+- Docker mode (`docker compose up`): best for self-hosting and production-like validation. In this mode startup bootstrap is handled by the `init` service and worker waits for successful init.
+
+Important behavior note:
+
+- In Docker Compose, `INIT_ON_START` is forced to `false` for the `web` service, so root-page init is disabled there by design.
+- In local non-Docker runs, `INIT_ON_START` can be enabled when you want convenient auto-init during development.
 
 ## Sensitive data encryption key
 
