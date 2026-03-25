@@ -58,15 +58,15 @@ DB_PORT=5432                                        # the port for database conn
 DB_NAME=data-monitor                                # the name of the database
 
 # ------------------------------------------------- CRYPTOGRAPHY
-CRYPTO_SECRET=                                      # encoding/decoding secret key
-CRYPTO_LEGACY_SECRETS=                              # comma-separated list of old secret keys (rotation)
-CRYPTO_MIGRATE_ON_INIT=false                        # should plain sensitive data be encoded at init
-CRYPTO_REENCRYPT_ON_INIT=false                      # should re-encription be invoked at init
+CRYPTO_SECRET=                                      # primary secret for AES-256-GCM encryption/decryption
+CRYPTO_LEGACY_SECRETS=                              # comma-separated list of previous secrets (rotation)
+CRYPTO_MIGRATE_ON_INIT=false                        # should plain sensitive data be encrypted at init
+CRYPTO_REENCRYPT_ON_INIT=false                      # should re-encryption be invoked at init
 
 # ------------------------------------------------- DATA CHECK SETTINGS
 CHECK_INTERVAL=60000                                # monitor worker runtime interval (ms)
 CHECK_DELAY=5000                                    # worker's delay for service alive check (ms)
-CHECK_WAIT=1000                                     # worker's service alive check interal (ms)
+CHECK_WAIT=1000                                     # worker's service alive check interval (ms)
 CHECK_NOTIFY=3600000                                # global notify timeframe window (ms)
 CHECK_MONITOR_CONCURRENCY=5                         # number of concurrently running monitors
 
@@ -138,7 +138,7 @@ Losing this secret results in irreversible loss of access to encrypted data, so 
 ### Optional migration and rotation flags 🔏
 
 ```bash
-# Run plaintext -> encrypted migration on init (default: true)
+# Run plaintext -> encrypted migration on init (default: false)
 CRYPTO_MIGRATE_ON_INIT=true
 
 # Re-encrypt already encrypted values with current CRYPTO_SECRET on init (default: false)
