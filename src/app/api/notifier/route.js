@@ -1,6 +1,7 @@
 import { NotifierService } from "@/model/NotifierService";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
+import { AppConfig } from "@/config/AppConfig";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
 
@@ -43,6 +44,42 @@ function getSafeNotifier(notifier) {
     origin: notifier.origin ? PRIVATE_PLACEHOLDER : "",
     password: notifier.password ? PRIVATE_PLACEHOLDER : "",
   };
+}
+
+/**
+ * Method used to map database notifier record into runtime notifier configuration
+ * @param {Object} notifier Notifier row loaded from database
+ * @returns notifier runtime configuration object
+ */
+function toNotifierRuntimeConfig(notifier) {
+  if (notifier.type === "discord") {
+    return {
+      webhook: notifier.origin,
+      name: notifier.sender,
+      avatar: AppConfig.getConfig().notifier.discord.avatar,
+    };
+  }
+  if (notifier.type === "email") {
+    return {
+      service: notifier.origin,
+      address: notifier.sender,
+      password: notifier.password,
+    };
+  }
+  throw new Error(`Unsupported notifier type: ${notifier.type}`);
+}
+
+/**
+ * Method used to load notifier configuration from database for notification send operation
+ * @param {String} notifierType Notifier type requested by API caller
+ * @returns notifier configuration object prepared for runtime notifier instance
+ */
+async function getNotifierRuntimeConfig(notifierType) {
+  const notifiers = await NotifierService.filterNotifiers({ type: notifierType });
+  if (notifiers.length === 0) {
+    throw new Error(`Cannot find configured '${notifierType}' notifier.`);
+  }
+  return toNotifierRuntimeConfig(notifiers[0]);
 }
 
 /**
@@ -96,7 +133,8 @@ export async function POST(request) {
     // if 'type' parameter is provided then we want to send notification message
     if (notifierType) {
       const notifierInfo = NotifierCatalog.getClassInfo(notifierType);
-      const notifier = NotifierRegistry.create(notifierInfo);
+      const notifierConfig = await getNotifierRuntimeConfig(notifierType);
+      const notifier = NotifierRegistry.create(notifierInfo, notifierConfig);
       const notifierData = await request.json();
       const res = await notifier.notify(notifierData);
       return new Response(JSON.stringify(res.info), {

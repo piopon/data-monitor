@@ -246,7 +246,7 @@ async function checkData(user) {
                   let notifyResponse;
                   try {
                     notifyResponse = await RequestUtils.fetchWithRetry(
-                      `${SERVER_ADDRESS}/api/notifier?type=${notifier}`,
+                      `${SERVER_ADDRESS}/api/notifier?type=${encodeURIComponent(notifier)}`,
                       {
                         method: "POST",
                         body: JSON.stringify({

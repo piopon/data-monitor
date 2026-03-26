@@ -1,4 +1,3 @@
-import { AppConfig } from "../../config/AppConfig.js";
 import { DiscordNotifier } from "../DiscordNotifier.js";
 import { MailNotifier } from "../MailNotifier.js";
 
@@ -10,24 +9,22 @@ export class NotifierRegistry {
     MailNotifier,
     DiscordNotifier,
   };
-  static #INSTANCES = new Map();
-  static #CONFIG = AppConfig.getConfig().notifier;
 
   /**
    * Method used to create a concrete notifier instance based on the provided information
    * @param {Object} classInfo Notifier class information containing type and config data
+   * @param {Object} config Runtime notifier configuration loaded from database
    * @returns a concrete notifier object based on the provided information
    */
-  static create(classInfo) {
-    if (!NotifierRegistry.#INSTANCES.has(classInfo.type)) {
-      const NotifierClass = NotifierRegistry.#REGISTRY[classInfo.type];
-      if (!NotifierClass) {
-        throw new Error(`Not registered notifier type: ${classInfo.type}`);
-      }
-      const config = NotifierRegistry.#CONFIG[classInfo.config];
-      NotifierRegistry.#INSTANCES.set(classInfo.type, new NotifierClass(config));
+  static create(classInfo, config) {
+    const NotifierClass = NotifierRegistry.#REGISTRY[classInfo.type];
+    if (!NotifierClass) {
+      throw new Error(`Not registered notifier type: ${classInfo.type}`);
     }
-    return NotifierRegistry.#INSTANCES.get(classInfo.type);
+    if (config == null) {
+      throw new Error(`Missing notifier config for type: ${classInfo.type}`);
+    }
+    return new NotifierClass(config);
   }
 
   /**

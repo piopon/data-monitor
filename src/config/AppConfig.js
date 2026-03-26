@@ -21,22 +21,15 @@ export class AppConfig {
       database: {
         host: process.env.DB_HOST || "localhost",
         name: process.env.DB_NAME || "data-monitor",
-        port: parseInt(process.env.DB_PORT) || 27017,
+        port: parseInt(process.env.DB_PORT || "5432", 10),
         user: process.env.DB_USER || "",
-        password: process.env.DB_PASSWORD || "",
+        password: process.env.DB_PASS || "",
       },
       notifier: {
-        email: {
-          service: process.env.NOTIFIER_MAIL_SERVICE || "gmail",
-          address: process.env.NOTIFIER_MAIL_ADDRESS || "",
-          password: process.env.NOTIFIER_MAIL_PASSWORD || "",
-        },
         discord: {
-          name: process.env.NOTIFIER_DISCORD_NAME || "data-monitor",
           avatar: process.env.NOTIFIER_DISCORD_AVATAR || "",
-          webhook: process.env.NOTIFIER_DISCORD_HOOK || "",
-        }
-      }
+        },
+      },
     };
   }
 }
