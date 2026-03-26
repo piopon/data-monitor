@@ -9,7 +9,6 @@ export class NotifierRegistry {
     MailNotifier,
     DiscordNotifier,
   };
-  static #INSTANCES = new Map();
 
   /**
    * Method used to create a concrete notifier instance based on the provided information
@@ -25,10 +24,7 @@ export class NotifierRegistry {
     if (config == null) {
       throw new Error(`Missing notifier config for type: ${classInfo.type}`);
     }
-    if (!NotifierRegistry.#INSTANCES.has(classInfo.type)) {
-      NotifierRegistry.#INSTANCES.set(classInfo.type, new NotifierClass(config));
-    }
-    return NotifierRegistry.#INSTANCES.get(classInfo.type);
+    return new NotifierClass(config);
   }
 
   /**
