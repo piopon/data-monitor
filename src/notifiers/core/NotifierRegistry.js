@@ -18,12 +18,18 @@ export class NotifierRegistry {
    * @param {Object} classInfo Notifier class information containing type and config data
    * @returns a concrete notifier object based on the provided information
    */
-  static create(classInfo) {
+  static create(classInfo, configOverride = undefined) {
+    const NotifierClass = NotifierRegistry.#REGISTRY[classInfo.type];
+    if (!NotifierClass) {
+      throw new Error(`Not registered notifier type: ${classInfo.type}`);
+    }
+
+    // Runtime config is used for DB-backed notifier credentials and must not be cached.
+    if (configOverride != null) {
+      return new NotifierClass(configOverride);
+    }
+
     if (!NotifierRegistry.#INSTANCES.has(classInfo.type)) {
-      const NotifierClass = NotifierRegistry.#REGISTRY[classInfo.type];
-      if (!NotifierClass) {
-        throw new Error(`Not registered notifier type: ${classInfo.type}`);
-      }
       const config = NotifierRegistry.#CONFIG[classInfo.config];
       NotifierRegistry.#INSTANCES.set(classInfo.type, new NotifierClass(config));
     }
