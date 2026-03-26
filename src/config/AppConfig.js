@@ -21,7 +21,7 @@ export class AppConfig {
       database: {
         host: process.env.DB_HOST || "localhost",
         name: process.env.DB_NAME || "data-monitor",
-        port: parseInt(process.env.DB_PORT) || 27017,
+        port: parseInt(process.env.DB_PORT || "5432", 10),
         user: process.env.DB_USER || "",
         password: process.env.DB_PASS || "",
       },
