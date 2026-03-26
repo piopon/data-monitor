@@ -71,12 +71,7 @@ CHECK_NOTIFY=3600000                                # global notify timeframe wi
 CHECK_MONITOR_CONCURRENCY=5                         # number of concurrently running monitors
 
 # ------------------------------------------------- NOTIFIERS SETTINGS
-NOTIFIER_DISCORD_HOOK=                              # URL address for Discord notifier
-NOTIFIER_DISCORD_NAME=data-monitor                  # Discord notifier bot name
 NOTIFIER_DISCORD_AVATAR=                            # Discord notifier bot avatar
-NOTIFIER_MAIL_SERVICE=                              # E-mail notifier service name
-NOTIFIER_MAIL_ADDRESS=                              # E-mail notifier sender email
-NOTIFIER_MAIL_PASSWORD=                             # E-mail notifier sender password
 
 # ------------------------------------------------- RETRY FETCHING SETTINGS
 REQUEST_TIMEOUT=8000                                # Default timeout for retrying requests (ms)
