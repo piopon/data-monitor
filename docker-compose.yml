@@ -34,7 +34,6 @@ services:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
       PORT: 3000
-      DB_PASSWORD: ${DB_PASS:?Set DB_PASS in your .env file}
       # application env vars
       SERVER_URL: web
       SERVER_PORT: 3000
@@ -98,7 +97,6 @@ services:
     environment:
       # node env vars
       NODE_ENV: production
-      DB_PASSWORD: ${DB_PASS:?Set DB_PASS in your .env file}
       # application env vars
       SERVER_URL: web
       SERVER_PORT: 3000
