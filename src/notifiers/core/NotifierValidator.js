@@ -1,4 +1,3 @@
-import { AppConfig } from "../../config/AppConfig.js";
 import { NotifierCatalog } from "./NotifierCatalog.js";
 import { NotifierRegistry } from "./NotifierRegistry.js";
 
@@ -11,15 +10,11 @@ export class NotifierValidator {
   static validateConfiguration() {
     const notifiersList = NotifierCatalog.getSupportedNotifiers();
     const notifiersRegistry = NotifierRegistry.getNotifiersRegistry();
-    const notifiersConfig = Object.keys(AppConfig.getConfig().notifier);
 
-    if (notifiersList.size !== notifiersRegistry.size || notifiersList.size !== notifiersConfig.length) {
-      return { result: false, info: `❌ Notifier config sizes mismatch.` };
+    if (notifiersList.size !== notifiersRegistry.size) {
+      return { result: false, info: `❌ Notifier registry size mismatch.` };
     }
     for (const [notifierId, className] of notifiersList.entries()) {
-      if (!notifiersConfig.includes(notifierId)) {
-        return { result: false, info: `❌ Missing config entry for notifier "${notifierId}".` };
-      }
       if (!notifiersRegistry.has(className)) {
         return { result: false, info: `❌ Missing backend class "${className}" for notifier "${notifierId}".` };
       }

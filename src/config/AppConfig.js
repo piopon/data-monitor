@@ -26,17 +26,10 @@ export class AppConfig {
         password: process.env.DB_PASSWORD || "",
       },
       notifier: {
-        email: {
-          service: process.env.NOTIFIER_MAIL_SERVICE || "gmail",
-          address: process.env.NOTIFIER_MAIL_ADDRESS || "",
-          password: process.env.NOTIFIER_MAIL_PASSWORD || "",
-        },
         discord: {
-          name: process.env.NOTIFIER_DISCORD_NAME || "data-monitor",
           avatar: process.env.NOTIFIER_DISCORD_AVATAR || "",
-          webhook: process.env.NOTIFIER_DISCORD_HOOK || "",
-        }
-      }
+        },
+      },
     };
   }
 }
