@@ -14,6 +14,9 @@ export class MonitorService {
       CREATE TABLE IF NOT EXISTS ${MonitorService.#DB_TABLE_NAME} (
         ${Monitor.getDatabaseSchema()}
       );`);
+      await DatabaseQuery(
+        `CREATE INDEX IF NOT EXISTS monitors_user_id_idx ON ${MonitorService.#DB_TABLE_NAME} (user_id);`
+      );
       return { result: true, message: `Initialized '${MonitorService.#DB_TABLE_NAME}' table.` };
     } catch (error) {
       return {
@@ -29,39 +32,40 @@ export class MonitorService {
    * @returns array of monitor objects matching filter expression
    */
   static async filterMonitors(filters) {
+    const input = filters || {};
     const values = [];
     const conditions = [];
 
-    if (filters.id) {
-      values.push(filters.id);
+    if (input.id != null) {
+      values.push(input.id);
       conditions.push(`id = $${values.length}`);
     }
-    if (filters.parent) {
-      values.push(filters.parent);
+    if (input.parent != null) {
+      values.push(input.parent);
       conditions.push(`parent = $${values.length}`);
     }
-    if (filters.enabled) {
-      values.push(filters.enabled);
+    if (input.enabled != null) {
+      values.push(input.enabled);
       conditions.push(`enabled = $${values.length}`);
     }
-    if (filters.interval) {
-      values.push(filters.interval);
+    if (input.interval != null) {
+      values.push(input.interval);
       conditions.push(`interval = $${values.length}`);
     }
-    if (filters.threshold) {
-      values.push(filters.threshold);
+    if (input.threshold != null) {
+      values.push(input.threshold);
       conditions.push(`threshold = $${values.length}`);
     }
-    if (filters.condition) {
-      values.push(filters.condition);
+    if (input.condition != null) {
+      values.push(input.condition);
       conditions.push(`condition = $${values.length}`);
     }
-    if (filters.notifier) {
-      values.push(filters.notifier);
+    if (input.notifier != null) {
+      values.push(input.notifier);
       conditions.push(`notifier_id = $${values.length}`);
     }
-    if (filters.user) {
-      values.push(filters.user);
+    if (input.user != null) {
+      values.push(input.user);
       conditions.push(`user_id = $${values.length}`);
     }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
