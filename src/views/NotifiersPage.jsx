@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
+import { RequestUtils } from "@/lib/RequestUtils";
 import NotifierCard from "@/components/NotifierCard";
 import EmptyCards from "@/components/EmptyCards";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
@@ -38,7 +39,8 @@ const NotifiersPage = () => {
         toast.error(`Missing user token, please re-login and try again.`);
         return;
       }
-      const notifiersResponse = await fetch(`/api/notifier?user=${user}`, { headers: getAuthHeaders() });
+      const notifiersUrl = RequestUtils.buildUrl("/api/notifier", { user });
+      const notifiersResponse = await fetch(notifiersUrl, { headers: getAuthHeaders() });
       const notifiersData = await notifiersResponse.json();
       if (!notifiersResponse.ok) {
         toast.error(notifiersData.message);

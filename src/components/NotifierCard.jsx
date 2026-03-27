@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { RequestUtils } from "@/lib/RequestUtils";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import Select from "@/widgets/Select";
 
@@ -17,8 +18,8 @@ const NotifierCard = ({ data, options, onChange, onDelete }) => {
     const notifier = { type: notifierType, origin: notifierOrigin, sender: notifierSender, password: notifierPass };
     try {
       const existing = data.id != null;
-      const optionalIdParam = existing ? `?id=${data.id}&user=${user}` : "";
-      const notifierResponse = await fetch(`/api/notifier${optionalIdParam}`, {
+      const notifierUrl = existing ? RequestUtils.buildUrl("/api/notifier", { id: data.id, user }) : "/api/notifier";
+      const notifierResponse = await fetch(notifierUrl, {
         method: existing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({ ...notifier, user }),
@@ -40,7 +41,8 @@ const NotifierCard = ({ data, options, onChange, onDelete }) => {
       if (data.id == null) {
         return;
       }
-      const notifierResponse = await fetch(`/api/notifier?id=${data.id}&user=${user}`, {
+      const notifierUrl = RequestUtils.buildUrl("/api/notifier", { id: data.id, user: data.user });
+      const notifierResponse = await fetch(notifierUrl, {
         method: "DELETE",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       });

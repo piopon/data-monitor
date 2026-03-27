@@ -5,6 +5,23 @@ export class RequestUtils {
   static #DEFAULT_RETRY_DELAY = 250;
 
   /**
+   * Method used to build request URL from base address and query parameters
+   * @param {String} baseUrl Base URL without query part
+   * @param {Object} queryParams Object with query key-value pairs
+   * @returns URL with encoded query string when parameters are provided
+   */
+  static buildUrl(baseUrl, queryParams = {}) {
+    const entries = Object.entries(queryParams).filter(([, value]) => value != null);
+    if (entries.length === 0) {
+      return baseUrl;
+    }
+    const query = entries
+      .map(([key, value]) => `${encodeURIComponent(String(key))}=${encodeURIComponent(String(value))}`)
+      .join("&");
+    return `${baseUrl}?${query}`;
+  }
+
+  /**
    * Method used to convert input value to number with fallback
    * @param {unknown} value Input value to be converted
    * @param {Number} fallback Number used when input cannot be converted

@@ -139,8 +139,12 @@ async function getNotifierType(monitor) {
   }
   let notifierResponse;
   try {
+    const notifierUrl = RequestUtils.buildUrl(`${SERVER_ADDRESS}/api/notifier`, {
+      id: notifierId,
+      user: user.id,
+    });
     notifierResponse = await RequestUtils.fetchWithRetry(
-      `${SERVER_ADDRESS}/api/notifier?id=${notifierId}&user=${encodeURIComponent(String(user.id))}`,
+      notifierUrl,
       {
         method: "GET",
         headers: { Authorization: `Bearer ${user.jwt}` },
@@ -251,10 +255,12 @@ async function checkData(user) {
                   const message = `Monitored value reached its threshold condition: ${condition}`;
                   let notifyResponse;
                   try {
+                    const notifyUrl = RequestUtils.buildUrl(`${SERVER_ADDRESS}/api/notifier`, {
+                      type: notifier,
+                      user: user.id,
+                    });
                     notifyResponse = await RequestUtils.fetchWithRetry(
-                      `${SERVER_ADDRESS}/api/notifier?type=${encodeURIComponent(notifier)}&user=${encodeURIComponent(
-                        String(user.id),
-                      )}`,
+                      notifyUrl,
                       {
                         method: "POST",
                         headers: { Authorization: `Bearer ${user.jwt}` },
