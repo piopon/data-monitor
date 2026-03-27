@@ -22,42 +22,38 @@ export class NotifierService {
   }
 
   /**
-   * Method used to receive all notifiers saved in database
-   * @returns array of notifier objects from database
-   */
-  static async getNotifiers() {
-    const { rows } = await DatabaseQuery(`SELECT * FROM ${NotifierService.#DB_TABLE_NAME}`);
-    return rows.map((row) => NotifierService.#toPublicNotifier(row));
-  }
-
-  /**
    * Method used to receive notifiers matching provided filter expression
    * @param {String} query expression used to filter notifier objects
    * @returns array of notifier objects matching filter expression
    */
   static async filterNotifiers(filters) {
+    const input = filters || {};
     const values = [];
     const conditions = [];
     let originFilter = undefined;
     let passwordFilter = undefined;
 
-    if (filters.id) {
-      values.push(filters.id);
+    if (input.id != null) {
+      values.push(input.id);
       conditions.push(`id = $${values.length}`);
     }
-    if (filters.type) {
-      values.push(filters.type);
+    if (input.type != null) {
+      values.push(input.type);
       conditions.push(`type = $${values.length}`);
     }
-    if (filters.origin) {
-      originFilter = filters.origin;
+    if (input.origin != null) {
+      originFilter = input.origin;
     }
-    if (filters.sender) {
-      values.push(filters.sender);
+    if (input.sender != null) {
+      values.push(input.sender);
       conditions.push(`sender = $${values.length}`);
     }
-    if (filters.password) {
-      passwordFilter = filters.password;
+    if (input.password != null) {
+      passwordFilter = input.password;
+    }
+    if (input.user != null) {
+      values.push(input.user);
+      conditions.push(`user_id = $${values.length}`);
     }
     // prevent unbounded scans when filtering by sensitive values
     if ((originFilter != null || passwordFilter != null) && conditions.length === 0) {
@@ -81,27 +77,28 @@ export class NotifierService {
    * @returns added notifier object
    */
   static async addNotifier(data) {
-    const { type, origin, sender, password } = data;
+    const { type, origin, sender, password, user } = data;
     const encryptedOrigin = DataCrypto.encrypt(origin);
     const encryptedPassword = DataCrypto.encrypt(password);
     const { rows } = await DatabaseQuery(
-      `INSERT INTO ${NotifierService.#DB_TABLE_NAME} (type, origin, sender, password) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [type, encryptedOrigin, sender, encryptedPassword]
+      `INSERT INTO ${NotifierService.#DB_TABLE_NAME} (type, origin, sender, password, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [type, encryptedOrigin, sender, encryptedPassword, user]
     );
     return NotifierService.#toPublicNotifier(rows[0]);
   }
 
   /**
-   * Method used to edit notifier data in the database
-   * @param {Number} id database identifier which we want to edit
-   * @param {Object} data notifier object which we want to add to database
+   * Method used to edit notifier data for a specific user ownership scope
+   * @param {Number} id notifier identifier which we want to edit
+   * @param {Number} userId owner identifier used for authorization scope
+   * @param {Object} data notifier object which we want to update in database
    * @returns updated notifier object
    */
-  static async editNotifier(id, data) {
+  static async editNotifierForUser(id, userId, data) {
     const { type, origin, sender, password } = data;
     const { rows: existingRows } = await DatabaseQuery(
-      `SELECT origin, password FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1`,
-      [id]
+      `SELECT origin, password FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`,
+      [id, userId]
     );
     if (existingRows.length === 0) {
       return undefined;
@@ -114,19 +111,23 @@ export class NotifierService {
       ? DataCrypto.encrypt(password)
       : current.password;
     const { rows } = await DatabaseQuery(
-      `UPDATE ${NotifierService.#DB_TABLE_NAME} SET type = $1, origin = $2, sender = $3, password = $4 WHERE id = $5 RETURNING *`,
-      [type, encryptedOrigin, sender, encryptedPassword, id]
+      `UPDATE ${NotifierService.#DB_TABLE_NAME} SET type = $1, origin = $2, sender = $3, password = $4 WHERE id = $5 AND user_id = $6 RETURNING *`,
+      [type, encryptedOrigin, sender, encryptedPassword, id, userId]
     );
     return NotifierService.#toPublicNotifier(rows[0]);
   }
 
   /**
-   * Method used to delete notifier data from the database
-   * @param {Number} id database identifier which we want to remove
+   * Method used to delete notifier data for a specific user ownership scope
+   * @param {Number} id notifier identifier which we want to remove
+   * @param {Number} userId owner identifier used for authorization scope
    * @returns number of deleted notifier object(s)
    */
-  static async deleteNotifier(id) {
-    const { rowCount } = await DatabaseQuery(`DELETE FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
+  static async deleteNotifierForUser(id, userId) {
+    const { rowCount } = await DatabaseQuery(`DELETE FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`, [
+      id,
+      userId,
+    ]);
     return rowCount > 0;
   }
 
