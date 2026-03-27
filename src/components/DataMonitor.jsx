@@ -57,7 +57,19 @@ const DataMonitor = ({ parentName }) => {
   useEffect(() => {
     const initialize = async () => {
       try {
-        const notifiersResponse = await fetch(`/api/notifier`);
+        const user = getValidUserId();
+        if (user == null) {
+          toast.error(`Missing user ID, please re-login and try again.`);
+          return;
+        }
+        if (!token) {
+          toast.error(`Missing user token, please re-login and try again.`);
+          return;
+        }
+        const encodedUser = encodeURIComponent(String(user));
+        const notifiersResponse = await fetch(`/api/notifier?user=${encodedUser}`, {
+          headers: getAuthHeaders(),
+        });
         const notifiersData = await notifiersResponse.json();
         if (!notifiersResponse.ok) {
           toast.error(notifiersData.message);
@@ -70,16 +82,7 @@ const DataMonitor = ({ parentName }) => {
         notifierOptions.push(CONFIG_NOTIFIER_OPTION);
         setNotifierOpts(notifierOptions);
         // get monitor for specified parent
-        const user = getValidUserId();
-        if (user == null) {
-          toast.error(`Missing user ID, please re-login and try again.`);
-          return;
-        }
-        if (!token) {
-          toast.error(`Missing user token, please re-login and try again.`);
-          return;
-        }
-        const monitorResponse = await fetch(`/api/monitor?parent=${encodeURIComponent(parentId)}&user=${user}`, {
+        const monitorResponse = await fetch(`/api/monitor?parent=${encodeURIComponent(parentId)}&user=${encodedUser}`, {
           headers: getAuthHeaders(),
         });
         const monitorData = await monitorResponse.json();
@@ -100,7 +103,9 @@ const DataMonitor = ({ parentName }) => {
           return;
         }
         setNotifierId(currNotifierId);
-        const notifierResponse = await fetch(`/api/notifier?id=${currNotifierId}`);
+        const notifierResponse = await fetch(`/api/notifier?id=${currNotifierId}&user=${encodedUser}`, {
+          headers: getAuthHeaders(),
+        });
         const notifierData = await notifierResponse.json();
         if (!notifierResponse.ok) {
           toast.error(notifierData.message);
@@ -192,8 +197,18 @@ const DataMonitor = ({ parentName }) => {
         return;
       }
       const message = "This is only a TEST message with FAKE values sent from data-monitor!";
-      const notifyResponse = await fetch(`/api/notifier?type=${encodeURIComponent(type)}`, {
+      const user = getValidUserId();
+      if (user == null) {
+        toast.error(`Missing user ID, please re-login and try again.`);
+        return;
+      }
+      if (!token) {
+        toast.error(`Missing user token, please re-login and try again.`);
+        return;
+      }
+      const notifyResponse = await fetch(`/api/notifier?type=${encodeURIComponent(type)}&user=${encodeURIComponent(String(user))}`, {
         method: "POST",
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           name: parentName,
           receiver: email,

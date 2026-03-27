@@ -1,9 +1,56 @@
 import { NotifierService } from "@/model/NotifierService";
+import { UserService } from "@/model/UserService";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 import { AppConfig } from "@/config/AppConfig";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
+
+/**
+ * Method used to parse bearer token from request authorization header
+ * @param {Object} request Request object received from frontend
+ * @returns token string if present, otherwise null
+ */
+function getBearerToken(request) {
+  const authorizationHeader = request.headers.get("authorization") || "";
+  if (!authorizationHeader.toLowerCase().startsWith("bearer ")) {
+    return null;
+  }
+  const token = authorizationHeader.substring(7).trim();
+  return token === "" ? null : token;
+}
+
+/**
+ * Method used to parse and validate user id value from request input
+ * @param {String|Number} userInput user identifier from query or body
+ * @returns numeric user id
+ */
+function parseUserId(userInput) {
+  const userId = Number.parseInt(String(userInput), 10);
+  if (!Number.isInteger(userId) || userId <= 0) {
+    throw new Error("Invalid notifier user ID.");
+  }
+  return userId;
+}
+
+/**
+ * Method used to verify request user ownership using bearer token
+ * @param {Object} request Request object received from frontend
+ * @param {String|Number} userInput user identifier from query or body
+ * @returns validated numeric user id
+ */
+async function authorizeUser(request, userInput) {
+  const userId = parseUserId(userInput);
+  const token = getBearerToken(request);
+  if (token == null) {
+    throw new Error("Missing or invalid authorization header.");
+  }
+  const users = await UserService.filterUsers({ id: userId, jwt: token });
+  if (users.length !== 1) {
+    throw new Error("User authorization failed.");
+  }
+  return userId;
+}
 
 /**
  * Method used to normalize placeholder values before persisting sensitive fields
@@ -74,8 +121,8 @@ function toNotifierRuntimeConfig(notifier) {
  * @param {String} notifierType Notifier type requested by API caller
  * @returns notifier configuration object prepared for runtime notifier instance
  */
-async function getNotifierRuntimeConfig(notifierType) {
-  const notifiers = await NotifierService.filterNotifiers({ type: notifierType });
+async function getNotifierRuntimeConfig(notifierType, userId) {
+  const notifiers = await NotifierService.filterNotifiers({ type: notifierType, user: userId });
   if (notifiers.length === 0) {
     throw new Error(`Cannot find configured '${notifierType}' notifier.`);
   }
@@ -90,13 +137,8 @@ async function getNotifierRuntimeConfig(notifierType) {
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    if (0 === searchParams.size) {
-      const notifiers = await NotifierService.getNotifiers();
-      return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
     const id = searchParams.get("id");
     const type = searchParams.get("type");
     const origin = searchParams.get("origin");
@@ -108,6 +150,7 @@ export async function GET(request) {
       ...(origin && { origin }),
       ...(sender && { sender }),
       ...(password && { password }),
+      user: authorizedUserId,
     });
     return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
       status: 200,
@@ -130,10 +173,13 @@ export async function GET(request) {
 export async function POST(request) {
   const notifierType = request.nextUrl.searchParams.get("type");
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const userFromQuery = searchParams.get("user");
     // if 'type' parameter is provided then we want to send notification message
     if (notifierType) {
+      const authorizedUserId = await authorizeUser(request, userFromQuery);
       const notifierInfo = NotifierCatalog.getClassInfo(notifierType);
-      const notifierConfig = await getNotifierRuntimeConfig(notifierType);
+      const notifierConfig = await getNotifierRuntimeConfig(notifierType, authorizedUserId);
       const notifier = NotifierRegistry.create(notifierInfo, notifierConfig);
       const notifierData = await request.json();
       const res = await notifier.notify(notifierData);
@@ -143,7 +189,12 @@ export async function POST(request) {
       });
     }
     // no 'type' parameter provider hence we want to create new notifier
-    const notifier = await NotifierService.addNotifier(normalizeNotifierInput(await request.json()));
+    const input = normalizeNotifierInput(await request.json());
+    const authorizedUserId = await authorizeUser(request, input.user);
+    const notifier = await NotifierService.addNotifier({
+      ...input,
+      user: authorizedUserId,
+    });
     return new Response(JSON.stringify(getSafeNotifier(notifier)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -165,8 +216,13 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
     const notifierData = normalizeNotifierInput(await request.json());
-    const monitor = await NotifierService.editNotifier(id, notifierData);
+    const monitor = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
+    if (monitor == null) {
+      throw new Error("Notifier not found for provided user and id.");
+    }
     return new Response(JSON.stringify(getSafeNotifier(monitor)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -189,7 +245,9 @@ export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const deletedNo = await NotifierService.deleteNotifier(id);
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
+    const deletedNo = await NotifierService.deleteNotifierForUser(id, authorizedUserId);
     const response = { message: `Deleted ${deletedNo} notifier(s)` };
     return new Response(JSON.stringify(response), {
       status: 200,
