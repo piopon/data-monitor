@@ -1,4 +1,5 @@
 import { MonitorService } from "@/model/MonitorService";
+import { NotifierService } from "@/model/NotifierService";
 import { UserService } from "@/model/UserService";
 
 /**
@@ -45,6 +46,25 @@ async function authorizeUser(request, userInput) {
     throw new Error("User authorization failed.");
   }
   return userId;
+}
+
+/**
+ * Method used to validate notifier ownership for monitor operations
+ * @param {Number} userId authorized user identifier
+ * @param {Number|String|null} notifierId notifier identifier to validate
+ */
+async function assertNotifierOwnership(userId, notifierId) {
+  if (notifierId == null) {
+    return;
+  }
+  const parsedNotifierId = Number.parseInt(String(notifierId), 10);
+  if (!Number.isInteger(parsedNotifierId) || parsedNotifierId <= 0) {
+    throw new Error("Invalid monitor notifier ID.");
+  }
+  const notifiers = await NotifierService.filterNotifiers({ id: parsedNotifierId, user: userId });
+  if (notifiers.length !== 1) {
+    throw new Error("Selected notifier does not belong to the authorized user.");
+  }
 }
 
 /**
@@ -96,6 +116,7 @@ export async function POST(request) {
   try {
     const monitorData = await request.json();
     const authorizedUserId = await authorizeUser(request, monitorData.user);
+    await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
     const monitor = await MonitorService.addMonitor({
       ...monitorData,
       user: authorizedUserId,
@@ -125,6 +146,7 @@ export async function PUT(request) {
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
     const monitorData = await request.json();
+    await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
     const monitor = await MonitorService.editMonitorForUser(id, authorizedUserId, monitorData);
     if (monitor == null) {
       throw new Error("Monitor not found for provided user and id.");
