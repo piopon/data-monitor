@@ -22,6 +22,16 @@ export class RequestUtils {
   }
 
   /**
+   * Method used to resolve HTTP status code from thrown error objects
+   * @param {Object} error Error object potentially containing numeric status
+   * @param {Number} fallbackStatus Default status code when error has no status
+   * @returns HTTP status code
+   */
+  static getErrorStatus(error, fallbackStatus = 400) {
+    return Number.isInteger(error?.status) ? error.status : fallbackStatus;
+  }
+
+  /**
    * Method used to convert input value to number with fallback
    * @param {unknown} value Input value to be converted
    * @param {Number} fallback Number used when input cannot be converted

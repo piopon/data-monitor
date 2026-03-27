@@ -1,5 +1,6 @@
 import { NotifierService } from "@/model/NotifierService";
 import { authorizeUser } from "@/lib/ApiUserAuth";
+import { RequestUtils } from "@/lib/RequestUtils";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 import { AppConfig } from "@/config/AppConfig";
@@ -113,7 +114,7 @@ export async function GET(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot get notifiers: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -154,8 +155,9 @@ export async function POST(request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(error.message, {
-      status: 500,
+    const errorOutput = { message: `Cannot process notifier request: ${error.message}` };
+    return new Response(JSON.stringify(errorOutput), {
+      status: RequestUtils.getErrorStatus(error, 500),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -184,7 +186,7 @@ export async function PUT(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot update notifier: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -210,7 +212,7 @@ export async function DELETE(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot delete notifier: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }

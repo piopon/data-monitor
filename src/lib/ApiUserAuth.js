@@ -5,7 +5,7 @@ import { UserService } from "@/model/UserService";
  * @param {Object} request Request object received from frontend
  * @returns token string if present, otherwise null
  */
-export function getBearerToken(request) {
+function getBearerToken(request) {
   const authorizationHeader = request.headers.get("authorization") || "";
   if (!authorizationHeader.toLowerCase().startsWith("bearer ")) {
     return null;
@@ -19,10 +19,12 @@ export function getBearerToken(request) {
  * @param {String|Number} userInput user identifier from query or body
  * @returns numeric user id
  */
-export function parseUserId(userInput) {
+function parseUserId(userInput) {
   const userId = Number.parseInt(String(userInput), 10);
   if (!Number.isInteger(userId) || userId <= 0) {
-    throw new Error("Invalid user ID.");
+    const error = new Error("Invalid user ID.");
+    error.status = 400;
+    throw error;
   }
   return userId;
 }
@@ -37,11 +39,15 @@ export async function authorizeUser(request, userInput) {
   const userId = parseUserId(userInput);
   const token = getBearerToken(request);
   if (token == null) {
-    throw new Error("Missing or invalid authorization header.");
+    const error = new Error("Missing or invalid authorization header.");
+    error.status = 401;
+    throw error;
   }
   const users = await UserService.filterUsers({ id: userId, jwt: token });
   if (users.length !== 1) {
-    throw new Error("User authorization failed.");
+    const error = new Error("User authorization failed.");
+    error.status = 403;
+    throw error;
   }
   return userId;
 }
