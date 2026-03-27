@@ -9,20 +9,18 @@ const NotifierCard = ({ data, options, onChange, onDelete }) => {
   const [notifierPass, setNotifierPass] = useState(data.password);
   const [notifierOrigin, setNotifierOrigin] = useState(data.origin);
   const [notifierSender, setNotifierSender] = useState(data.sender);
-  const user = data.user;
-  const token = data.token;
 
-  const getAuthHeaders = () => ({ Authorization: `Bearer ${token}` });
+  const getAuthHeaders = () => ({ Authorization: `Bearer ${data.token}` });
 
   const saveNotifier = async () => {
     const notifier = { type: notifierType, origin: notifierOrigin, sender: notifierSender, password: notifierPass };
     try {
       const existing = data.id != null;
-      const notifierUrl = existing ? RequestUtils.buildUrl("/api/notifier", { id: data.id, user }) : "/api/notifier";
+      const notifierUrl = existing ? RequestUtils.buildUrl("/api/notifier", { id: data.id, user: data.user }) : "/api/notifier";
       const notifierResponse = await fetch(notifierUrl, {
         method: existing ? "PUT" : "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-        body: JSON.stringify({ ...notifier, user }),
+        body: JSON.stringify({ ...notifier, user: data.user }),
       });
       const notifierData = await notifierResponse.json();
       if (!notifierResponse.ok) {

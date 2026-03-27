@@ -126,9 +126,10 @@ function updateSendTimestamp(user, monitorId) {
  * Method used to retrieve notifier type for provided monitor's notifier ID
  * @note This method caches notifier ID -> type mapping to limit API requests
  * @param {Object} monitor Parent monitor for which we want to resolve notifier type
+ * @param {Object} user Parent user for which the monitor notifier should be resolved
  * @returns notifier type when available, null otherwise
  */
-async function getNotifierType(monitor) {
+async function getNotifierType(monitor, user) {
   if (monitor?.notifier_id == null) {
     console.warn(`Worker warning: Monitor ${monitor.parent} has no notifier configured.`);
     return null;
@@ -241,7 +242,7 @@ async function checkData(user) {
               return;
             }
             if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
-              const notifierType = await getNotifierType(monitor);
+              const notifierType = await getNotifierType(monitor, user);
               if (!notifierType) {
                 return;
               }
