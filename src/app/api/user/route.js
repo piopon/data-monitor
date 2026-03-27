@@ -1,4 +1,5 @@
 import { UserService } from "@/model/UserService";
+import { RequestUtils } from "@/lib/RequestUtils";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
 
@@ -66,7 +67,7 @@ export async function GET(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot get users: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -83,7 +84,7 @@ export async function POST(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot add new user: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -102,7 +103,7 @@ export async function PUT(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot update user: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -121,7 +122,7 @@ export async function DELETE(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot delete user: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }

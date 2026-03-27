@@ -1,5 +1,6 @@
 import { AppConfig } from "@/config/AppConfig";
 import { DataCrypto } from "@/lib/DataCrypto";
+import { RequestUtils } from "@/lib/RequestUtils";
 import { ScraperRequest } from "@/lib/ScraperRequest";
 import { MonitorService } from "@/model/MonitorService";
 import { NotifierService } from "@/model/NotifierService";
@@ -36,52 +37,53 @@ async function migrateSensitiveData() {
 }
 
 export async function GET(request) {
-  const userInitResult = await UserService.initializeTable();
-  if (!userInitResult.result) {
-    const result = { init: false, message: userInitResult.message };
-    return new Response(JSON.stringify(result), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  const notifierInitResult = await NotifierService.initializeTable();
-  if (!notifierInitResult.result) {
-    const result = { init: false, message: notifierInitResult.message };
-    return new Response(JSON.stringify(result), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  const monitorInitResult = await MonitorService.initializeTable();
-  if (!monitorInitResult.result) {
-    const result = { init: false, message: monitorInitResult.message };
-    return new Response(JSON.stringify(result), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
   try {
+    const userInitResult = await UserService.initializeTable();
+    if (!userInitResult.result) {
+      const result = { init: false, message: userInitResult.message };
+      return new Response(JSON.stringify(result), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const notifierInitResult = await NotifierService.initializeTable();
+    if (!notifierInitResult.result) {
+      const result = { init: false, message: notifierInitResult.message };
+      return new Response(JSON.stringify(result), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const monitorInitResult = await MonitorService.initializeTable();
+    if (!monitorInitResult.result) {
+      const result = { init: false, message: monitorInitResult.message };
+      return new Response(JSON.stringify(result), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     await migrateSensitiveData();
+    const featuresResponse = await ScraperRequest.GET(AppConfig.getConfig().scraper.endpoints.features);
+    if (!featuresResponse.ok) {
+      const result = { init: false, message: await featuresResponse.text() };
+      return new Response(JSON.stringify(result), {
+        status: featuresResponse.status,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const features = await featuresResponse.json();
+    features["init"] = true;
+    features["message"] = "Database initialized correctly.";
+    return new Response(JSON.stringify(features), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    const result = { init: false, message: `Cannot migrate sensitive data: ${error.message}` };
+    const result = { init: false, message: `Cannot initialize application: ${error.message}` };
     return new Response(JSON.stringify(result), {
-      status: 500,
+      status: RequestUtils.getErrorStatus(error, 500),
       headers: { "Content-Type": "application/json" },
     });
   }
-  const featuresResponse = await ScraperRequest.GET(AppConfig.getConfig().scraper.endpoints.features);
-  if (!featuresResponse.ok) {
-    const result = { init: false, message: await featuresResponse.text() };
-    return new Response(JSON.stringify(result), {
-      status: featuresResponse.status,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-  const features = await featuresResponse.json();
-  features["init"] = true;
-  features["message"] = "Database initialized correctly.";
-  return new Response(JSON.stringify(features), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
 }
