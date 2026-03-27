@@ -30,7 +30,7 @@ const parseNotifierValue = (input) => {
 
 const DataMonitor = ({ parentName }) => {
   const parentId = DataUtils.nameToId(parentName);
-  const { isDemo, userId, email } = useContext(LoginContext);
+  const { isDemo, userId, email, token } = useContext(LoginContext);
   const router = useRouter();
 
   const [id, setId] = useState(MONITOR_DEFAULTS.id);
@@ -41,6 +41,18 @@ const DataMonitor = ({ parentName }) => {
   const [notifierId, setNotifierId] = useState(-1);
   const [notifierOpts, setNotifierOpts] = useState([CONFIG_NOTIFIER_OPTION]);
   const [notifierType, setNotifierType] = useState(MONITOR_DEFAULTS.notifier);
+
+  const getValidUserId = () => {
+    const user = Number.parseInt(String(userId()), 10);
+    if (!Number.isInteger(user) || user <= 0) {
+      return null;
+    }
+    return user;
+  };
+
+  const getAuthHeaders = () => ({
+    Authorization: `Bearer ${token}`,
+  });
 
   useEffect(() => {
     const initialize = async () => {
@@ -58,7 +70,18 @@ const DataMonitor = ({ parentName }) => {
         notifierOptions.push(CONFIG_NOTIFIER_OPTION);
         setNotifierOpts(notifierOptions);
         // get monitor for specified parent
-        const monitorResponse = await fetch(`/api/monitor?parent=${parentId}`);
+        const user = getValidUserId();
+        if (user == null) {
+          toast.error(`Missing user ID, please re-login and try again.`);
+          return;
+        }
+        if (!token) {
+          toast.error(`Missing user token, please re-login and try again.`);
+          return;
+        }
+        const monitorResponse = await fetch(`/api/monitor?parent=${encodeURIComponent(parentId)}&user=${user}`, {
+          headers: getAuthHeaders(),
+        });
         const monitorData = await monitorResponse.json();
         if (!monitorResponse.ok) {
           toast.error(monitorData.message);
@@ -104,16 +127,20 @@ const DataMonitor = ({ parentName }) => {
       }
     };
     initialize();
-  }, []);
+  }, [token]);
 
   const saveMonitor = async () => {
     if (isDemo) {
       toast.warn(`Notifications are disabled for demo session.`);
       return;
     }
-    const user = userId();
-    if (user === -1) {
+    const user = getValidUserId();
+    if (user == null) {
       toast.error(`Missing user ID, please re-login and try again.`);
+      return;
+    }
+    if (!token) {
+      toast.error(`Missing user token, please re-login and try again.`);
       return;
     }
     const intervalNumber = Number(interval);
@@ -123,10 +150,10 @@ const DataMonitor = ({ parentName }) => {
     }
     try {
       const exists = MONITOR_DEFAULTS.id !== id;
-      const idFilter = exists ? `?id=${id}` : ``;
+      const idFilter = exists ? `?id=${id}&user=${user}` : ``;
       const monitorResponse = await fetch(`/api/monitor${idFilter}`, {
         method: exists ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({
           parent: parentId,
           enabled,
