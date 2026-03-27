@@ -139,7 +139,13 @@ async function getNotifierType(monitor) {
   }
   let notifierResponse;
   try {
-    notifierResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/notifier?id=${notifierId}`);
+    notifierResponse = await RequestUtils.fetchWithRetry(
+      `${SERVER_ADDRESS}/api/notifier?id=${notifierId}&user=${encodeURIComponent(String(user.id))}`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${user.jwt}` },
+      },
+    );
   } catch (error) {
     console.error(`Worker error: Cannot fetch notifier data: ${error.message}`);
     return null;
@@ -246,9 +252,12 @@ async function checkData(user) {
                   let notifyResponse;
                   try {
                     notifyResponse = await RequestUtils.fetchWithRetry(
-                      `${SERVER_ADDRESS}/api/notifier?type=${encodeURIComponent(notifier)}`,
+                      `${SERVER_ADDRESS}/api/notifier?type=${encodeURIComponent(notifier)}&user=${encodeURIComponent(
+                        String(user.id),
+                      )}`,
                       {
                         method: "POST",
+                        headers: { Authorization: `Bearer ${user.jwt}` },
                         body: JSON.stringify({
                           name: monitor.parent,
                           receiver: user.email,
