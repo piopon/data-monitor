@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { LoginContext } from "@/context/Contexts";
 import NotifierCard from "@/components/NotifierCard";
 import EmptyCards from "@/components/EmptyCards";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
@@ -7,14 +9,36 @@ const NotifiersPage = () => {
   const TOTAL_NOTIFIERS_NO = NotifierCatalog.getSupportedNotifiers().size;
   const [notifiers, setNotifiers] = useState([]);
   const [addDisabled, setAddDisabled] = useState(false);
+  const { userId, token } = useContext(LoginContext);
+
+  const getValidUserId = () => {
+    const user = Number.parseInt(String(userId()), 10);
+    if (!Number.isInteger(user) || user <= 0) {
+      return null;
+    }
+    return user;
+  };
+
+  const getAuthHeaders = () => ({
+    Authorization: `Bearer ${token}`,
+  });
 
   useEffect(() => {
     refreshNotifiers();
-  }, []);
+  }, [token]);
 
   const refreshNotifiers = async () => {
     try {
-      const notifiersResponse = await fetch(`/api/notifier`);
+      const user = getValidUserId();
+      if (user == null) {
+        toast.error(`Missing user ID, please re-login and try again.`);
+        return;
+      }
+      if (!token) {
+        toast.error(`Missing user token, please re-login and try again.`);
+        return;
+      }
+      const notifiersResponse = await fetch(`/api/notifier?user=${user}`, { headers: getAuthHeaders() });
       const notifiersData = await notifiersResponse.json();
       if (!notifiersResponse.ok) {
         toast.error(notifiersData.message);
@@ -52,7 +76,7 @@ const NotifiersPage = () => {
       return (
         <NotifierCard
           key={`${index}${notifier.id}_${notifier.type}`}
-          data={notifier}
+          data={{ ...notifier, user: getValidUserId(), token }}
           options={getOptions()}
           onChange={refreshNotifiers}
           onDelete={removeNotifier}
@@ -70,6 +94,8 @@ const NotifiersPage = () => {
         origin: "",
         sender: "",
         password: "",
+        user: getValidUserId(),
+        token,
       },
     ]);
   };
