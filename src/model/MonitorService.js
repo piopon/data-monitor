@@ -24,15 +24,6 @@ export class MonitorService {
   }
 
   /**
-   * Method used to receive all monitors saved in database
-   * @returns array of monitor objects from database
-   */
-  static async getMonitors() {
-    const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME}`);
-    return rows;
-  }
-
-  /**
    * Method used to receive monitors matching provided filter expression
    * @param {String} filters expression used to filter monitor objects
    * @returns array of monitor objects matching filter expression
@@ -95,29 +86,34 @@ export class MonitorService {
   }
 
   /**
-   * Method used to edit monitor data in the database
-   * @param {Number} id database identifier which we want to edit
-   * @param {Object} data monitor object which we want to add to database
+   * Method used to edit monitor data for a specific user ownership scope
+   * @param {Number} id monitor identifier to edit
+   * @param {Number} userId owner identifier used for authorization scope
+   * @param {Object} data monitor object which we want to update in database
    * @returns updated monitor object
    */
-  static async editMonitor(id, data) {
-    const { parent, enabled, threshold, condition, notifier, interval, user } = data;
+  static async editMonitorForUser(id, userId, data) {
+    const { parent, enabled, threshold, condition, notifier, interval } = data;
     const { rows } = await DatabaseQuery(
       `UPDATE ${
         MonitorService.#DB_TABLE_NAME
-      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier_id = $5, interval = $6, user_id = $7 WHERE id = $8 RETURNING *`,
-      [parent, enabled, threshold, condition, notifier, interval, user, id]
+      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier_id = $5, interval = $6 WHERE id = $7 AND user_id = $8 RETURNING *`,
+      [parent, enabled, threshold, condition, notifier, interval, id, userId]
     );
     return rows[0];
   }
 
   /**
-   * Method used to delete monitor data from the database
-   * @param {Number} id database identifier which we want to remove
-   * @returns number of deleted monitor object(s)
+   * Method used to delete monitor data for a specific user ownership scope
+   * @param {Number} id monitor identifier to remove
+   * @param {Number} userId owner identifier used for authorization scope
+   * @returns true when monitor row was deleted, false otherwise
    */
-  static async deleteMonitor(id) {
-    const { rowCount } = await DatabaseQuery(`DELETE FROM ${MonitorService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
+  static async deleteMonitorForUser(id, userId) {
+    const { rowCount } = await DatabaseQuery(`DELETE FROM ${MonitorService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`, [
+      id,
+      userId,
+    ]);
     return rowCount > 0;
   }
 }
