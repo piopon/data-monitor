@@ -23,7 +23,7 @@ export class NotifierService {
 
   /**
    * Method used to receive notifiers matching provided filter expression
-   * @param {String} query expression used to filter notifier objects
+   * @param {Object} filters object used to filter notifier objects
    * @returns array of notifier objects matching filter expression
    */
   static async filterNotifiers(filters) {

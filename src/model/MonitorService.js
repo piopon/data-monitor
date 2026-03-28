@@ -14,9 +14,6 @@ export class MonitorService {
       CREATE TABLE IF NOT EXISTS ${MonitorService.#DB_TABLE_NAME} (
         ${Monitor.getDatabaseSchema()}
       );`);
-      await DatabaseQuery(
-        `CREATE INDEX IF NOT EXISTS monitors_user_id_idx ON ${MonitorService.#DB_TABLE_NAME} (user_id);`
-      );
       return { result: true, message: `Initialized '${MonitorService.#DB_TABLE_NAME}' table.` };
     } catch (error) {
       return {
@@ -28,7 +25,7 @@ export class MonitorService {
 
   /**
    * Method used to receive monitors matching provided filter expression
-   * @param {String} filters expression used to filter monitor objects
+   * @param {Object} filters object used to filter monitor objects
    * @returns array of monitor objects matching filter expression
    */
   static async filterMonitors(filters) {

@@ -175,13 +175,13 @@ export async function PUT(request) {
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
     const notifierData = normalizeNotifierInput(await request.json());
-    const monitor = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
-    if (monitor == null) {
+    const notifier = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
+    if (notifier == null) {
       const error = new Error("Notifier not found for provided user and id.");
       error.status = 404;
       throw error;
     }
-    return new Response(JSON.stringify(getSafeNotifier(monitor)), {
+    return new Response(JSON.stringify(getSafeNotifier(notifier)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
