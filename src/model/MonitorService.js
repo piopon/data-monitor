@@ -24,53 +24,45 @@ export class MonitorService {
   }
 
   /**
-   * Method used to receive all monitors saved in database
-   * @returns array of monitor objects from database
-   */
-  static async getMonitors() {
-    const { rows } = await DatabaseQuery(`SELECT * FROM ${MonitorService.#DB_TABLE_NAME}`);
-    return rows;
-  }
-
-  /**
    * Method used to receive monitors matching provided filter expression
-   * @param {String} filters expression used to filter monitor objects
+   * @param {Object} filters object used to filter monitor objects
    * @returns array of monitor objects matching filter expression
    */
   static async filterMonitors(filters) {
+    const input = filters || {};
     const values = [];
     const conditions = [];
 
-    if (filters.id) {
-      values.push(filters.id);
+    if (input.id != null) {
+      values.push(input.id);
       conditions.push(`id = $${values.length}`);
     }
-    if (filters.parent) {
-      values.push(filters.parent);
+    if (input.parent != null) {
+      values.push(input.parent);
       conditions.push(`parent = $${values.length}`);
     }
-    if (filters.enabled) {
-      values.push(filters.enabled);
+    if (input.enabled != null) {
+      values.push(input.enabled);
       conditions.push(`enabled = $${values.length}`);
     }
-    if (filters.interval) {
-      values.push(filters.interval);
+    if (input.interval != null) {
+      values.push(input.interval);
       conditions.push(`interval = $${values.length}`);
     }
-    if (filters.threshold) {
-      values.push(filters.threshold);
+    if (input.threshold != null) {
+      values.push(input.threshold);
       conditions.push(`threshold = $${values.length}`);
     }
-    if (filters.condition) {
-      values.push(filters.condition);
+    if (input.condition != null) {
+      values.push(input.condition);
       conditions.push(`condition = $${values.length}`);
     }
-    if (filters.notifier) {
-      values.push(filters.notifier);
+    if (input.notifier != null) {
+      values.push(input.notifier);
       conditions.push(`notifier_id = $${values.length}`);
     }
-    if (filters.user) {
-      values.push(filters.user);
+    if (input.user != null) {
+      values.push(input.user);
       conditions.push(`user_id = $${values.length}`);
     }
     const whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
@@ -95,29 +87,34 @@ export class MonitorService {
   }
 
   /**
-   * Method used to edit monitor data in the database
-   * @param {Number} id database identifier which we want to edit
-   * @param {Object} data monitor object which we want to add to database
+   * Method used to edit monitor data for a specific user ownership scope
+   * @param {Number} id monitor identifier to edit
+   * @param {Number} userId owner identifier used for authorization scope
+   * @param {Object} data monitor object which we want to update in database
    * @returns updated monitor object
    */
-  static async editMonitor(id, data) {
-    const { parent, enabled, threshold, condition, notifier, interval, user } = data;
+  static async editMonitorForUser(id, userId, data) {
+    const { parent, enabled, threshold, condition, notifier, interval } = data;
     const { rows } = await DatabaseQuery(
       `UPDATE ${
         MonitorService.#DB_TABLE_NAME
-      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier_id = $5, interval = $6, user_id = $7 WHERE id = $8 RETURNING *`,
-      [parent, enabled, threshold, condition, notifier, interval, user, id]
+      } SET parent = $1, enabled = $2, threshold = $3, condition = $4, notifier_id = $5, interval = $6 WHERE id = $7 AND user_id = $8 RETURNING *`,
+      [parent, enabled, threshold, condition, notifier, interval, id, userId]
     );
     return rows[0];
   }
 
   /**
-   * Method used to delete monitor data from the database
-   * @param {Number} id database identifier which we want to remove
+   * Method used to delete monitor data for a specific user ownership scope
+   * @param {Number} id monitor identifier to remove
+   * @param {Number} userId owner identifier used for authorization scope
    * @returns number of deleted monitor object(s)
    */
-  static async deleteMonitor(id) {
-    const { rowCount } = await DatabaseQuery(`DELETE FROM ${MonitorService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
-    return rowCount > 0;
+  static async deleteMonitorForUser(id, userId) {
+    const { rowCount } = await DatabaseQuery(`DELETE FROM ${MonitorService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`, [
+      id,
+      userId,
+    ]);
+    return rowCount;
   }
 }

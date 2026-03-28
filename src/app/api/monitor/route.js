@@ -1,4 +1,30 @@
 import { MonitorService } from "@/model/MonitorService";
+import { NotifierService } from "@/model/NotifierService";
+import { authorizeUser } from "@/lib/ApiUserAuth";
+import { RequestUtils } from "@/lib/RequestUtils";
+
+/**
+ * Method used to validate notifier ownership for monitor operations
+ * @param {Number} userId authorized user identifier
+ * @param {Number|String|null} notifierId notifier identifier to validate
+ */
+async function assertNotifierOwnership(userId, notifierId) {
+  if (notifierId == null) {
+    return;
+  }
+  const parsedNotifierId = Number.parseInt(String(notifierId), 10);
+  if (!Number.isInteger(parsedNotifierId) || parsedNotifierId <= 0) {
+    const error = new Error("Invalid monitor notifier ID.");
+    error.status = 400;
+    throw error;
+  }
+  const notifiers = await NotifierService.filterNotifiers({ id: parsedNotifierId, user: userId });
+  if (notifiers.length !== 1) {
+    const error = new Error("Selected notifier does not belong to the authorized user.");
+    error.status = 403;
+    throw error;
+  }
+}
 
 /**
  * Method used to send the monitor GET request to retrieve monitor data
@@ -8,13 +34,8 @@ import { MonitorService } from "@/model/MonitorService";
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    if (0 === searchParams.size) {
-      const monitors = await MonitorService.getMonitors();
-      return new Response(JSON.stringify(monitors), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
     const id = searchParams.get("id");
     const parent = searchParams.get("parent");
     const enabled = searchParams.get("enabled");
@@ -22,7 +43,6 @@ export async function GET(request) {
     const condition = searchParams.get("condition");
     const notifier = searchParams.get("notifier");
     const interval = searchParams.get("interval");
-    const user = searchParams.get("user");
     const monitors = await MonitorService.filterMonitors({
       ...(id && { id }),
       ...(parent && { parent }),
@@ -31,7 +51,7 @@ export async function GET(request) {
       ...(condition && { condition }),
       ...(notifier && { notifier }),
       ...(interval && { interval }),
-      ...(user && { user }),
+      user: authorizedUserId,
     });
     return new Response(JSON.stringify(monitors), {
       status: 200,
@@ -40,7 +60,7 @@ export async function GET(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot get monitors: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -54,7 +74,12 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const monitorData = await request.json();
-    const monitor = await MonitorService.addMonitor(monitorData);
+    const authorizedUserId = await authorizeUser(request, monitorData.user);
+    await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
+    const monitor = await MonitorService.addMonitor({
+      ...monitorData,
+      user: authorizedUserId,
+    });
     return new Response(JSON.stringify(monitor), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -62,7 +87,7 @@ export async function POST(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot add new monitor: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -77,8 +102,16 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
     const monitorData = await request.json();
-    const monitor = await MonitorService.editMonitor(id, monitorData);
+    await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
+    const monitor = await MonitorService.editMonitorForUser(id, authorizedUserId, monitorData);
+    if (monitor == null) {
+      const error = new Error("Monitor not found for provided user and id.");
+      error.status = 404;
+      throw error;
+    }
     return new Response(JSON.stringify(monitor), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -86,7 +119,7 @@ export async function PUT(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot update monitor: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -101,7 +134,9 @@ export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const deletedNo = await MonitorService.deleteMonitor(id);
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
+    const deletedNo = await MonitorService.deleteMonitorForUser(id, authorizedUserId);
     const response = { message: `Deleted ${deletedNo} monitor(s)` };
     return new Response(JSON.stringify(response), {
       status: 200,
@@ -110,7 +145,7 @@ export async function DELETE(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot delete monitor: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }

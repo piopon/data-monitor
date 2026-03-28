@@ -33,13 +33,14 @@ export class Monitor {
    */
   static getDatabaseSchema() {
     return `id SERIAL PRIMARY KEY,
-            parent TEXT NOT NULL UNIQUE,
+            parent TEXT NOT NULL,
             enabled BOOLEAN DEFAULT false,
             interval NUMERIC NOT NULL,
             threshold NUMERIC NOT NULL,
             condition TEXT NOT NULL CHECK ${Monitor.#getConditionSchema()},
-            notifier_id SERIAL REFERENCES ${Notifier.getTableName()}(id),
-            user_id SERIAL REFERENCES ${User.getTableName()}(id)`;
+            notifier_id INTEGER REFERENCES ${Notifier.getTableName()}(id),
+            user_id INTEGER NOT NULL REFERENCES ${User.getTableName()}(id),
+            UNIQUE (user_id, parent)`;
   }
 
   /**

@@ -1,4 +1,6 @@
 import { NotifierService } from "@/model/NotifierService";
+import { authorizeUser } from "@/lib/ApiUserAuth";
+import { RequestUtils } from "@/lib/RequestUtils";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 import { AppConfig } from "@/config/AppConfig";
@@ -74,8 +76,8 @@ function toNotifierRuntimeConfig(notifier) {
  * @param {String} notifierType Notifier type requested by API caller
  * @returns notifier configuration object prepared for runtime notifier instance
  */
-async function getNotifierRuntimeConfig(notifierType) {
-  const notifiers = await NotifierService.filterNotifiers({ type: notifierType });
+async function getNotifierRuntimeConfig(notifierType, userId) {
+  const notifiers = await NotifierService.filterNotifiers({ type: notifierType, user: userId });
   if (notifiers.length === 0) {
     throw new Error(`Cannot find configured '${notifierType}' notifier.`);
   }
@@ -90,13 +92,8 @@ async function getNotifierRuntimeConfig(notifierType) {
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    if (0 === searchParams.size) {
-      const notifiers = await NotifierService.getNotifiers();
-      return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
     const id = searchParams.get("id");
     const type = searchParams.get("type");
     const origin = searchParams.get("origin");
@@ -108,6 +105,7 @@ export async function GET(request) {
       ...(origin && { origin }),
       ...(sender && { sender }),
       ...(password && { password }),
+      user: authorizedUserId,
     });
     return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
       status: 200,
@@ -116,7 +114,7 @@ export async function GET(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot get notifiers: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -130,10 +128,13 @@ export async function GET(request) {
 export async function POST(request) {
   const notifierType = request.nextUrl.searchParams.get("type");
   try {
+    const searchParams = request.nextUrl.searchParams;
+    const userFromQuery = searchParams.get("user");
     // if 'type' parameter is provided then we want to send notification message
     if (notifierType) {
+      const authorizedUserId = await authorizeUser(request, userFromQuery);
       const notifierInfo = NotifierCatalog.getClassInfo(notifierType);
-      const notifierConfig = await getNotifierRuntimeConfig(notifierType);
+      const notifierConfig = await getNotifierRuntimeConfig(notifierType, authorizedUserId);
       const notifier = NotifierRegistry.create(notifierInfo, notifierConfig);
       const notifierData = await request.json();
       const res = await notifier.notify(notifierData);
@@ -143,14 +144,20 @@ export async function POST(request) {
       });
     }
     // no 'type' parameter provider hence we want to create new notifier
-    const notifier = await NotifierService.addNotifier(normalizeNotifierInput(await request.json()));
+    const input = normalizeNotifierInput(await request.json());
+    const authorizedUserId = await authorizeUser(request, input.user);
+    const notifier = await NotifierService.addNotifier({
+      ...input,
+      user: authorizedUserId,
+    });
     return new Response(JSON.stringify(getSafeNotifier(notifier)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(error.message, {
-      status: 500,
+    const errorOutput = { message: `Cannot process notifier request: ${error.message}` };
+    return new Response(JSON.stringify(errorOutput), {
+      status: RequestUtils.getErrorStatus(error, 500),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -165,16 +172,23 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
     const notifierData = normalizeNotifierInput(await request.json());
-    const monitor = await NotifierService.editNotifier(id, notifierData);
-    return new Response(JSON.stringify(getSafeNotifier(monitor)), {
+    const notifier = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
+    if (notifier == null) {
+      const error = new Error("Notifier not found for provided user and id.");
+      error.status = 404;
+      throw error;
+    }
+    return new Response(JSON.stringify(getSafeNotifier(notifier)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     const errorOutput = { message: `Cannot update notifier: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -189,7 +203,9 @@ export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const deletedNo = await NotifierService.deleteNotifier(id);
+    const user = searchParams.get("user");
+    const authorizedUserId = await authorizeUser(request, user);
+    const deletedNo = await NotifierService.deleteNotifierForUser(id, authorizedUserId);
     const response = { message: `Deleted ${deletedNo} notifier(s)` };
     return new Response(JSON.stringify(response), {
       status: 200,
@@ -198,7 +214,7 @@ export async function DELETE(request) {
   } catch (error) {
     const errorOutput = { message: `Cannot delete notifier: ${error.message}` };
     return new Response(JSON.stringify(errorOutput), {
-      status: 400,
+      status: RequestUtils.getErrorStatus(error),
       headers: { "Content-Type": "application/json" },
     });
   }

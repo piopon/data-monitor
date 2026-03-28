@@ -1,5 +1,6 @@
 import { NotifierCatalog } from "../notifiers/core/NotifierCatalog.js";
 import { ModelUtils } from "../lib/ModelUtils.js";
+import { User } from "./User.js";
 
 export class Notifier {
   static #DB_TABLE_NAME = "notifiers";
@@ -15,6 +16,7 @@ export class Notifier {
     this.origin = ModelUtils.getValueOrDefault(input.origin, "");
     this.sender = ModelUtils.getValueOrDefault(input.sender, "");
     this.password = ModelUtils.getValueOrDefault(input.password, "");
+    this.userId = ModelUtils.getValueOrDefault(input.userId, undefined);
   }
 
   /**
@@ -26,7 +28,9 @@ export class Notifier {
             type TEXT NOT NULL CHECK ${Notifier.#getTypeSchema()},
             origin TEXT NOT NULL,
             sender TEXT NOT NULL,
-            password TEXT`;
+            password TEXT,
+            user_id INTEGER NOT NULL REFERENCES ${User.getTableName()}(id),
+            UNIQUE (user_id, type)`;
   }
 
   /**

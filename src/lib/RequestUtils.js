@@ -5,6 +5,33 @@ export class RequestUtils {
   static #DEFAULT_RETRY_DELAY = 250;
 
   /**
+   * Method used to build request URL from base address and query parameters
+   * @param {String} baseUrl Base URL without query part
+   * @param {Object} queryParams Object with query key-value pairs
+   * @returns URL with encoded query string when parameters are provided
+   */
+  static buildUrl(baseUrl, queryParams = {}) {
+    const entries = Object.entries(queryParams).filter(([, value]) => value != null);
+    if (entries.length === 0) {
+      return baseUrl;
+    }
+    const query = entries
+      .map(([key, value]) => `${encodeURIComponent(String(key))}=${encodeURIComponent(String(value))}`)
+      .join("&");
+    return `${baseUrl}?${query}`;
+  }
+
+  /**
+   * Method used to resolve HTTP status code from thrown error objects
+   * @param {Object} error Error object potentially containing numeric status
+   * @param {Number} fallbackStatus Default status code when error has no status
+   * @returns HTTP status code
+   */
+  static getErrorStatus(error, fallbackStatus = 400) {
+    return Number.isInteger(error?.status) ? error.status : fallbackStatus;
+  }
+
+  /**
    * Method used to convert input value to number with fallback
    * @param {unknown} value Input value to be converted
    * @param {Number} fallback Number used when input cannot be converted

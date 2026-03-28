@@ -126,9 +126,10 @@ function updateSendTimestamp(user, monitorId) {
  * Method used to retrieve notifier type for provided monitor's notifier ID
  * @note This method caches notifier ID -> type mapping to limit API requests
  * @param {Object} monitor Parent monitor for which we want to resolve notifier type
+ * @param {Object} user Parent user for which the monitor notifier should be resolved
  * @returns notifier type when available, null otherwise
  */
-async function getNotifierType(monitor) {
+async function getNotifierType(monitor, user) {
   if (monitor?.notifier_id == null) {
     console.warn(`Worker warning: Monitor ${monitor.parent} has no notifier configured.`);
     return null;
@@ -139,7 +140,17 @@ async function getNotifierType(monitor) {
   }
   let notifierResponse;
   try {
-    notifierResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/notifier?id=${notifierId}`);
+    const notifierUrl = RequestUtils.buildUrl(`${SERVER_ADDRESS}/api/notifier`, {
+      id: notifierId,
+      user: user.id,
+    });
+    notifierResponse = await RequestUtils.fetchWithRetry(
+      notifierUrl,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${user.jwt}` },
+      },
+    );
   } catch (error) {
     console.error(`Worker error: Cannot fetch notifier data: ${error.message}`);
     return null;
@@ -231,7 +242,7 @@ async function checkData(user) {
               return;
             }
             if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
-              const notifierType = await getNotifierType(monitor);
+              const notifierType = await getNotifierType(monitor, user);
               if (!notifierType) {
                 return;
               }
@@ -245,10 +256,15 @@ async function checkData(user) {
                   const message = `Monitored value reached its threshold condition: ${condition}`;
                   let notifyResponse;
                   try {
+                    const notifyUrl = RequestUtils.buildUrl(`${SERVER_ADDRESS}/api/notifier`, {
+                      type: notifier,
+                      user: user.id,
+                    });
                     notifyResponse = await RequestUtils.fetchWithRetry(
-                      `${SERVER_ADDRESS}/api/notifier?type=${encodeURIComponent(notifier)}`,
+                      notifyUrl,
                       {
                         method: "POST",
+                        headers: { Authorization: `Bearer ${user.jwt}` },
                         body: JSON.stringify({
                           name: monitor.parent,
                           receiver: user.email,
