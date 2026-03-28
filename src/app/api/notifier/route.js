@@ -177,7 +177,9 @@ export async function PUT(request) {
     const notifierData = normalizeNotifierInput(await request.json());
     const monitor = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
     if (monitor == null) {
-      throw new Error("Notifier not found for provided user and id.");
+      const error = new Error("Notifier not found for provided user and id.");
+      error.status = 404;
+      throw error;
     }
     return new Response(JSON.stringify(getSafeNotifier(monitor)), {
       status: 200,

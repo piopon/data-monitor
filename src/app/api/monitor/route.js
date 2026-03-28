@@ -14,11 +14,15 @@ async function assertNotifierOwnership(userId, notifierId) {
   }
   const parsedNotifierId = Number.parseInt(String(notifierId), 10);
   if (!Number.isInteger(parsedNotifierId) || parsedNotifierId <= 0) {
-    throw new Error("Invalid monitor notifier ID.");
+    const error = new Error("Invalid monitor notifier ID.");
+    error.status = 400;
+    throw error;
   }
   const notifiers = await NotifierService.filterNotifiers({ id: parsedNotifierId, user: userId });
   if (notifiers.length !== 1) {
-    throw new Error("Selected notifier does not belong to the authorized user.");
+    const error = new Error("Selected notifier does not belong to the authorized user.");
+    error.status = 403;
+    throw error;
   }
 }
 
@@ -104,7 +108,9 @@ export async function PUT(request) {
     await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
     const monitor = await MonitorService.editMonitorForUser(id, authorizedUserId, monitorData);
     if (monitor == null) {
-      throw new Error("Monitor not found for provided user and id.");
+      const error = new Error("Monitor not found for provided user and id.");
+      error.status = 404;
+      throw error;
     }
     return new Response(JSON.stringify(monitor), {
       status: 200,
