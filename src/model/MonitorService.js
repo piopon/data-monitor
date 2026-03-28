@@ -111,13 +111,13 @@ export class MonitorService {
    * Method used to delete monitor data for a specific user ownership scope
    * @param {Number} id monitor identifier to remove
    * @param {Number} userId owner identifier used for authorization scope
-   * @returns true when monitor row was deleted, false otherwise
+   * @returns number of deleted monitor object(s)
    */
   static async deleteMonitorForUser(id, userId) {
     const { rowCount } = await DatabaseQuery(`DELETE FROM ${MonitorService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`, [
       id,
       userId,
     ]);
-    return rowCount > 0;
+    return rowCount;
   }
 }

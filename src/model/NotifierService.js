@@ -128,7 +128,7 @@ export class NotifierService {
       id,
       userId,
     ]);
-    return rowCount > 0;
+    return rowCount;
   }
 
   /**
