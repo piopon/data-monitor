@@ -60,6 +60,13 @@ jobs:
             echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
           fi
 
+      - name: Generate VERSION metadata
+        shell: bash
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          COMMIT_SHA="${GITHUB_SHA:0:12}"
+          echo "${PACKAGE_VERSION}+${COMMIT_SHA}" > VERSION
+
       - name: Build release archive
         shell: bash
         run: |
@@ -76,6 +83,7 @@ jobs:
             docker-compose.yml \
             README.md \
             LICENSE \
+            VERSION \
             public \
             src
 
