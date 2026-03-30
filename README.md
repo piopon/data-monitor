@@ -196,7 +196,7 @@ docker compose logs -f worker
 
 ## Application version metadata 🔖
 
-The UI logo hover tooltip shows the application version string resolved by server startup logic.
+The UI header logo shows the application version string as small text near the logo name and also exposes the same value as hover tooltip.
 
 Resolution order:
 

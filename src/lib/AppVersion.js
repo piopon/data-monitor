@@ -10,6 +10,7 @@ let resolvedVersion;
 let resolvedPackageVersion;
 
 const sanitizeToken = (value) => String(value || "").trim().replace(/\s+/g, "");
+const sanitizeErrorMessage = (error) => sanitizeToken(error?.message || String(error || "unknown error"));
 
 const readGitSha = () => {
   const fromEnv = sanitizeToken(process.env.GIT_COMMIT_SHA || process.env.COMMIT_SHA || process.env.SOURCE_VERSION);
@@ -18,7 +19,8 @@ const readGitSha = () => {
   }
   try {
     return sanitizeToken(execSync("git rev-parse --short=12 HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString());
-  } catch {
+  } catch (error) {
+    console.warn(`Git SHA unavailable: ${sanitizeErrorMessage(error)}`);
     return "";
   }
 };
@@ -27,7 +29,8 @@ const readVersionFile = () => {
   try {
     const versionPath = path.join(process.cwd(), VERSION_FILE);
     return sanitizeToken(readFileSync(versionPath, "utf8"));
-  } catch {
+  } catch (error) {
+    console.warn(`VERSION file unavailable: ${sanitizeErrorMessage(error)}`);
     return "";
   }
 };
@@ -39,7 +42,8 @@ const getPackageVersion = () => {
       const packageJsonContent = readFileSync(packageJsonPath, "utf8");
       const packageJson = JSON.parse(packageJsonContent);
       resolvedPackageVersion = sanitizeToken(packageJson.version || "0.0.0");
-    } catch {
+    } catch (error) {
+      console.warn(`Failed to read package.json version: ${sanitizeErrorMessage(error)}`);
       resolvedPackageVersion = "0.0.0";
     }
   }
@@ -48,16 +52,14 @@ const getPackageVersion = () => {
 
 const computeAppVersion = () => {
   const packageVersion = getPackageVersion();
-  const sha = readGitSha();
-  if (sha) {
-    return `${packageVersion}+${sha}`;
+  const gitSha = readGitSha();
+  if (gitSha) {
+    return `${packageVersion}+${gitSha}`;
   }
-
   const versionFromFile = readVersionFile();
   if (versionFromFile) {
     return versionFromFile;
   }
-
   return packageVersion;
 };
 
@@ -68,6 +70,7 @@ const computeAppVersion = () => {
 export const getAppVersion = () => {
   if (!resolvedVersion) {
     resolvedVersion = computeAppVersion();
+    console.info(`App version: ${resolvedVersion}`);
   }
   return resolvedVersion;
 };
