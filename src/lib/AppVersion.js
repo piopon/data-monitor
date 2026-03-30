@@ -2,12 +2,12 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import packageJson from "../../package.json" with { type: "json" };
-
 const VERSION_FILE = "VERSION";
 const SHA_PLACEHOLDER = "unknown";
+const PACKAGE_JSON_FILE = "package.json";
 
 let resolvedVersion;
+let resolvedPackageVersion;
 
 const sanitizeToken = (value) => String(value || "").trim().replace(/\s+/g, "");
 
@@ -32,7 +32,19 @@ const readVersionFile = () => {
   }
 };
 
-const getPackageVersion = () => sanitizeToken(packageJson.version || "0.0.0");
+const getPackageVersion = () => {
+  if (!resolvedPackageVersion) {
+    try {
+      const packageJsonPath = path.join(process.cwd(), PACKAGE_JSON_FILE);
+      const packageJsonContent = readFileSync(packageJsonPath, "utf8");
+      const packageJson = JSON.parse(packageJsonContent);
+      resolvedPackageVersion = sanitizeToken(packageJson.version || "0.0.0");
+    } catch {
+      resolvedPackageVersion = "0.0.0";
+    }
+  }
+  return resolvedPackageVersion;
+};
 
 const computeAppVersion = () => {
   const packageVersion = getPackageVersion();
