@@ -8,14 +8,17 @@ import { LoginContext } from "@/context/Contexts";
 
 import logo from "@/assets/images/logo-64_outline.png";
 
-const PageHeader = () => {
+const PageHeader = ({ appVersion }) => {
   const { userLogged } = useContext(LoginContext);
   return (
     <nav className="page-head">
       <div className="page-head-logo-div">
-        <Link className="page-head-logo-link" href="/">
+        <Link className="page-head-logo-link" href="/" title={appVersion}>
           <Image className="page-head-logo-img" src={logo} alt="data-monitor logo" />
-          <span className="page-head-logo-text">data-monitor</span>
+          <span className="page-head-logo-text-wrap">
+            <span className="page-head-logo-text">data-monitor</span>
+            <span className="page-head-logo-version">{appVersion}</span>
+          </span>
         </Link>
       </div>
       {userLogged && <MenuBar />}

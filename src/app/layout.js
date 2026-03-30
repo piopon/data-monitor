@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify";
 import PageHeader from "@/components/PageHeader";
 import LoginProvider from "@/context/LoginProvider";
 import PageProvider from "@/context/PageProvider";
+import { getAppVersion } from "@/lib/AppVersion";
 
 export const metadata = {
   title: "data-monitor",
@@ -14,13 +15,14 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const appVersion = getAppVersion();
   return (
     <html lang="en">
       <body>
         <LoginProvider>
           <div className="page-container">
             <PageProvider>
-              <PageHeader />
+              <PageHeader appVersion={appVersion} />
               <div className="page-content">{children}</div>
               <ToastContainer position="bottom-right" />
             </PageProvider>

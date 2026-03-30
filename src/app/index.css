@@ -55,8 +55,16 @@ img.page-head-logo-img {
   @apply h-10 w-auto;
 }
 
+span.page-head-logo-text-wrap {
+  @apply flex flex-col ml-2 leading-tight;
+}
+
 span.page-head-logo-text {
-  @apply md:block text-white text-2xl font-bold ml-2;
+  @apply md:block text-white text-2xl font-bold;
+}
+
+span.page-head-logo-version {
+  @apply text-indigo-100 text-[0.62rem] sm:text-xs font-medium tracking-wide;
 }
 
 section.menu-section {

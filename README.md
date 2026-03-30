@@ -164,6 +164,12 @@ CRYPTO_LEGACY_SECRETS=["old-secret-1","old-secret-2"]
 
 Use this runbook when publishing and deploying a release.
 
+Version metadata behavior in release bundles:
+
+- CD generates a root `VERSION` file during release workflow execution.
+- The value format is `<package.json version>+<12-char commit sha>`.
+- The file is included in the release archive and in Docker runtime image.
+
 1. Ensure CI is green for the target commit/PR.
 2. Create a GitHub release (tag + publish).
 3. Wait for `CD data-monitor` workflow to finish successfully.
@@ -188,6 +194,27 @@ docker compose logs -f worker
 9. Validate application availability in browser and confirm notifications/worker behavior.
 10. If deployment fails, roll back to the previous release bundle and restart Compose with the previous version.
 
+## Application version metadata 🔖
+
+The UI header logo shows the application version string as small text near the logo name and also exposes the same value as hover tooltip.
+
+Resolution order:
+
+1. Git commit SHA (environment variables first, then `git rev-parse`) + `package.json` version.
+2. Root `VERSION` file content.
+3. `package.json` version only.
+
+Examples:
+
+- `0.1.0+abc123def456`
+- `0.1.0+unknown`
+- `0.1.0`
+
+Notes:
+
+- The value is resolved once per process lifetime and cached in memory.
+- `VERSION` is intended as a durable fallback for tarball/offline builds where git metadata is unavailable.
+
 ## Project structure 📊
 
 ```
@@ -208,6 +235,7 @@ data-monitor/
 ├── package-lock.json      # Node.js snapshot of the dependency tree
 ├── package.json           # Node.js project metadata (scripts and dependency definitions)
 ├── postcss.config.mjs     # CSS/PostCSS pipeline configuration.
+├── VERSION                # Build/release version metadata fallback (e.g. x.y.z+sha)
 └── README.md              # Top-level project description and operational runbooks
 ```
 
