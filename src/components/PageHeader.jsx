@@ -15,7 +15,10 @@ const PageHeader = ({ appVersion }) => {
       <div className="page-head-logo-div">
         <Link className="page-head-logo-link" href="/" title={appVersion}>
           <Image className="page-head-logo-img" src={logo} alt="data-monitor logo" />
-          <span className="page-head-logo-text">data-monitor</span>
+          <span className="page-head-logo-text-wrap">
+            <span className="page-head-logo-text">data-monitor</span>
+            <span className="page-head-logo-version">{appVersion}</span>
+          </span>
         </Link>
       </div>
       {userLogged && <MenuBar />}
