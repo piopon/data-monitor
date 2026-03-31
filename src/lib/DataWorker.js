@@ -30,6 +30,29 @@ function sleep(ms) {
 }
 
 /**
+ * Method used to build user-specific log prefix
+ * @param {Object} user User context related to the log line
+ * @returns string with normalized user email prefix
+ */
+function getUserLogPrefix(user) {
+  if (!user?.email) {
+    return "";
+  }
+  return `[user:${user.email}] `;
+}
+
+/**
+ * Method used to write logs with user context
+ * @param {"log"|"warn"|"error"} level Console log level
+ * @param {Object} user User context related to the log line
+ * @param {String} message Log message
+ * @param {...any} args Additional log arguments
+ */
+function workerLog(level, user, message, ...args) {
+  console[level](`${getUserLogPrefix(user)}${message}`, ...args);
+}
+
+/**
  * Method used to verify two input values against each other
  * @param {Number} val1 First value to be verified
  * @param {String} operator The operator used to verify both values
