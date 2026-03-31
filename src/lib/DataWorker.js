@@ -34,11 +34,9 @@ function sleep(ms) {
  * @param {Object} user User context related to the log line
  * @returns string with normalized user email prefix
  */
-function getUserLogPrefix(user) {
-  if (!user?.email) {
-    return "";
-  }
-  return `[user:${user.email}] `;
+function getLogPrefix(level, user) {
+  const userInfo = (user?.email) ? `${user.email} > ` : "";
+  return `Worker ${userInfo}${level.toUpperCase()}: `;
 }
 
 /**
@@ -48,7 +46,7 @@ function getUserLogPrefix(user) {
  * @param {Object} user User context related to the log line
  */
 function workerLog(level, message, user = null) {
-  console[level](`${getUserLogPrefix(user)}${message}`);
+  console[level](`${getLogPrefix(level, user)}${message}`);
 }
 
 /**
@@ -57,7 +55,7 @@ function workerLog(level, message, user = null) {
  * @param {Object} user User context related to the log line
  */
 function workerInfo(message, user = null) {
-  workerLog("log", `Worker info: ${message}`, user);
+  workerLog("info", message, user);
 }
 
 /**
@@ -66,7 +64,7 @@ function workerInfo(message, user = null) {
  * @param {Object} user User context related to the log line
  */
 function workerWarn(message, user = null) {
-  workerLog("warn", `Worker warn: ${message}`, user);
+  workerLog("warn", message, user);
 }
 
 /**
@@ -75,7 +73,7 @@ function workerWarn(message, user = null) {
  * @param {Object} user User context related to the log line
  */
 function workerError(message, user = null) {
-  workerLog("error", `Worker error: ${message}`, user);
+  workerLog("error", message, user);
 }
 
 /**
@@ -135,7 +133,7 @@ function getUserTimestamps(user) {
         }
       } catch (error) {
         // file is unreadable or contains invalid JSON
-        workerWarn("timestamp file is unreadable.", user);
+        workerWarn("Timestamp file is unreadable.", user);
       }
     }
     USER_SEND_TIMESTAMPS.set(userCacheKey, userTimestamps);
@@ -230,7 +228,7 @@ async function getNotifierType(monitor, user) {
 async function checkData(user) {
   const userCheckKey = getUserCacheKey(user);
   if (RUNNING_USER_CHECKS.has(userCheckKey)) {
-    workerInfo("previous check is still running. Skipping this run.", user);
+    workerInfo("Previous check is still running. Skipping this run.", user);
     return;
   }
   RUNNING_USER_CHECKS.add(userCheckKey);
@@ -240,7 +238,7 @@ async function checkData(user) {
     const monitorsToCheck = enabledMonitors.filter((monitor) => {
       const sendInterval = monitor.interval || SEND_INTERVAL;
       if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
-        workerInfo(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`, user);
+        workerInfo(`Skipping ${monitor.parent}: Notification was sent in the last ${sendInterval / 1_000} seconds.`, user);
         return false;
       }
       return true;
@@ -335,7 +333,7 @@ async function checkData(user) {
                 }),
               );
             } else {
-              workerInfo(`${monitor.parent} does not meet its threshold value...`, user);
+              workerInfo(`Skipping ${monitor.parent}: Threshold value was not met.`, user);
             }
           } catch (error) {
             workerError(error.message, user);
@@ -363,10 +361,10 @@ UserService.getUsers()
   .then((users) => {
     users.forEach((user, index) => {
       sleep((INTERVAL / 10) * index).then(() => {
-        workerInfo("started.", user);
+        workerInfo("Started.", user);
       });
       setInterval(checkData, INTERVAL, user);
       checkData(user);
     });
   })
-  .catch((error) => workerError(`cannot get users: ${error}`));
+  .catch((error) => workerError(`Cannot get users: ${error}`));
