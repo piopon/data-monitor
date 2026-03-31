@@ -10,7 +10,7 @@ export async function GET() {
     service: "data-monitor",
     timestamp: now,
     uptimeSeconds: Math.floor(process.uptime()),
-    version: getAppVersion(),
+    version: getAppVersion({ verbose: false }),
   };
 
   return new Response(JSON.stringify(body), {
