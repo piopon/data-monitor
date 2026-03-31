@@ -44,38 +44,38 @@ function getUserLogPrefix(user) {
 /**
  * Method used to write logs with user context
  * @param {"log"|"warn"|"error"} level Console log level
- * @param {Object} user User context related to the log line
  * @param {String} message Log message
+ * @param {Object} user User context related to the log line
  */
-function workerLog(level, user, message) {
+function workerLog(level, message, user = null) {
   console[level](`${getUserLogPrefix(user)}${message}`);
 }
 
 /**
  * Method used to log worker informational messages
- * @param {Object} user User context related to the log line
  * @param {String} message Log message
+ * @param {Object} user User context related to the log line
  */
-function workerInfo(user, message) {
-  workerLog("log", user, message);
+function workerInfo(message, user = null) {
+  workerLog("log", message, user);
 }
 
 /**
  * Method used to log worker warning messages
- * @param {Object} user User context related to the log line
  * @param {String} message Log message
+ * @param {Object} user User context related to the log line
  */
-function workerWarn(user, message) {
-  workerLog("warn", user, message);
+function workerWarn(message, user = null) {
+  workerLog("warn", message, user);
 }
 
 /**
  * Method used to log worker error messages
- * @param {Object} user User context related to the log line
  * @param {String} message Log message
+ * @param {Object} user User context related to the log line
  */
-function workerError(user, message) {
-  workerLog("error", user, message);
+function workerError(message, user = null) {
+  workerLog("error", message, user);
 }
 
 /**
@@ -135,7 +135,7 @@ function getUserTimestamps(user) {
         }
       } catch (error) {
         // file is unreadable or contains invalid JSON
-        workerWarn(user, "Worker warning: timestamp file is unreadable.");
+        workerWarn("Worker warning: timestamp file is unreadable.", user);
       }
     }
     USER_SEND_TIMESTAMPS.set(userCacheKey, userTimestamps);
@@ -180,7 +180,7 @@ function updateSendTimestamp(user, monitorId) {
  */
 async function getNotifierType(monitor, user) {
   if (monitor?.notifier_id == null) {
-    workerWarn(user, `Worker warning: Monitor ${monitor.parent} has no notifier configured.`);
+    workerWarn(`Worker warning: Monitor ${monitor.parent} has no notifier configured.`, user);
     return null;
   }
   const notifierId = String(monitor.notifier_id);
@@ -201,20 +201,20 @@ async function getNotifierType(monitor, user) {
       },
     );
   } catch (error) {
-    workerError(user, `Worker error: Cannot fetch notifier data: ${error.message}`);
+    workerError(`Worker error: Cannot fetch notifier data: ${error.message}`, user);
     return null;
   }
   const notifierData = await notifierResponse.json();
   if (!notifierResponse.ok) {
-    workerError(user, `Worker error: Cannot get notifier data: ${notifierData.message}`);
+    workerError(`Worker error: Cannot get notifier data: ${notifierData.message}`, user);
     return null;
   }
   if (0 === notifierData.length) {
-    workerWarn(user, `Worker warning: Notifier not configured for monitor ${monitor.parent}.`);
+    workerWarn(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`, user);
     return null;
   }
   if (1 !== notifierData.length) {
-    workerError(user, `Worker error: Received multiple notifiers for monitor ${monitor.parent}!`);
+    workerError(`Worker error: Received multiple notifiers for monitor ${monitor.parent}!`, user);
     return null;
   }
 
@@ -230,7 +230,7 @@ async function getNotifierType(monitor, user) {
 async function checkData(user) {
   const userCheckKey = getUserCacheKey(user);
   if (RUNNING_USER_CHECKS.has(userCheckKey)) {
-    workerInfo(user, "Worker info: previous check is still running. Skipping this run.");
+    workerInfo("Worker info: previous check is still running. Skipping this run.", user);
     return;
   }
   RUNNING_USER_CHECKS.add(userCheckKey);
@@ -240,7 +240,7 @@ async function checkData(user) {
     const monitorsToCheck = enabledMonitors.filter((monitor) => {
       const sendInterval = monitor.interval || SEND_INTERVAL;
       if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
-        workerInfo(user, `${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`);
+        workerInfo(`${monitor.parent} notification was sent in the last ${sendInterval / 1_000} seconds. Skipping.`, user);
         return false;
       }
       return true;
@@ -256,16 +256,16 @@ async function checkData(user) {
         headers: { Authorization: `Bearer ${user.jwt}` },
       });
     } catch (error) {
-      workerError(user, `Worker error: Cannot fetch scraper data: ${error.message}`);
+      workerError(`Worker error: Cannot fetch scraper data: ${error.message}`, user);
       return;
     }
     if (!scraperResponse.ok) {
-      workerError(user, `Worker error: Cannot get scraper data: ${await scraperResponse.text()}`);
+      workerError(`Worker error: Cannot get scraper data: ${await scraperResponse.text()}`, user);
       return;
     }
     const scraperData = await scraperResponse.json();
     if (!Array.isArray(scraperData)) {
-      workerError(user, "Worker error: Cannot parse scraper data response.");
+      workerError("Worker error: Cannot parse scraper data response.", user);
       return;
     }
     const scraperDataByName = new Map();
@@ -287,7 +287,7 @@ async function checkData(user) {
             const monitorItemId = DataUtils.nameToId(monitor.parent);
             const scraperItem = scraperDataByName.get(monitorItemId);
             if (!scraperItem) {
-              workerError(user, `Worker error: Cannot find ${monitor.parent} in scraper data...`);
+              workerError(`Worker error: Cannot find ${monitor.parent} in scraper data...`, user);
               return;
             }
             if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
@@ -295,7 +295,7 @@ async function checkData(user) {
               if (!notifierType) {
                 return;
               }
-              workerInfo(user, `Sending notification: ${monitor.parent} over threshold!`);
+              workerInfo(`Sending notification: ${monitor.parent} over threshold!`, user);
               const matchedNotifiers = NotifierCatalog.getSupportedNotifiers()
                 .keys()
                 .filter((notifier) => notifierType === notifier);
@@ -323,28 +323,28 @@ async function checkData(user) {
                       },
                     );
                   } catch (error) {
-                    workerError(user, `Notification error: ${error.message}`);
+                    workerError(`Notification error: ${error.message}`, user);
                     return;
                   }
                   if (!notifyResponse.ok) {
-                    workerError(user, `Notification error: ${await notifyResponse.json()}`);
+                    workerError(`Notification error: ${await notifyResponse.json()}`, user);
                     return;
                   }
                   updateSendTimestamp(user, monitor.parent);
-                  workerInfo(user, `Notification ok: ${await notifyResponse.json()}`);
+                  workerInfo(`Notification ok: ${await notifyResponse.json()}`, user);
                 }),
               );
             } else {
-              workerInfo(user, `${monitor.parent} does not meet its threshold value...`);
+              workerInfo(`${monitor.parent} does not meet its threshold value...`, user);
             }
           } catch (error) {
-            workerError(user, `Worker error: ${error.message}`);
+            workerError(`Worker error: ${error.message}`, user);
           }
         }),
       );
     }
   } catch (error) {
-    workerError(user, `Worker error: ${error.message}`);
+    workerError(`Worker error: ${error.message}`, user);
   } finally {
     RUNNING_USER_CHECKS.delete(userCheckKey);
   }
@@ -363,10 +363,10 @@ UserService.getUsers()
   .then((users) => {
     users.forEach((user, index) => {
       sleep((INTERVAL / 10) * index).then(() => {
-        workerInfo(user, "Worker info: started.");
+        workerInfo("Worker info: started.", user);
       });
       setInterval(checkData, INTERVAL, user);
       checkData(user);
     });
   })
-  .catch((error) => workerError(null, `Worker error: cannot get users: ${error}`));
+  .catch((error) => workerError(`Worker error: cannot get users: ${error}`));
