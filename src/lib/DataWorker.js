@@ -57,7 +57,7 @@ function workerLog(level, message, user = null) {
  * @param {Object} user User context related to the log line
  */
 function workerInfo(message, user = null) {
-  workerLog("log", message, user);
+  workerLog("log", `Worker info: ${message}`, user);
 }
 
 /**
@@ -66,7 +66,7 @@ function workerInfo(message, user = null) {
  * @param {Object} user User context related to the log line
  */
 function workerWarn(message, user = null) {
-  workerLog("warn", message, user);
+  workerLog("warn", `Worker warn: ${message}`, user);
 }
 
 /**
@@ -75,7 +75,7 @@ function workerWarn(message, user = null) {
  * @param {Object} user User context related to the log line
  */
 function workerError(message, user = null) {
-  workerLog("error", message, user);
+  workerLog("error", `Worker error: ${message}`, user);
 }
 
 /**
@@ -135,7 +135,7 @@ function getUserTimestamps(user) {
         }
       } catch (error) {
         // file is unreadable or contains invalid JSON
-        workerWarn("Worker warning: timestamp file is unreadable.", user);
+        workerWarn("timestamp file is unreadable.", user);
       }
     }
     USER_SEND_TIMESTAMPS.set(userCacheKey, userTimestamps);
@@ -180,7 +180,7 @@ function updateSendTimestamp(user, monitorId) {
  */
 async function getNotifierType(monitor, user) {
   if (monitor?.notifier_id == null) {
-    workerWarn(`Worker warning: Monitor ${monitor.parent} has no notifier configured.`, user);
+    workerWarn(`Monitor ${monitor.parent} has no notifier configured.`, user);
     return null;
   }
   const notifierId = String(monitor.notifier_id);
@@ -201,20 +201,20 @@ async function getNotifierType(monitor, user) {
       },
     );
   } catch (error) {
-    workerError(`Worker error: Cannot fetch notifier data: ${error.message}`, user);
+    workerError(`Cannot fetch notifier data: ${error.message}`, user);
     return null;
   }
   const notifierData = await notifierResponse.json();
   if (!notifierResponse.ok) {
-    workerError(`Worker error: Cannot get notifier data: ${notifierData.message}`, user);
+    workerError(`Cannot get notifier data: ${notifierData.message}`, user);
     return null;
   }
   if (0 === notifierData.length) {
-    workerWarn(`Worker warning: Notifier not configured for monitor ${monitor.parent}.`, user);
+    workerWarn(`Notifier not configured for monitor ${monitor.parent}.`, user);
     return null;
   }
   if (1 !== notifierData.length) {
-    workerError(`Worker error: Received multiple notifiers for monitor ${monitor.parent}!`, user);
+    workerError(`Received multiple notifiers for monitor ${monitor.parent}!`, user);
     return null;
   }
 
@@ -230,7 +230,7 @@ async function getNotifierType(monitor, user) {
 async function checkData(user) {
   const userCheckKey = getUserCacheKey(user);
   if (RUNNING_USER_CHECKS.has(userCheckKey)) {
-    workerInfo("Worker info: previous check is still running. Skipping this run.", user);
+    workerInfo("previous check is still running. Skipping this run.", user);
     return;
   }
   RUNNING_USER_CHECKS.add(userCheckKey);
@@ -256,16 +256,16 @@ async function checkData(user) {
         headers: { Authorization: `Bearer ${user.jwt}` },
       });
     } catch (error) {
-      workerError(`Worker error: Cannot fetch scraper data: ${error.message}`, user);
+      workerError(`Cannot fetch scraper data: ${error.message}`, user);
       return;
     }
     if (!scraperResponse.ok) {
-      workerError(`Worker error: Cannot get scraper data: ${await scraperResponse.text()}`, user);
+      workerError(`Cannot get scraper data: ${await scraperResponse.text()}`, user);
       return;
     }
     const scraperData = await scraperResponse.json();
     if (!Array.isArray(scraperData)) {
-      workerError("Worker error: Cannot parse scraper data response.", user);
+      workerError("Cannot parse scraper data response.", user);
       return;
     }
     const scraperDataByName = new Map();
@@ -287,7 +287,7 @@ async function checkData(user) {
             const monitorItemId = DataUtils.nameToId(monitor.parent);
             const scraperItem = scraperDataByName.get(monitorItemId);
             if (!scraperItem) {
-              workerError(`Worker error: Cannot find ${monitor.parent} in scraper data...`, user);
+              workerError(`Cannot find ${monitor.parent} in scraper data...`, user);
               return;
             }
             if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
@@ -338,13 +338,13 @@ async function checkData(user) {
               workerInfo(`${monitor.parent} does not meet its threshold value...`, user);
             }
           } catch (error) {
-            workerError(`Worker error: ${error.message}`, user);
+            workerError(error.message, user);
           }
         }),
       );
     }
   } catch (error) {
-    workerError(`Worker error: ${error.message}`, user);
+    workerError(error.message, user);
   } finally {
     RUNNING_USER_CHECKS.delete(userCheckKey);
   }
@@ -363,10 +363,10 @@ UserService.getUsers()
   .then((users) => {
     users.forEach((user, index) => {
       sleep((INTERVAL / 10) * index).then(() => {
-        workerInfo("Worker info: started.", user);
+        workerInfo("started.", user);
       });
       setInterval(checkData, INTERVAL, user);
       checkData(user);
     });
   })
-  .catch((error) => workerError(`Worker error: cannot get users: ${error}`));
+  .catch((error) => workerError(`cannot get users: ${error}`));
