@@ -2,6 +2,7 @@ import { MonitorService } from "../model/MonitorService.js";
 import { NotifierCatalog } from "../notifiers/core/NotifierCatalog.js";
 import { NotifierValidator } from "../notifiers/core/NotifierValidator.js";
 import { UserService } from "../model/UserService.js";
+import { DataSanitizer } from "./DataSanitizer.js";
 import { DataUtils } from "./DataUtils.js";
 import { RequestUtils } from "./RequestUtils.js";
 
@@ -31,17 +32,19 @@ function sleep(ms) {
 
 /**
  * Method used to build user-specific log prefix
+ * @param {String} level The log level to be outlined in prefix
  * @param {Object} user User context related to the log line
  * @returns string with normalized user email prefix
  */
 function getLogPrefix(level, user) {
-  const userInfo = (user?.email) ? `${user.email} > ` : "";
+  const sanitizedEmail = DataSanitizer.sanitizeEmail(user?.email);
+  const userInfo = sanitizedEmail ? `${sanitizedEmail} > ` : "";
   return `Worker ${userInfo}${level.toUpperCase()}: `;
 }
 
 /**
  * Method used to write logs with user context
- * @param {"log"|"warn"|"error"} level Console log level
+ * @param {"info"|"warn"|"error"} level Console log level
  * @param {String} message Log message
  * @param {Object} user User context related to the log line
  */
