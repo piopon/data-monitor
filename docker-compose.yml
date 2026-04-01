@@ -1,8 +1,15 @@
+x-default-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   postgres:
     image: postgres:16-alpine
     container_name: data-monitor-postgres
     restart: unless-stopped
+    logging: *default-logging
     environment:
       POSTGRES_DB: ${DB_NAME:-data_monitor}
       POSTGRES_USER: ${DB_USER:-data_monitor}
@@ -26,6 +33,7 @@ services:
     image: data-monitor:local
     container_name: data-monitor-web
     restart: unless-stopped
+    logging: *default-logging
     depends_on:
       postgres:
         condition: service_healthy
@@ -88,6 +96,7 @@ services:
     image: data-monitor:local
     container_name: data-monitor-worker
     restart: unless-stopped
+    logging: *default-logging
     command: ["node", "./src/lib/DataWorker.js"]
     depends_on:
       web:
@@ -138,6 +147,7 @@ services:
     image: curlimages/curl:8.11.1
     container_name: data-monitor-init
     restart: "no"
+    logging: *default-logging
     depends_on:
       web:
         condition: service_healthy
