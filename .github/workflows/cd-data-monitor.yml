@@ -151,3 +151,69 @@ jobs:
           done
 
           echo "Artifact smoke check passed."
+
+  smoke-runtime:
+    name: Smoke Check Runtime
+    needs: smoke-artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Resolve bundle tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+          else
+            echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Download release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: data-monitor-${{ env.BUNDLE_TAG }}
+          path: runtime
+
+      - name: Extract artifact
+        shell: bash
+        run: |
+          mkdir -p runtime/extracted
+          tar -xzf "runtime/data-monitor-${BUNDLE_TAG}.tar.gz" -C runtime/extracted
+
+      - name: Create smoke test env file
+        shell: bash
+        run: |
+          cat > runtime/extracted/.env << 'EOF'
+          APP_PORT=3000
+          DB_NAME=data_monitor
+          DB_USER=data_monitor
+          DB_PASS=smoke_test_password
+          CRYPTO_SECRET=smoke_test_secret_value_for_ci_only
+          EOF
+
+      - name: Start smoke stack (postgres + web)
+        shell: bash
+        run: |
+          docker compose -f runtime/extracted/docker-compose.yml up --build -d postgres web
+
+      - name: Probe web endpoint
+        shell: bash
+        run: |
+          for attempt in {1..30}; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:3000 || true)
+            if [ "$code" = "200" ]; then
+              echo "Runtime smoke check passed."
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "Web endpoint did not become ready in time."
+          docker compose -f runtime/extracted/docker-compose.yml logs web
+          exit 1
+
+      - name: Teardown smoke stack
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          docker compose -f runtime/extracted/docker-compose.yml down -v --remove-orphans
