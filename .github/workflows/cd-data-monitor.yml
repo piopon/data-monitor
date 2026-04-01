@@ -66,21 +66,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
+          grep -vE '^\s*($|#)' .github/release-bundle-files.txt > dist/release-files.txt
           tar -czf "dist/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz" \
-            package.json \
-            package-lock.json \
-            next.config.mjs \
-            eslint.config.mjs \
-            jsconfig.json \
-            postcss.config.mjs \
-            Dockerfile \
-            .dockerignore \
-            docker-compose.yml \
-            README.md \
-            LICENSE \
-            VERSION \
-            public \
-            src
+            --files-from=dist/release-files.txt
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
@@ -109,24 +97,14 @@ jobs:
       - name: Verify required files
         shell: bash
         run: |
-          required=(
-            package.json
-            package-lock.json
-            Dockerfile
-            .dockerignore
-            docker-compose.yml
-            README.md
-            VERSION
-            src
-            public
-          )
+          grep -vE '^\s*($|#)' .github/release-bundle-files.txt > smoke/required-files.txt
 
-          for file in "${required[@]}"; do
+          while IFS= read -r file; do
             if [ ! -e "smoke/extracted/$file" ]; then
               echo "Missing required artifact entry: $file"
               exit 1
             fi
-          done
+          done < smoke/required-files.txt
 
           echo "Artifact smoke check passed."
 
