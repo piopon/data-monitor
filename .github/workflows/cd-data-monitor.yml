@@ -94,12 +94,6 @@ jobs:
           path: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
           if-no-files-found: error
 
-      - name: Attach archive to GitHub release
-        if: ${{ github.event_name == 'release' }}
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
-
   smoke-artifact:
     name: Smoke Check Artifact
     needs: bundle
@@ -217,3 +211,27 @@ jobs:
         shell: bash
         run: |
           docker compose -f runtime/extracted/docker-compose.yml down -v --remove-orphans
+
+  publish-release-asset:
+    name: Publish Release Asset
+    needs: smoke-runtime
+    if: ${{ github.event_name == 'release' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Resolve bundle tag
+        shell: bash
+        run: |
+          echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+
+      - name: Download release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: data-monitor-${{ env.BUNDLE_TAG }}
+          path: publish
+
+      - name: Attach archive to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: publish/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
