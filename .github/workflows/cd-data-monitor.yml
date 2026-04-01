@@ -101,26 +101,15 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Resolve bundle tag
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
-          else
-            echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
-          fi
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Download release artifact
-        uses: actions/download-artifact@v4
+      - name: Prepare release artifact
+        uses: ./.github/actions/prepare-release-artifact
         with:
-          name: data-monitor-${{ env.BUNDLE_TAG }}
-          path: smoke
-
-      - name: Extract artifact
-        shell: bash
-        run: |
-          mkdir -p smoke/extracted
-          tar -xzf "smoke/data-monitor-${BUNDLE_TAG}.tar.gz" -C smoke/extracted
+          artifactPath: smoke
+          extract: "true"
+          extractPath: extracted
 
       - name: Verify required files
         shell: bash
@@ -153,26 +142,15 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Resolve bundle tag
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
-          else
-            echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
-          fi
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Download release artifact
-        uses: actions/download-artifact@v4
+      - name: Prepare release artifact
+        uses: ./.github/actions/prepare-release-artifact
         with:
-          name: data-monitor-${{ env.BUNDLE_TAG }}
-          path: runtime
-
-      - name: Extract artifact
-        shell: bash
-        run: |
-          mkdir -p runtime/extracted
-          tar -xzf "runtime/data-monitor-${BUNDLE_TAG}.tar.gz" -C runtime/extracted
+          artifactPath: runtime
+          extract: "true"
+          extractPath: extracted
 
       - name: Create smoke test env file
         shell: bash
@@ -220,18 +198,16 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Resolve bundle tag
-        shell: bash
-        run: |
-          echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Download release artifact
-        uses: actions/download-artifact@v4
+      - name: Prepare release artifact
+        id: artifact
+        uses: ./.github/actions/prepare-release-artifact
         with:
-          name: data-monitor-${{ env.BUNDLE_TAG }}
-          path: publish
+          artifactPath: publish
 
       - name: Attach archive to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: publish/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
+          files: publish/data-monitor-${{ steps.artifact.outputs.bundle_tag }}.tar.gz

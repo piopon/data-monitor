@@ -1,0 +1,61 @@
+name: Prepare release artifact
+description: Resolve release bundle tag, download workflow artifact, and optionally extract it.
+
+inputs:
+  artifactPath:
+    description: Directory where artifact tarball should be downloaded.
+    required: false
+    default: smoke
+  extract:
+    description: Whether to extract the downloaded tarball.
+    required: false
+    default: "false"
+  extractPath:
+    description: Directory where tarball should be extracted.
+    required: false
+    default: extracted
+
+outputs:
+  bundle_tag:
+    description: Resolved release bundle tag.
+    value: ${{ steps.resolve.outputs.bundle_tag }}
+  archive_path:
+    description: Full path to the downloaded tarball.
+    value: ${{ steps.resolve.outputs.archive_path }}
+  extract_path:
+    description: Full path to extraction directory.
+    value: ${{ steps.resolve.outputs.extract_path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve bundle tag
+      id: resolve
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          BUNDLE_TAG="${{ github.event.release.tag_name }}"
+        else
+          BUNDLE_TAG="manual-${{ github.run_number }}"
+        fi
+
+        ARTIFACT_PATH="${{ inputs.artifactPath }}"
+        EXTRACT_PATH="$ARTIFACT_PATH/${{ inputs.extractPath }}"
+        ARCHIVE_PATH="$ARTIFACT_PATH/data-monitor-${BUNDLE_TAG}.tar.gz"
+
+        echo "bundle_tag=$BUNDLE_TAG" >> "$GITHUB_OUTPUT"
+        echo "archive_path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
+        echo "extract_path=$EXTRACT_PATH" >> "$GITHUB_OUTPUT"
+
+    - name: Download release artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: data-monitor-${{ steps.resolve.outputs.bundle_tag }}
+        path: ${{ inputs.artifactPath }}
+
+    - name: Extract artifact
+      if: ${{ inputs.extract == 'true' }}
+      shell: bash
+      run: |
+        mkdir -p "${{ steps.resolve.outputs.extract_path }}"
+        tar -xzf "${{ steps.resolve.outputs.archive_path }}" -C "${{ steps.resolve.outputs.extract_path }}"
