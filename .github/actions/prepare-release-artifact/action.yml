@@ -30,27 +30,25 @@ runs:
   using: composite
   steps:
     - name: Resolve bundle tag
+      id: tag
+      uses: ./.github/actions/resolve-bundle-tag
+
+    - name: Resolve artifact paths
       id: resolve
       shell: bash
       run: |
-        if [ "${{ github.event_name }}" = "release" ]; then
-          BUNDLE_TAG="${{ github.event.release.tag_name }}"
-        else
-          BUNDLE_TAG="manual-${{ github.run_number }}"
-        fi
-
         ARTIFACT_PATH="${{ inputs.artifactPath }}"
         EXTRACT_PATH="$ARTIFACT_PATH/${{ inputs.extractPath }}"
-        ARCHIVE_PATH="$ARTIFACT_PATH/data-monitor-${BUNDLE_TAG}.tar.gz"
+        ARCHIVE_PATH="$ARTIFACT_PATH/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz"
 
-        echo "bundle_tag=$BUNDLE_TAG" >> "$GITHUB_OUTPUT"
+        echo "bundle_tag=${{ steps.tag.outputs.bundle_tag }}" >> "$GITHUB_OUTPUT"
         echo "archive_path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
         echo "extract_path=$EXTRACT_PATH" >> "$GITHUB_OUTPUT"
 
     - name: Download release artifact
       uses: actions/download-artifact@v4
       with:
-        name: data-monitor-${{ steps.resolve.outputs.bundle_tag }}
+        name: data-monitor-${{ steps.tag.outputs.bundle_tag }}
         path: ${{ inputs.artifactPath }}
 
     - name: Extract artifact

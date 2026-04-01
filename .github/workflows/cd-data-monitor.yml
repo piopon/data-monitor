@@ -52,13 +52,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Resolve bundle tag
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
-          else
-            echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
-          fi
+        id: tag
+        uses: ./.github/actions/resolve-bundle-tag
 
       - name: Generate VERSION metadata
         shell: bash
@@ -71,7 +66,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          tar -czf "dist/data-monitor-${BUNDLE_TAG}.tar.gz" \
+          tar -czf "dist/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz" \
             package.json \
             package-lock.json \
             next.config.mjs \
@@ -90,8 +85,8 @@ jobs:
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: data-monitor-${{ env.BUNDLE_TAG }}
-          path: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
+          name: data-monitor-${{ steps.tag.outputs.bundle_tag }}
+          path: dist/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz
           if-no-files-found: error
 
   smoke-artifact:
