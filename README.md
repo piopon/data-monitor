@@ -105,6 +105,26 @@ docker compose logs -f web
 docker compose logs -f worker
 ```
 
+### Container log retention
+
+This project configures Docker log rotation directly in docker-compose.yml for all services (postgres, web, worker, init).
+
+Current policy:
+
+- log driver: json-file
+- max-size: 10m
+- max-file: 5
+
+Per-service retained log size is approximately 50 MB (10 MB x 5 files).
+This prevents unbounded log growth on long-running self-hosted machines.
+
+Operational checks:
+
+- docker compose ps
+- docker compose logs -f web
+- docker compose logs -f worker
+- docker system df
+
 ### Backend API endpoints 🌐
 
 Base URL: `http://localhost:3000`
