@@ -105,6 +105,29 @@ docker compose logs -f web
 docker compose logs -f worker
 ```
 
+### Backend API endpoints 🌐
+
+Base URL: `http://localhost:3000`
+
+This is a short endpoint map for operators and integrations. It intentionally focuses on URL purpose and HTTP methods only.
+
+| Endpoint | Methods | Purpose |
+| --- | --- | --- |
+| `/api/health` | `GET`, `HEAD` | Service liveness probe for Docker and external monitors. |
+| `/api/init` | `GET` | Initialize database tables and load scraper feature metadata. |
+| `/api/user` | `GET`, `POST`, `PUT`, `DELETE` | User configuration CRUD. |
+| `/api/monitor` | `GET`, `POST`, `PUT`, `DELETE` | Monitor configuration CRUD for authorized user. |
+| `/api/notifier` | `GET`, `POST`, `PUT`, `DELETE` | Notifier configuration CRUD for authorized user, and notifier test-send mode via `POST ?type=...`. |
+| `/api/scraper/login` | `POST` | Proxy login request to scraper backend. |
+| `/api/scraper/logout` | `POST` | Proxy logout request to scraper backend. |
+| `/api/scraper/data` | `GET` | Proxy full data payload from scraper backend. |
+| `/api/scraper/items` | `GET` | Proxy filtered item list from scraper backend (`?name=...` optional). |
+
+Notes:
+
+- `monitor` and `notifier` routes are user-scoped and require an authorized user context.
+- Scraper proxy routes pass through to the configured scraper endpoints from environment/app config.
+
 By default, web app is exposed on `http://localhost:3000`.
 
 ### Dev mode vs Docker mode 💻
