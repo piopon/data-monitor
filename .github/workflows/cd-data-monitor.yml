@@ -99,3 +99,55 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
+
+  smoke-artifact:
+    name: Smoke Check Artifact
+    needs: bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Resolve bundle tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
+          else
+            echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
+          fi
+
+      - name: Download release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: data-monitor-${{ env.BUNDLE_TAG }}
+          path: smoke
+
+      - name: Extract artifact
+        shell: bash
+        run: |
+          mkdir -p smoke/extracted
+          tar -xzf "smoke/data-monitor-${BUNDLE_TAG}.tar.gz" -C smoke/extracted
+
+      - name: Verify required files
+        shell: bash
+        run: |
+          required=(
+            package.json
+            package-lock.json
+            Dockerfile
+            .dockerignore
+            docker-compose.yml
+            README.md
+            VERSION
+            src
+            public
+          )
+
+          for file in "${required[@]}"; do
+            if [ ! -e "smoke/extracted/$file" ]; then
+              echo "Missing required artifact entry: $file"
+              exit 1
+            fi
+          done
+
+          echo "Artifact smoke check passed."
