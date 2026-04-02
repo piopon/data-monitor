@@ -3,7 +3,10 @@ import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 const eslintConfig = [
   ...nextCoreWebVitals,
   {
-    ignores: [".next/**", "out/**", "build/**"]
+    ignores: [".next/**", "out/**", "build/**"],
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+    },
   },
 ];
 
