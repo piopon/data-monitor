@@ -53,13 +53,21 @@ runs:
       shell: bash
       run: |
         ARCHIVE_NAME="data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz"
-        ARCHIVE_PATH=$(find "${{ inputs.artifactPath }}" -type f -name "$ARCHIVE_NAME" | head -n 1)
+        mapfile -t MATCHED_ARCHIVES < <(find "${{ inputs.artifactPath }}" -type f -name "$ARCHIVE_NAME")
 
-        if [ -z "$ARCHIVE_PATH" ]; then
+        if [ "${#MATCHED_ARCHIVES[@]}" -eq 0 ]; then
           echo "Cannot find downloaded archive: $ARCHIVE_NAME"
           find "${{ inputs.artifactPath }}" -maxdepth 3 -type f || true
           exit 1
         fi
+
+        if [ "${#MATCHED_ARCHIVES[@]}" -gt 1 ]; then
+          echo "Multiple archive matches found for: $ARCHIVE_NAME"
+          printf ' - %s\n' "${MATCHED_ARCHIVES[@]}"
+          exit 1
+        fi
+
+        ARCHIVE_PATH="${MATCHED_ARCHIVES[0]}"
 
         echo "archive_path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
 
