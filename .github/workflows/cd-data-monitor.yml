@@ -183,4 +183,4 @@ jobs:
       - name: Attach archive to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: publish/data-monitor-${{ steps.artifact.outputs.bundle_tag }}.tar.gz
+          files: ${{ steps.artifact.outputs.archive_path }}

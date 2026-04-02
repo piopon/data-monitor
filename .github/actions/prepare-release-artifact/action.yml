@@ -18,13 +18,13 @@ inputs:
 outputs:
   bundle_tag:
     description: Resolved release bundle tag.
-    value: ${{ steps.resolve.outputs.bundle_tag }}
+    value: ${{ steps.tag.outputs.bundle_tag }}
   archive_path:
     description: Full path to the downloaded tarball.
-    value: ${{ steps.resolve.outputs.archive_path }}
+    value: ${{ steps.archive.outputs.archive_path }}
   extract_path:
     description: Full path to extraction directory.
-    value: ${{ steps.resolve.outputs.extract_path }}
+    value: ${{ steps.paths.outputs.extract_path }}
 
 runs:
   using: composite
@@ -34,15 +34,12 @@ runs:
       uses: ./.github/actions/resolve-bundle-tag
 
     - name: Resolve artifact paths
-      id: resolve
+      id: paths
       shell: bash
       run: |
         ARTIFACT_PATH="${{ inputs.artifactPath }}"
         EXTRACT_PATH="$ARTIFACT_PATH/${{ inputs.extractPath }}"
-        ARCHIVE_PATH="$ARTIFACT_PATH/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz"
 
-        echo "bundle_tag=${{ steps.tag.outputs.bundle_tag }}" >> "$GITHUB_OUTPUT"
-        echo "archive_path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
         echo "extract_path=$EXTRACT_PATH" >> "$GITHUB_OUTPUT"
 
     - name: Download release artifact
@@ -51,9 +48,24 @@ runs:
         name: data-monitor-${{ steps.tag.outputs.bundle_tag }}
         path: ${{ inputs.artifactPath }}
 
+    - name: Resolve downloaded archive path
+      id: archive
+      shell: bash
+      run: |
+        ARCHIVE_NAME="data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz"
+        ARCHIVE_PATH=$(find "${{ inputs.artifactPath }}" -type f -name "$ARCHIVE_NAME" | head -n 1)
+
+        if [ -z "$ARCHIVE_PATH" ]; then
+          echo "Cannot find downloaded archive: $ARCHIVE_NAME"
+          find "${{ inputs.artifactPath }}" -maxdepth 3 -type f || true
+          exit 1
+        fi
+
+        echo "archive_path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
+
     - name: Extract artifact
       if: ${{ inputs.extract == 'true' }}
       shell: bash
       run: |
-        mkdir -p "${{ steps.resolve.outputs.extract_path }}"
-        tar -xzf "${{ steps.resolve.outputs.archive_path }}" -C "${{ steps.resolve.outputs.extract_path }}"
+        mkdir -p "${{ steps.paths.outputs.extract_path }}"
+        tar -xzf "${{ steps.archive.outputs.archive_path }}" -C "${{ steps.paths.outputs.extract_path }}"
