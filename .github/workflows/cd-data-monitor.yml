@@ -52,13 +52,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Resolve bundle tag
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "BUNDLE_TAG=${{ github.event.release.tag_name }}" >> "$GITHUB_ENV"
-          else
-            echo "BUNDLE_TAG=manual-${{ github.run_number }}" >> "$GITHUB_ENV"
-          fi
+        id: tag
+        uses: ./.github/actions/resolve-bundle-tag
 
       - name: Generate VERSION metadata
         shell: bash
@@ -71,31 +66,133 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          tar -czf "dist/data-monitor-${BUNDLE_TAG}.tar.gz" \
-            package.json \
-            package-lock.json \
-            next.config.mjs \
-            eslint.config.mjs \
-            jsconfig.json \
-            postcss.config.mjs \
-            Dockerfile \
-            .dockerignore \
-            docker-compose.yml \
-            README.md \
-            LICENSE \
-            VERSION \
-            public \
-            src
+          grep -vE '^[[:space:]]*($|#)' .github/release-bundle-files.txt > dist/release-files.txt
+          tar -czf "dist/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz" \
+            --files-from=dist/release-files.txt
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: data-monitor-${{ env.BUNDLE_TAG }}
-          path: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
+          name: data-monitor-${{ steps.tag.outputs.bundle_tag }}
+          path: dist/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz
           if-no-files-found: error
 
+  smoke-artifact:
+    name: Smoke Check Artifact
+    needs: bundle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare release artifact
+        uses: ./.github/actions/prepare-release-artifact
+        with:
+          artifactPath: smoke
+          extract: "true"
+          extractPath: extracted
+
+      - name: Verify required files
+        shell: bash
+        run: |
+          grep -vE '^[[:space:]]*($|#)' .github/release-bundle-files.txt > smoke/required-files.txt
+
+          while IFS= read -r file; do
+            if [ ! -e "smoke/extracted/$file" ]; then
+              echo "Missing required artifact entry: $file"
+              exit 1
+            fi
+          done < smoke/required-files.txt
+
+          echo "Artifact smoke check passed."
+
+  smoke-runtime:
+    name: Smoke Check Runtime
+    needs: smoke-artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare release artifact
+        uses: ./.github/actions/prepare-release-artifact
+        with:
+          artifactPath: runtime
+          extract: "true"
+          extractPath: extracted
+
+      - name: Create smoke test env file
+        shell: bash
+        run: |
+          cat > runtime/extracted/.env << 'EOF'
+          APP_PORT=3000
+          DB_NAME=data_monitor
+          DB_USER=data_monitor
+          DB_PASS=smoke_test_password
+          CRYPTO_SECRET=smoke_test_secret_value_for_ci_only
+          EOF
+
+      - name: Start smoke stack (postgres + web)
+        shell: bash
+        run: |
+          docker compose \
+            --project-directory runtime/extracted \
+            --env-file runtime/extracted/.env \
+            -f runtime/extracted/docker-compose.yml \
+            up --build -d postgres web
+
+      - name: Probe health endpoint
+        shell: bash
+        run: |
+          for attempt in {1..30}; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -X HEAD http://127.0.0.1:3000/api/health || true)
+            if [ "$code" = "200" ]; then
+              echo "Runtime smoke check passed."
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "Health endpoint did not become ready in time."
+          docker compose \
+            --project-directory runtime/extracted \
+            --env-file runtime/extracted/.env \
+            -f runtime/extracted/docker-compose.yml \
+            logs web
+          exit 1
+
+      - name: Teardown smoke stack
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          docker compose \
+            --project-directory runtime/extracted \
+            --env-file runtime/extracted/.env \
+            -f runtime/extracted/docker-compose.yml \
+            down -v --remove-orphans
+
+  publish-release-asset:
+    name: Publish Release Asset
+    needs: smoke-runtime
+    if: ${{ github.event_name == 'release' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare release artifact
+        id: artifact
+        uses: ./.github/actions/prepare-release-artifact
+        with:
+          artifactPath: publish
+
       - name: Attach archive to GitHub release
-        if: ${{ github.event_name == 'release' }}
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/data-monitor-${{ env.BUNDLE_TAG }}.tar.gz
+          files: ${{ steps.artifact.outputs.archive_path }}

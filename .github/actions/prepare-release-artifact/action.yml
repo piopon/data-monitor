@@ -1,0 +1,79 @@
+name: Prepare release artifact
+description: Resolve release bundle tag, download workflow artifact, and optionally extract it.
+
+inputs:
+  artifactPath:
+    description: Directory where artifact tarball should be downloaded.
+    required: false
+    default: smoke
+  extract:
+    description: Whether to extract the downloaded tarball.
+    required: false
+    default: "false"
+  extractPath:
+    description: Directory where tarball should be extracted.
+    required: false
+    default: extracted
+
+outputs:
+  bundle_tag:
+    description: Resolved release bundle tag.
+    value: ${{ steps.tag.outputs.bundle_tag }}
+  archive_path:
+    description: Full path to the downloaded tarball.
+    value: ${{ steps.archive.outputs.archive_path }}
+  extract_path:
+    description: Full path to extraction directory.
+    value: ${{ steps.paths.outputs.extract_path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve bundle tag
+      id: tag
+      uses: ./.github/actions/resolve-bundle-tag
+
+    - name: Resolve artifact paths
+      id: paths
+      shell: bash
+      run: |
+        ARTIFACT_PATH="${{ inputs.artifactPath }}"
+        EXTRACT_PATH="$ARTIFACT_PATH/${{ inputs.extractPath }}"
+
+        echo "extract_path=$EXTRACT_PATH" >> "$GITHUB_OUTPUT"
+
+    - name: Download release artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: data-monitor-${{ steps.tag.outputs.bundle_tag }}
+        path: ${{ inputs.artifactPath }}
+
+    - name: Resolve downloaded archive path
+      id: archive
+      shell: bash
+      run: |
+        ARCHIVE_NAME="data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz"
+        mapfile -t MATCHED_ARCHIVES < <(find "${{ inputs.artifactPath }}" -type f -name "$ARCHIVE_NAME")
+
+        if [ "${#MATCHED_ARCHIVES[@]}" -eq 0 ]; then
+          echo "Cannot find downloaded archive: $ARCHIVE_NAME"
+          find "${{ inputs.artifactPath }}" -maxdepth 3 -type f || true
+          exit 1
+        fi
+
+        if [ "${#MATCHED_ARCHIVES[@]}" -gt 1 ]; then
+          echo "Multiple archive matches found for: $ARCHIVE_NAME"
+          printf ' - %s\n' "${MATCHED_ARCHIVES[@]}"
+          exit 1
+        fi
+
+        ARCHIVE_PATH="${MATCHED_ARCHIVES[0]}"
+
+        echo "archive_path=$ARCHIVE_PATH" >> "$GITHUB_OUTPUT"
+
+    - name: Extract artifact
+      if: ${{ inputs.extract == 'true' }}
+      shell: bash
+      run: |
+        mkdir -p "${{ steps.paths.outputs.extract_path }}"
+        tar -xzf "${{ steps.archive.outputs.archive_path }}" -C "${{ steps.paths.outputs.extract_path }}"

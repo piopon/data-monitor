@@ -1,0 +1,22 @@
+name: Resolve bundle tag
+description: Resolve release bundle tag from event context.
+
+outputs:
+  bundle_tag:
+    description: Resolved release bundle tag.
+    value: ${{ steps.resolve.outputs.bundle_tag }}
+
+runs:
+  using: composite
+  steps:
+    - name: Resolve bundle tag
+      id: resolve
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          BUNDLE_TAG="${{ github.event.release.tag_name }}"
+        else
+          BUNDLE_TAG="manual-${{ github.run_number }}"
+        fi
+
+        echo "bundle_tag=$BUNDLE_TAG" >> "$GITHUB_OUTPUT"

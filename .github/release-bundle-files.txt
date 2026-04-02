@@ -1,0 +1,15 @@
+# Release bundle contents (one path per line, relative to repository root)
+package.json
+package-lock.json
+next.config.mjs
+eslint.config.mjs
+jsconfig.json
+postcss.config.mjs
+Dockerfile
+.dockerignore
+docker-compose.yml
+README.md
+LICENSE
+VERSION
+public
+src
