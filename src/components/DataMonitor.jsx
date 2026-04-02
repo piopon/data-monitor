@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
@@ -43,17 +43,17 @@ const DataMonitor = ({ parentName }) => {
   const [notifierOpts, setNotifierOpts] = useState([CONFIG_NOTIFIER_OPTION]);
   const [notifierType, setNotifierType] = useState(MONITOR_DEFAULTS.notifier);
 
-  const getValidUserId = () => {
+  const getValidUserId = useCallback(() => {
     const user = Number.parseInt(String(userId()), 10);
     if (!Number.isInteger(user) || user <= 0) {
       return null;
     }
     return user;
-  };
+  }, [userId]);
 
-  const getAuthHeaders = () => ({
+  const getAuthHeaders = useCallback(() => ({
     Authorization: `Bearer ${token}`,
-  });
+  }), [token]);
 
   useEffect(() => {
     const initialize = async () => {
@@ -135,7 +135,7 @@ const DataMonitor = ({ parentName }) => {
       }
     };
     initialize();
-  }, [token]);
+  }, [getAuthHeaders, getValidUserId, parentId, token]);
 
   const saveMonitor = async () => {
     if (isDemo) {
