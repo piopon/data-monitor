@@ -66,7 +66,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p dist
-          grep -vE '^\s*($|#)' .github/release-bundle-files.txt > dist/release-files.txt
+          grep -vE '^[[:space:]]*($|#)' .github/release-bundle-files.txt > dist/release-files.txt
           tar -czf "dist/data-monitor-${{ steps.tag.outputs.bundle_tag }}.tar.gz" \
             --files-from=dist/release-files.txt
 
@@ -97,7 +97,7 @@ jobs:
       - name: Verify required files
         shell: bash
         run: |
-          grep -vE '^\s*($|#)' .github/release-bundle-files.txt > smoke/required-files.txt
+          grep -vE '^[[:space:]]*($|#)' .github/release-bundle-files.txt > smoke/required-files.txt
 
           while IFS= read -r file; do
             if [ ! -e "smoke/extracted/$file" ]; then
