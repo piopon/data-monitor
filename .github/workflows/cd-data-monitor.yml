@@ -141,11 +141,11 @@ jobs:
         run: |
           docker compose -f runtime/extracted/docker-compose.yml up --build -d postgres web
 
-      - name: Probe web endpoint
+      - name: Probe health endpoint
         shell: bash
         run: |
           for attempt in {1..30}; do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" http://127.0.0.1:3000 || true)
+            code=$(curl -sS -o /dev/null -w "%{http_code}" -X HEAD http://127.0.0.1:3000/api/health || true)
             if [ "$code" = "200" ]; then
               echo "Runtime smoke check passed."
               exit 0
@@ -153,7 +153,7 @@ jobs:
             sleep 5
           done
 
-          echo "Web endpoint did not become ready in time."
+          echo "Health endpoint did not become ready in time."
           docker compose -f runtime/extracted/docker-compose.yml logs web
           exit 1
 
