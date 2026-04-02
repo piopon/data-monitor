@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
 import { RequestUtils } from "@/lib/RequestUtils";
@@ -12,23 +12,19 @@ const NotifiersPage = () => {
   const [addDisabled, setAddDisabled] = useState(false);
   const { userId, token } = useContext(LoginContext);
 
-  const getValidUserId = () => {
+  const getValidUserId = useCallback(() => {
     const user = Number.parseInt(String(userId()), 10);
     if (!Number.isInteger(user) || user <= 0) {
       return null;
     }
     return user;
-  };
+  }, [userId]);
 
-  const getAuthHeaders = () => ({
+  const getAuthHeaders = useCallback(() => ({
     Authorization: `Bearer ${token}`,
-  });
+  }), [token]);
 
-  useEffect(() => {
-    refreshNotifiers();
-  }, [token]);
-
-  const refreshNotifiers = async () => {
+  const refreshNotifiers = useCallback(async () => {
     try {
       const user = getValidUserId();
       if (user == null) {
@@ -54,7 +50,11 @@ const NotifiersPage = () => {
     } catch (error) {
       toast.error(`Failed to get notifier data: ${error.message}`);
     }
-  };
+  }, [TOTAL_NOTIFIERS_NO, getAuthHeaders, getValidUserId, token]);
+
+  useEffect(() => {
+    refreshNotifiers();
+  }, [refreshNotifiers]);
 
   const removeNotifier = (id) => {
     setNotifiers((prev) => {
