@@ -10,7 +10,7 @@
     "dev": "concurrently \"next dev --turbopack\" \"node ./src/lib/DataWorker.js\"",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "data-monitor": "file:",
