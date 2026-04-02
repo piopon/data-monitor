@@ -139,7 +139,11 @@ jobs:
       - name: Start smoke stack (postgres + web)
         shell: bash
         run: |
-          docker compose -f runtime/extracted/docker-compose.yml up --build -d postgres web
+          docker compose \
+            --project-directory runtime/extracted \
+            --env-file runtime/extracted/.env \
+            -f runtime/extracted/docker-compose.yml \
+            up --build -d postgres web
 
       - name: Probe health endpoint
         shell: bash
@@ -154,14 +158,22 @@ jobs:
           done
 
           echo "Health endpoint did not become ready in time."
-          docker compose -f runtime/extracted/docker-compose.yml logs web
+          docker compose \
+            --project-directory runtime/extracted \
+            --env-file runtime/extracted/.env \
+            -f runtime/extracted/docker-compose.yml \
+            logs web
           exit 1
 
       - name: Teardown smoke stack
         if: ${{ always() }}
         shell: bash
         run: |
-          docker compose -f runtime/extracted/docker-compose.yml down -v --remove-orphans
+          docker compose \
+            --project-directory runtime/extracted \
+            --env-file runtime/extracted/.env \
+            -f runtime/extracted/docker-compose.yml \
+            down -v --remove-orphans
 
   publish-release-asset:
     name: Publish Release Asset
