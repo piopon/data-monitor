@@ -15,7 +15,7 @@
   "dependencies": {
     "data-monitor": "file:",
     "dotenv": "^17.2.1",
-    "next": "15.5.14",
+    "next": "16.2.2",
     "nodemailer": "^7.0.13",
     "pg": "^8.16.0",
     "react": "^19.0.0",
@@ -27,11 +27,10 @@
     "wait-on": "^8.0.5"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "concurrently": "^9.2.1",
     "eslint": "^9",
-    "eslint-config-next": "15.5.14",
+    "eslint-config-next": "16.2.2",
     "tailwindcss": "^4"
   },
   "optionalDependencies": {
