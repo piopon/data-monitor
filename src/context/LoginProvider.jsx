@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoginContext } from "@/context/Contexts";
 
 const LoginProvider = ({ children }) => {
@@ -8,10 +8,19 @@ const LoginProvider = ({ children }) => {
 
   const [id, setId] = useState(-1);
   const [challenge, setChallenge] = useState(null);
-  const [token, setToken] = useState(() => (typeof window !== "undefined" ? localStorage.getItem("token") : null));
+  const [token, setToken] = useState(null);
   const [email, setEmail] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const isDemo = DEMO_USER_ID === id;
-  const userLogged = !!token;
+  const userLogged = authReady && !!token;
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+    setAuthReady(true);
+  }, []);
 
   const login = (id, email, data) => {
     setId(id);
@@ -34,11 +43,17 @@ const LoginProvider = ({ children }) => {
   };
 
   const userId = () => {
-    return id === -1 ? localStorage.getItem("id") : id;
+    if (id !== -1) {
+      return id;
+    }
+    if (typeof window === "undefined") {
+      return null;
+    }
+    return localStorage.getItem("id");
   };
 
   return (
-    <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, demo, isDemo, userId, email }}>
+    <LoginContext.Provider value={{ authReady, userLogged, token, challenge, login, logout, demo, isDemo, userId, email }}>
       {children}
     </LoginContext.Provider>
   );

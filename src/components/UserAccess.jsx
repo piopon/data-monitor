@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import { LoginContext } from "@/context/Contexts";
 
 const UserAccess = ({ children }) => {
-  const { userLogged } = useContext(LoginContext);
+  const { authReady, userLogged } = useContext(LoginContext);
   const router = useRouter();
 
   useEffect(() => {
-    if (!userLogged) {
+    if (authReady && !userLogged) {
       router.replace("/");
     }
-  }, [userLogged, router]);
+  }, [authReady, userLogged, router]);
 
-  if (!userLogged) return null;
+  if (!authReady || !userLogged) return null;
 
   return children;
 };
