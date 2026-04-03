@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 const TIME_UNITS = [
   { value: "ms", text: "ms", factor: 1 },
   { value: "s", text: "sec", factor: 1_000 },
@@ -33,19 +35,37 @@ const decomposeTime = (milliseconds) => {
 };
 
 const TimeSelect = ({ milliseconds, disabled, setter }) => {
-  const { value: timeValue, unit: unitValue } = decomposeTime(milliseconds);
+  const defaultParts = decomposeTime(milliseconds);
+  const [timeValue, setTimeValue] = useState(defaultParts.value);
+  const [unitValue, setUnitValue] = useState(defaultParts.unit);
+  const lastLocalMillisecondsRef = useRef(undefined);
+
+  useEffect(() => {
+    if (milliseconds === lastLocalMillisecondsRef.current) {
+      return;
+    }
+    const timeParts = decomposeTime(milliseconds);
+    setTimeValue(timeParts.value);
+    setUnitValue(timeParts.unit);
+  }, [milliseconds]);
 
   const timeValueChanged = (event) => {
     const value = event.target.value;
     if ("" !== value && !/^\d+$/.test(value)) {
       return;
     }
-    setter(toMilliseconds(value, unitValue));
+    setTimeValue(value);
+    const nextMilliseconds = toMilliseconds(value, unitValue);
+    lastLocalMillisecondsRef.current = nextMilliseconds;
+    setter(nextMilliseconds);
   };
 
   const unitValueChanged = (event) => {
     const unit = event.target.value;
-    setter(toMilliseconds(timeValue, unit));
+    setUnitValue(unit);
+    const nextMilliseconds = toMilliseconds(timeValue, unit);
+    lastLocalMillisecondsRef.current = nextMilliseconds;
+    setter(nextMilliseconds);
   };
 
   return (
