@@ -1,5 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
 import { Pool } from "pg";
 
 import { DataCrypto } from "../../src/lib/DataCrypto.js";
@@ -78,17 +76,16 @@ test("NotifierService guards sensitive filters and maps encrypted values", async
       return { rows: [] };
     },
     async (calls) => {
-      await assert.rejects(
-        async () => NotifierService.filterNotifiers({ origin: "x" }),
+      await expect(NotifierService.filterNotifiers({ origin: "x" })).rejects.toThrow(
         /Origin\/password filter requires at least one non-sensitive filter/,
       );
-      assert.equal(calls.length, 0);
+      expect(calls.length).toBe(0);
 
       const filtered = await NotifierService.filterNotifiers({ id: 1, origin: "smtp", password: "pw" });
-      assert.equal(filtered.length, 1);
-      assert.equal(filtered[0].origin, "smtp");
-      assert.equal(filtered[0].password, "pw");
-      assert.match(calls[0].text, /WHERE id = \$1/);
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].origin).toBe("smtp");
+      expect(filtered[0].password).toBe("pw");
+      expect(calls[0].text).toMatch(/WHERE id = \$1/);
 
       const added = await NotifierService.addNotifier({
         type: "discord",
@@ -97,10 +94,10 @@ test("NotifierService guards sensitive filters and maps encrypted values", async
         password: "token-1",
         user: 3,
       });
-      assert.equal(added.origin, "https://discord.com/api/webhooks/x");
-      assert.equal(added.password, "token-1");
-      assert.equal(DataCrypto.isEncrypted(calls[1].params[1]), true);
-      assert.equal(DataCrypto.isEncrypted(calls[1].params[3]), true);
+      expect(added.origin).toBe("https://discord.com/api/webhooks/x");
+      expect(added.password).toBe("token-1");
+      expect(DataCrypto.isEncrypted(calls[1].params[1])).toBe(true);
+      expect(DataCrypto.isEncrypted(calls[1].params[3])).toBe(true);
 
       const edited = await NotifierService.editNotifierForUser(2, 3, {
         type: "discord",
@@ -108,13 +105,13 @@ test("NotifierService guards sensitive filters and maps encrypted values", async
         sender: "new-bot",
         password: "",
       });
-      assert.equal(edited.sender, "new-bot");
-      assert.equal(edited.origin, "existing-origin");
-      assert.equal(edited.password, "existing-pass");
+      expect(edited.sender).toBe("new-bot");
+      expect(edited.origin).toBe("existing-origin");
+      expect(edited.password).toBe("existing-pass");
 
       const deleted = await NotifierService.deleteNotifierForUser(2, 3);
-      assert.equal(deleted, 1);
-      assert.deepEqual(calls[4].params, [2, 3]);
+      expect(deleted).toBe(1);
+      expect(calls[4].params).toEqual([2, 3]);
     },
   );
 });

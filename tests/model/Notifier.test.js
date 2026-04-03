@@ -1,18 +1,15 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { Notifier } from "../../src/model/Notifier.js";
 import { NotifierCatalog } from "../../src/notifiers/core/NotifierCatalog.js";
 
 test("Notifier constructor applies defaults", () => {
   const notifier = new Notifier();
 
-  assert.equal(notifier.id, undefined);
-  assert.equal(notifier.type, "");
-  assert.equal(notifier.origin, "");
-  assert.equal(notifier.sender, "");
-  assert.equal(notifier.password, "");
-  assert.equal(notifier.userId, undefined);
+  expect(notifier.id).toBeUndefined();
+  expect(notifier.type).toBe("");
+  expect(notifier.origin).toBe("");
+  expect(notifier.sender).toBe("");
+  expect(notifier.password).toBe("");
+  expect(notifier.userId).toBeUndefined();
 });
 
 test("Notifier constructor maps provided values", () => {
@@ -25,23 +22,23 @@ test("Notifier constructor maps provided values", () => {
     userId: 11,
   });
 
-  assert.equal(notifier.id, 5);
-  assert.equal(notifier.type, "email");
-  assert.equal(notifier.origin, "smtp.example.com");
-  assert.equal(notifier.sender, "noreply@example.com");
-  assert.equal(notifier.password, "secret");
-  assert.equal(notifier.userId, 11);
+  expect(notifier.id).toBe(5);
+  expect(notifier.type).toBe("email");
+  expect(notifier.origin).toBe("smtp.example.com");
+  expect(notifier.sender).toBe("noreply@example.com");
+  expect(notifier.password).toBe("secret");
+  expect(notifier.userId).toBe(11);
 });
 
 test("Notifier table name and schema match supported notifiers", () => {
   const schema = Notifier.getDatabaseSchema();
 
-  assert.equal(Notifier.getTableName(), "notifiers");
-  assert.match(schema, /id SERIAL PRIMARY KEY/);
-  assert.match(schema, /user_id INTEGER NOT NULL REFERENCES users\(id\)/);
-  assert.match(schema, /UNIQUE \(user_id, type\)/);
+  expect(Notifier.getTableName()).toBe("notifiers");
+  expect(schema).toMatch(/id SERIAL PRIMARY KEY/);
+  expect(schema).toMatch(/user_id INTEGER NOT NULL REFERENCES users\(id\)/);
+  expect(schema).toMatch(/UNIQUE \(user_id, type\)/);
 
   for (const notifierType of NotifierCatalog.getSupportedNotifiers().keys()) {
-    assert.ok(schema.includes(`'${notifierType}'`));
+    expect(schema.includes(`'${notifierType}'`)).toBe(true);
   }
 });

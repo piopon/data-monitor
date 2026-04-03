@@ -1,19 +1,16 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { Monitor } from "../../src/model/Monitor.js";
 
 test("Monitor constructor applies defaults", () => {
   const monitor = new Monitor();
 
-  assert.equal(monitor.id, undefined);
-  assert.equal(monitor.parent, "");
-  assert.equal(monitor.enabled, false);
-  assert.equal(monitor.interval, undefined);
-  assert.equal(monitor.threshold, undefined);
-  assert.equal(monitor.condition, undefined);
-  assert.equal(monitor.notifierId, undefined);
-  assert.equal(monitor.userId, undefined);
+  expect(monitor.id).toBeUndefined();
+  expect(monitor.parent).toBe("");
+  expect(monitor.enabled).toBe(false);
+  expect(monitor.interval).toBeUndefined();
+  expect(monitor.threshold).toBeUndefined();
+  expect(monitor.condition).toBeUndefined();
+  expect(monitor.notifierId).toBeUndefined();
+  expect(monitor.userId).toBeUndefined();
 });
 
 test("Monitor constructor maps provided values", () => {
@@ -28,33 +25,33 @@ test("Monitor constructor maps provided values", () => {
     userId: 99,
   });
 
-  assert.equal(monitor.id, 10);
-  assert.equal(monitor.parent, "cpu.load");
-  assert.equal(monitor.enabled, true);
-  assert.equal(monitor.interval, 30);
-  assert.equal(monitor.threshold, 80);
-  assert.equal(monitor.condition, ">");
-  assert.equal(monitor.notifierId, 3);
-  assert.equal(monitor.userId, 99);
+  expect(monitor.id).toBe(10);
+  expect(monitor.parent).toBe("cpu.load");
+  expect(monitor.enabled).toBe(true);
+  expect(monitor.interval).toBe(30);
+  expect(monitor.threshold).toBe(80);
+  expect(monitor.condition).toBe(">");
+  expect(monitor.notifierId).toBe(3);
+  expect(monitor.userId).toBe(99);
 });
 
 test("Monitor exposes expected constants and table name", () => {
-  assert.deepEqual(Monitor.CONDITIONS, [
+  expect(Monitor.CONDITIONS).toEqual([
     { value: "<", text: "<" },
     { value: "≤", text: "≤" },
     { value: ">", text: ">" },
     { value: "≥", text: "≥" },
   ]);
-  assert.equal(Monitor.getTableName(), "monitors");
+  expect(Monitor.getTableName()).toBe("monitors");
 });
 
 test("Monitor.getDatabaseSchema contains key constraints", () => {
   const schema = Monitor.getDatabaseSchema();
 
-  assert.match(schema, /id SERIAL PRIMARY KEY/);
-  assert.match(schema, /parent TEXT NOT NULL/);
-  assert.match(schema, /notifier_id INTEGER REFERENCES notifiers\(id\)/);
-  assert.match(schema, /user_id INTEGER NOT NULL REFERENCES users\(id\)/);
-  assert.match(schema, /UNIQUE \(user_id, parent\)/);
-  assert.match(schema, /condition IN \('<', '≤', '>', '≥'\)/);
+  expect(schema).toMatch(/id SERIAL PRIMARY KEY/);
+  expect(schema).toMatch(/parent TEXT NOT NULL/);
+  expect(schema).toMatch(/notifier_id INTEGER REFERENCES notifiers\(id\)/);
+  expect(schema).toMatch(/user_id INTEGER NOT NULL REFERENCES users\(id\)/);
+  expect(schema).toMatch(/UNIQUE \(user_id, parent\)/);
+  expect(schema).toMatch(/condition IN \('<', '≤', '>', '≥'\)/);
 });

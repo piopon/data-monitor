@@ -1,5 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
 import { Pool } from "pg";
 
 import { MonitorService } from "../../src/model/MonitorService.js";
@@ -38,9 +36,9 @@ test("MonitorService methods build expected SQL interactions", async () => {
     },
     async (calls) => {
       const initResult = await MonitorService.initializeTable();
-      assert.equal(initResult.result, true);
-      assert.match(initResult.message, /Initialized 'monitors' table/);
-      assert.match(calls[0].text, /CREATE TABLE IF NOT EXISTS monitors/);
+      expect(initResult.result).toBe(true);
+      expect(initResult.message).toMatch(/Initialized 'monitors' table/);
+      expect(calls[0].text).toMatch(/CREATE TABLE IF NOT EXISTS monitors/);
 
       const filtered = await MonitorService.filterMonitors({
         id: 1,
@@ -52,9 +50,9 @@ test("MonitorService methods build expected SQL interactions", async () => {
         notifier: 2,
         user: 7,
       });
-      assert.deepEqual(filtered, [{ id: 1 }]);
-      assert.match(calls[1].text, /WHERE id = \$1 AND parent = \$2 AND enabled = \$3 AND interval = \$4 AND threshold = \$5 AND condition = \$6 AND notifier_id = \$7 AND user_id = \$8/);
-      assert.deepEqual(calls[1].params, [1, "cpu", true, 10, 80, ">", 2, 7]);
+      expect(filtered).toEqual([{ id: 1 }]);
+      expect(calls[1].text).toMatch(/WHERE id = \$1 AND parent = \$2 AND enabled = \$3 AND interval = \$4 AND threshold = \$5 AND condition = \$6 AND notifier_id = \$7 AND user_id = \$8/);
+      expect(calls[1].params).toEqual([1, "cpu", true, 10, 80, ">", 2, 7]);
 
       const added = await MonitorService.addMonitor({
         parent: "cpu",
@@ -65,8 +63,8 @@ test("MonitorService methods build expected SQL interactions", async () => {
         interval: 15,
         user: 7,
       });
-      assert.equal(added.id, 9);
-      assert.deepEqual(calls[2].params, ["cpu", true, 90, ">", 2, 15, 7]);
+      expect(added.id).toBe(9);
+      expect(calls[2].params).toEqual(["cpu", true, 90, ">", 2, 15, 7]);
 
       const edited = await MonitorService.editMonitorForUser(9, 7, {
         parent: "cpu",
@@ -76,12 +74,12 @@ test("MonitorService methods build expected SQL interactions", async () => {
         notifier: 2,
         interval: 20,
       });
-      assert.equal(edited.enabled, false);
-      assert.deepEqual(calls[3].params, ["cpu", false, 75, "<", 2, 20, 9, 7]);
+      expect(edited.enabled).toBe(false);
+      expect(calls[3].params).toEqual(["cpu", false, 75, "<", 2, 20, 9, 7]);
 
       const deletedCount = await MonitorService.deleteMonitorForUser(9, 7);
-      assert.equal(deletedCount, 1);
-      assert.deepEqual(calls[4].params, [9, 7]);
+      expect(deletedCount).toBe(1);
+      expect(calls[4].params).toEqual([9, 7]);
     },
   );
 });

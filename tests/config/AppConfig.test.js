@@ -1,6 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-
 import { AppConfig } from "../../src/config/AppConfig.js";
 
 const APP_CONFIG_ENV_KEYS = [
@@ -49,23 +46,23 @@ test("AppConfig.getConfig returns expected defaults", () => {
   withEnv({}, () => {
     const config = AppConfig.getConfig();
 
-    assert.equal(config.scraper.host, "localhost");
-    assert.equal(config.scraper.port, 5000);
-    assert.equal(config.scraper.public, null);
-    assert.equal(config.scraper.endpoints.login, "/auth/token");
-    assert.equal(config.scraper.endpoints.logout, "/auth/logout");
-    assert.equal(config.scraper.endpoints.data, "/api/v1/data");
-    assert.equal(config.scraper.endpoints.items, "/api/v1/data/items");
-    assert.equal(config.scraper.endpoints.edit, "?challenge=");
-    assert.equal(config.scraper.endpoints.features, "/api/v1/settings/features");
+    expect(config.scraper.host).toBe("localhost");
+    expect(config.scraper.port).toBe(5000);
+    expect(config.scraper.public).toBeNull();
+    expect(config.scraper.endpoints.login).toBe("/auth/token");
+    expect(config.scraper.endpoints.logout).toBe("/auth/logout");
+    expect(config.scraper.endpoints.data).toBe("/api/v1/data");
+    expect(config.scraper.endpoints.items).toBe("/api/v1/data/items");
+    expect(config.scraper.endpoints.edit).toBe("?challenge=");
+    expect(config.scraper.endpoints.features).toBe("/api/v1/settings/features");
 
-    assert.equal(config.database.host, "localhost");
-    assert.equal(config.database.name, "data-monitor");
-    assert.equal(config.database.port, 5432);
-    assert.equal(config.database.user, "");
-    assert.equal(config.database.password, "");
+    expect(config.database.host).toBe("localhost");
+    expect(config.database.name).toBe("data-monitor");
+    expect(config.database.port).toBe(5432);
+    expect(config.database.user).toBe("");
+    expect(config.database.password).toBe("");
 
-    assert.equal(config.notifier.discord.avatar, "");
+    expect(config.notifier.discord.avatar).toBe("");
   });
 });
 
@@ -91,23 +88,23 @@ test("AppConfig.getConfig applies environment overrides", () => {
     () => {
       const config = AppConfig.getConfig();
 
-      assert.equal(config.scraper.host, "scraper.internal");
-      assert.equal(config.scraper.port, 6001);
-      assert.equal(config.scraper.public, "https://scraper.example.com");
-      assert.equal(config.scraper.endpoints.login, "/custom/login");
-      assert.equal(config.scraper.endpoints.logout, "/custom/logout");
-      assert.equal(config.scraper.endpoints.data, "/custom/data");
-      assert.equal(config.scraper.endpoints.items, "/custom/items");
-      assert.equal(config.scraper.endpoints.edit, "/custom/edit?challenge=");
-      assert.equal(config.scraper.endpoints.features, "/custom/features");
+      expect(config.scraper.host).toBe("scraper.internal");
+      expect(config.scraper.port).toBe(6001);
+      expect(config.scraper.public).toBe("https://scraper.example.com");
+      expect(config.scraper.endpoints.login).toBe("/custom/login");
+      expect(config.scraper.endpoints.logout).toBe("/custom/logout");
+      expect(config.scraper.endpoints.data).toBe("/custom/data");
+      expect(config.scraper.endpoints.items).toBe("/custom/items");
+      expect(config.scraper.endpoints.edit).toBe("/custom/edit?challenge=");
+      expect(config.scraper.endpoints.features).toBe("/custom/features");
 
-      assert.equal(config.database.host, "db.internal");
-      assert.equal(config.database.name, "monitoring");
-      assert.equal(config.database.port, 6543);
-      assert.equal(config.database.user, "monitor_user");
-      assert.equal(config.database.password, "monitor_pass");
+      expect(config.database.host).toBe("db.internal");
+      expect(config.database.name).toBe("monitoring");
+      expect(config.database.port).toBe(6543);
+      expect(config.database.user).toBe("monitor_user");
+      expect(config.database.password).toBe("monitor_pass");
 
-      assert.equal(config.notifier.discord.avatar, "https://cdn.example.com/avatar.png");
+      expect(config.notifier.discord.avatar).toBe("https://cdn.example.com/avatar.png");
     },
   );
 });

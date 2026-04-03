@@ -1,5 +1,3 @@
-import test from "node:test";
-import assert from "node:assert/strict";
 import { Pool } from "pg";
 
 import { DataCrypto } from "../../src/lib/DataCrypto.js";
@@ -45,27 +43,26 @@ test("UserService handles encrypted jwt and guardrails", async () => {
       return { rows: [] };
     },
     async (calls) => {
-      await assert.rejects(
-        async () => UserService.filterUsers({ jwt: "jwt-only" }),
+      await expect(UserService.filterUsers({ jwt: "jwt-only" })).rejects.toThrow(
         /JWT filter requires at least one indexed filter/,
       );
-      assert.equal(calls.length, 0);
+      expect(calls.length).toBe(0);
 
       const users = await UserService.getUsers();
-      assert.equal(users.length, 1);
-      assert.equal(users[0].jwt, "jwt-1");
+      expect(users.length).toBe(1);
+      expect(users[0].jwt).toBe("jwt-1");
 
       const added = await UserService.addUser({ email: "b@b.com", jwt: "jwt-2" });
-      assert.equal(added.jwt, "jwt-2");
-      assert.equal(DataCrypto.isEncrypted(calls[1].params[1]), true);
+      expect(added.jwt).toBe("jwt-2");
+      expect(DataCrypto.isEncrypted(calls[1].params[1])).toBe(true);
 
       const edited = await UserService.editUser(2, { email: "b2@b.com", jwt: "" });
-      assert.equal(edited.email, "b2@b.com");
-      assert.equal(edited.jwt, "current-jwt");
+      expect(edited.email).toBe("b2@b.com");
+      expect(edited.jwt).toBe("current-jwt");
 
       const deleted = await UserService.deleteUser(2);
-      assert.equal(deleted, true);
-      assert.deepEqual(calls[4].params, [2]);
+      expect(deleted).toBe(true);
+      expect(calls[4].params).toEqual([2]);
     },
   );
 });
