@@ -42,9 +42,6 @@ const NotifiersPage = () => {
         toast.error(notifiersData.message);
         return;
       }
-      if (0 === notifiersData.length) {
-        return;
-      }
       setNotifiers(notifiersData);
       setAddDisabled(notifiersData.length === TOTAL_NOTIFIERS_NO);
     } catch (error) {
