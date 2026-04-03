@@ -120,7 +120,7 @@ export default function HomePage({ demoEnabled, initError }) {
               <input type="email" name="demo-user" value="" readOnly></input>
               <input type="password" name="demo-pass" value="" readOnly></input>
               <p>
-                don't know if it's for you?
+                don&apos;t know if it&apos;s for you?
                 <button type="submit" className="demo-submit">
                   see
                 </button>

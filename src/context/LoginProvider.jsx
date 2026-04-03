@@ -10,14 +10,16 @@ const LoginProvider = ({ children }) => {
   const [challenge, setChallenge] = useState(null);
   const [token, setToken] = useState(null);
   const [email, setEmail] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const isDemo = DEMO_USER_ID === id;
-  const userLogged = !!token;
+  const userLogged = authReady && !!token;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      setToken(token);
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
     }
+    setAuthReady(true);
   }, []);
 
   const login = (id, email, data) => {
@@ -41,11 +43,17 @@ const LoginProvider = ({ children }) => {
   };
 
   const userId = () => {
-    return id === -1 ? localStorage.getItem("id") : id;
+    if (id !== -1) {
+      return id;
+    }
+    if (typeof window === "undefined") {
+      return null;
+    }
+    return localStorage.getItem("id");
   };
 
   return (
-    <LoginContext.Provider value={{ userLogged, token, challenge, login, logout, demo, isDemo, userId, email }}>
+    <LoginContext.Provider value={{ authReady, userLogged, token, challenge, login, logout, demo, isDemo, userId, email }}>
       {children}
     </LoginContext.Provider>
   );
