@@ -43,5 +43,12 @@ jobs:
       - name: Run build
         run: npm run build
 
-      - name: Run unit tests (if present)
-        run: npm run test --if-present
+      - name: Run unit tests with coverage gate
+        run: npm run test:coverage
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          if-no-files-found: error

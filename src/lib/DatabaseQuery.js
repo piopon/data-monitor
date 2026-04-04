@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import dotenv from "dotenv";
 
 if (process.env.NODE_ENV !== "production") {
-  dotenv.config({ override: true });
+  dotenv.config({ override: true, quiet: process.env.NODE_ENV === "test" });
 }
 const databaseConfig = AppConfig.getConfig().database;
 const pool = new Pool({
