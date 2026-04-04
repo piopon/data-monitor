@@ -1,0 +1,112 @@
+import { GET, POST, PUT, DELETE } from "../../../../src/app/api/notifier/route.js";
+import { authorizeUser } from "@/lib/ApiUserAuth";
+import { RequestUtils } from "@/lib/RequestUtils";
+import { NotifierService } from "@/model/NotifierService";
+import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
+import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
+
+jest.mock("@/lib/ApiUserAuth", () => ({ authorizeUser: jest.fn() }));
+jest.mock("@/lib/RequestUtils", () => ({ RequestUtils: { getErrorStatus: jest.fn() } }));
+jest.mock("@/model/NotifierService", () => ({
+  NotifierService: {
+    filterNotifiers: jest.fn(),
+    addNotifier: jest.fn(),
+    editNotifierForUser: jest.fn(),
+    deleteNotifierForUser: jest.fn(),
+  },
+}));
+jest.mock("@/notifiers/core/NotifierCatalog", () => ({
+  NotifierCatalog: { getClassInfo: jest.fn() },
+}));
+jest.mock("@/notifiers/core/NotifierRegistry", () => ({
+  NotifierRegistry: { create: jest.fn() },
+}));
+
+class MockResponse {
+  constructor(body, init = {}) {
+    this._body = body;
+    this.status = init.status ?? 200;
+    const map = Object.fromEntries(Object.entries(init.headers || {}).map(([k, v]) => [String(k).toLowerCase(), v]));
+    this.headers = { get: (name) => map[String(name).toLowerCase()] ?? null };
+  }
+  async json() {
+    return JSON.parse(this._body || "null");
+  }
+}
+
+const reqWithUrl = (url, body) => ({
+  nextUrl: new URL(url),
+  json: async () => body,
+});
+
+describe("app/api/notifier route", () => {
+  const originalResponse = global.Response;
+
+  beforeAll(() => {
+    global.Response = MockResponse;
+  });
+
+  afterAll(() => {
+    global.Response = originalResponse;
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    authorizeUser.mockResolvedValue(7);
+    RequestUtils.getErrorStatus.mockImplementation((error, fallbackStatus = 400) => error?.status ?? fallbackStatus);
+  });
+
+  test("GET returns masked sensitive fields", async () => {
+    NotifierService.filterNotifiers.mockResolvedValue([{ id: 1, type: "email", origin: "gmail", password: "secret" }]);
+
+    const response = await GET(reqWithUrl("http://test/api/notifier?user=7"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toEqual([{ id: 1, type: "email", origin: "PRIVATE", password: "PRIVATE" }]);
+  });
+
+  test("POST with type sends notification", async () => {
+    NotifierCatalog.getClassInfo.mockReturnValue({ type: "MailNotifier", config: "email" });
+    NotifierService.filterNotifiers.mockResolvedValue([{ type: "email", origin: "gmail", sender: "a@a.com", password: "p" }]);
+    const notifyMock = jest.fn().mockResolvedValue({ result: true, info: "sent" });
+    NotifierRegistry.create.mockReturnValue({ notify: notifyMock });
+
+    const response = await POST(reqWithUrl("http://test/api/notifier?type=email&user=7", { receiver: "b@b.com" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toBe("sent");
+    expect(notifyMock).toHaveBeenCalledWith({ receiver: "b@b.com" });
+  });
+
+  test("POST without type creates notifier and normalizes placeholders", async () => {
+    NotifierService.addNotifier.mockResolvedValue({ id: 2, type: "email", origin: "", password: "" });
+
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", origin: "PRIVATE", password: "PRIVATE" }),
+    );
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).toHaveBeenCalledWith({ user: 7, type: "email", origin: "", password: "" });
+    expect(body).toEqual({ id: 2, type: "email", origin: "", password: "" });
+  });
+
+  test("PUT returns 404 when notifier does not exist", async () => {
+    NotifierService.editNotifierForUser.mockResolvedValue(null);
+
+    const response = await PUT(reqWithUrl("http://test/api/notifier?id=3&user=7", { type: "email" }));
+
+    expect(response.status).toBe(404);
+  });
+
+  test("DELETE returns deleted notifier count", async () => {
+    NotifierService.deleteNotifierForUser.mockResolvedValue(2);
+
+    const response = await DELETE(reqWithUrl("http://test/api/notifier?id=3&user=7"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toEqual({ message: "Deleted 2 notifier(s)" });
+  });
+});
