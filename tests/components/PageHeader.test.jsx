@@ -14,7 +14,7 @@ jest.mock("next/link", () => ({
 
 jest.mock("next/image", () => ({
   __esModule: true,
-  default: ({ alt }) => <img alt={alt} />,
+  default: ({ alt }) => <div data-testid="next-image">{alt}</div>,
 }));
 
 jest.mock("../../src/assets/images/logo-64_outline.png", () => "logo.png");
@@ -32,7 +32,7 @@ describe("PageHeader", () => {
       </LoginContext.Provider>,
     );
 
-    expect(screen.getByAltText("data-monitor logo")).toBeInTheDocument();
+    expect(screen.getByTestId("next-image")).toHaveTextContent("data-monitor logo");
     expect(screen.getByText("data-monitor")).toBeInTheDocument();
     expect(screen.getByText("1.0.0")).toBeInTheDocument();
     expect(screen.queryByTestId("menu-bar")).not.toBeInTheDocument();

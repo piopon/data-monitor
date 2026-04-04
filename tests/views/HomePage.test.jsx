@@ -1,5 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import HomePage from "../../src/views/HomePage.jsx";
 import { LoginContext } from "../../src/context/Contexts.jsx";
@@ -42,6 +41,12 @@ describe("HomePage", () => {
     );
   }
 
+  function submitCredentials({ email = "user@example.com", password = "secret" } = {}) {
+    fireEvent.change(screen.getByPlaceholderText("email"), { target: { value: email } });
+    fireEvent.change(screen.getByPlaceholderText("password"), { target: { value: password } });
+    fireEvent.click(screen.getByRole("button", { name: "login" }));
+  }
+
   test("shows init error toast when initError is provided", async () => {
     renderWithContext({ demo: jest.fn(), login: jest.fn(), logout: jest.fn() }, { initError: "Init failed" });
 
@@ -51,7 +56,6 @@ describe("HomePage", () => {
   });
 
   test("logs in user and redirects on successful credentials login", async () => {
-    const user = userEvent.setup();
     const loginMock = jest.fn();
 
     global.fetch
@@ -70,9 +74,7 @@ describe("HomePage", () => {
 
     renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
 
-    await user.type(screen.getByPlaceholderText("email"), "user@example.com");
-    await user.type(screen.getByPlaceholderText("password"), "secret");
-    await user.click(screen.getByRole("button", { name: "login" }));
+    submitCredentials();
 
     await waitFor(() => {
       expect(loginMock).toHaveBeenCalledWith(7, "user@example.com", { token: "jwt-token" });
@@ -82,7 +84,6 @@ describe("HomePage", () => {
   });
 
   test("handles failed credentials login and logs out", async () => {
-    const user = userEvent.setup();
     const logoutMock = jest.fn();
 
     global.fetch.mockResolvedValueOnce({
@@ -92,9 +93,7 @@ describe("HomePage", () => {
 
     renderWithContext({ demo: jest.fn(), login: jest.fn(), logout: logoutMock });
 
-    await user.type(screen.getByPlaceholderText("email"), "user@example.com");
-    await user.type(screen.getByPlaceholderText("password"), "bad");
-    await user.click(screen.getByRole("button", { name: "login" }));
+    submitCredentials({ password: "bad" });
 
     await waitFor(() => {
       expect(logoutMock).toHaveBeenCalledTimes(1);
@@ -103,7 +102,6 @@ describe("HomePage", () => {
   });
 
   test("shows save error and does not redirect when user lookup returns multiple users", async () => {
-    const user = userEvent.setup();
     const loginMock = jest.fn();
 
     global.fetch
@@ -118,9 +116,7 @@ describe("HomePage", () => {
 
     renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
 
-    await user.type(screen.getByPlaceholderText("email"), "user@example.com");
-    await user.type(screen.getByPlaceholderText("password"), "secret");
-    await user.click(screen.getByRole("button", { name: "login" }));
+    submitCredentials();
 
     await waitFor(() => {
       expect(toastErrorMock).toHaveBeenCalledWith("Error: Received multiple user entries.");
@@ -131,18 +127,107 @@ describe("HomePage", () => {
   });
 
   test("shows fetch exception when scraper login request throws", async () => {
-    const user = userEvent.setup();
-
     global.fetch.mockRejectedValueOnce(new Error("network down"));
 
     renderWithContext({ demo: jest.fn(), login: jest.fn(), logout: jest.fn() });
 
-    await user.type(screen.getByPlaceholderText("email"), "user@example.com");
-    await user.type(screen.getByPlaceholderText("password"), "secret");
-    await user.click(screen.getByRole("button", { name: "login" }));
+    submitCredentials();
 
     await waitFor(() => {
       expect(toastErrorMock).toHaveBeenCalledWith("Error: network down");
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(toastSuccessMock).not.toHaveBeenCalled();
+    });
+  });
+
+  test("shows create-user save error and does not redirect when POST /api/user fails", async () => {
+    const loginMock = jest.fn();
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ token: "jwt-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: "create failed" }),
+      });
+
+    renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
+
+    submitCredentials();
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        3,
+        "/api/user",
+        expect.objectContaining({ method: "POST" }),
+      );
+      expect(toastErrorMock).toHaveBeenCalledWith("create failed");
+      expect(loginMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(toastSuccessMock).not.toHaveBeenCalled();
+    });
+  });
+
+  test("shows update-user save error and does not redirect when PUT /api/user fails", async () => {
+    const loginMock = jest.fn();
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ token: "jwt-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [{ id: 42 }],
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: "update failed" }),
+      });
+
+    renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
+
+    submitCredentials();
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        3,
+        "/api/user?id=42",
+        expect.objectContaining({ method: "PUT" }),
+      );
+      expect(toastErrorMock).toHaveBeenCalledWith("update failed");
+      expect(loginMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(toastSuccessMock).not.toHaveBeenCalled();
+    });
+  });
+
+  test("shows lookup error and does not redirect when GET /api/user fails", async () => {
+    const loginMock = jest.fn();
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ token: "jwt-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ message: "lookup failed" }),
+      });
+
+    renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
+
+    submitCredentials();
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("lookup failed");
+      expect(loginMock).not.toHaveBeenCalled();
       expect(replaceMock).not.toHaveBeenCalled();
       expect(toastSuccessMock).not.toHaveBeenCalled();
     });

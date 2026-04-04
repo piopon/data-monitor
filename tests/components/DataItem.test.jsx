@@ -4,7 +4,11 @@ import DataItem from "../../src/components/DataItem.jsx";
 
 jest.mock("next/image", () => ({
   __esModule: true,
-  default: ({ src, alt }) => <img src={typeof src === "string" ? src : "mock-img"} alt={alt} />,
+  default: ({ src, alt }) => (
+    <div data-testid="next-image" data-src={typeof src === "string" ? src : "mock-img"} data-alt={alt}>
+      {alt}
+    </div>
+  ),
 }));
 
 jest.mock("../../src/assets/images/unknown.png", () => "unknown.png");
@@ -31,7 +35,7 @@ describe("DataItem", () => {
     expect(screen.getByText(/✔️/)).toBeInTheDocument();
     expect(screen.getByText("btc")).toBeInTheDocument();
     expect(screen.getByText(/123 USD/)).toBeInTheDocument();
-    expect(screen.getByAltText("btc logo")).toBeInTheDocument();
+    expect(screen.getByText("btc logo")).toBeInTheDocument();
     expect(screen.getByTestId("monitor")).toHaveTextContent("monitor:btc");
   });
 
@@ -50,6 +54,6 @@ describe("DataItem", () => {
     expect(screen.getByText(/❌/)).toBeInTheDocument();
     expect(screen.getByText("btc")).toBeInTheDocument();
     expect(screen.getByText(/not found/)).toBeInTheDocument();
-    expect(screen.getByAltText("Unknown logo")).toBeInTheDocument();
+    expect(screen.getByText("Unknown logo")).toBeInTheDocument();
   });
 });
