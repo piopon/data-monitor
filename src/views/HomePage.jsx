@@ -52,7 +52,10 @@ export default function HomePage({ demoEnabled, initError }) {
         toast.error(await response.text());
         return;
       }
-      await action(await response.json());
+      const shouldProceed = await action(await response.json());
+      if (shouldProceed === false) {
+        return;
+      }
       router.replace("/monitors");
       toast.success("Login successful!");
     } catch (e) {
@@ -66,16 +69,20 @@ export default function HomePage({ demoEnabled, initError }) {
       const saveResult = await userSave({ email, jwt: loginData.token });
       if (saveResult.id == null) {
         toast.error(saveResult.message);
-        return;
+        return false;
       }
       login(saveResult.id, email, loginData);
+      return true;
     };
     await doLogin(userLoginAction, { email, password });
   };
 
   const demoLogin = async (event) => {
     event.preventDefault();
-    const demoLoginAction = async (loginData) => demo(loginData);
+    const demoLoginAction = async (loginData) => {
+      demo(loginData);
+      return true;
+    };
     await doLogin(demoLoginAction, { "demo-user": "u", "demo-pass": "p" });
   };
 

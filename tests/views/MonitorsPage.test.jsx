@@ -24,6 +24,13 @@ describe("MonitorsPage", () => {
     expect(screen.getByTestId("spinner")).toBeInTheDocument();
   });
 
+  test("prioritizes spinner while loading even if data exists", () => {
+    render(<MonitorsPage loading={true} data={[{ id: 1 }]} />);
+
+    expect(screen.getByTestId("spinner")).toBeInTheDocument();
+    expect(screen.queryByTestId("data-cards")).not.toBeInTheDocument();
+  });
+
   test("shows DataCards when data is available", () => {
     render(<MonitorsPage loading={false} data={[{ id: 1 }, { id: 2 }]} />);
 

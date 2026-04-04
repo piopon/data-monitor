@@ -101,4 +101,50 @@ describe("HomePage", () => {
       expect(toastErrorMock).toHaveBeenCalledWith("invalid credentials");
     });
   });
+
+  test("shows save error and does not redirect when user lookup returns multiple users", async () => {
+    const user = userEvent.setup();
+    const loginMock = jest.fn();
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ token: "jwt-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [{ id: 1 }, { id: 2 }],
+      });
+
+    renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
+
+    await user.type(screen.getByPlaceholderText("email"), "user@example.com");
+    await user.type(screen.getByPlaceholderText("password"), "secret");
+    await user.click(screen.getByRole("button", { name: "login" }));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Error: Received multiple user entries.");
+      expect(loginMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(toastSuccessMock).not.toHaveBeenCalled();
+    });
+  });
+
+  test("shows fetch exception when scraper login request throws", async () => {
+    const user = userEvent.setup();
+
+    global.fetch.mockRejectedValueOnce(new Error("network down"));
+
+    renderWithContext({ demo: jest.fn(), login: jest.fn(), logout: jest.fn() });
+
+    await user.type(screen.getByPlaceholderText("email"), "user@example.com");
+    await user.type(screen.getByPlaceholderText("password"), "secret");
+    await user.click(screen.getByRole("button", { name: "login" }));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Error: network down");
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(toastSuccessMock).not.toHaveBeenCalled();
+    });
+  });
 });

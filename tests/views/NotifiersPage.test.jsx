@@ -110,4 +110,27 @@ describe("NotifiersPage", () => {
       expect(screen.getAllByTestId("notifier-card")).toHaveLength(1);
     });
   });
+
+  test("shows API message when notifier fetch returns a non-ok response", async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ message: "notifiers unavailable" }),
+    });
+
+    renderWithLogin({ userIdValue: 4, token: "token-4" });
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("notifiers unavailable");
+    });
+  });
+
+  test("shows fetch failure message when notifier request throws", async () => {
+    global.fetch.mockRejectedValueOnce(new Error("timeout"));
+
+    renderWithLogin({ userIdValue: 5, token: "token-5" });
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Failed to get notifier data: timeout");
+    });
+  });
 });
