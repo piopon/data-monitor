@@ -82,15 +82,17 @@ describe("app/api/user route", () => {
     expect(body).toEqual({ id: 3, email: "c@c.com", jwt: "" });
   });
 
-  test("POST handles null user payload", async () => {
-    UserService.addUser.mockResolvedValue(null);
+  test("POST returns error when payload is null", async () => {
+    UserService.addUser.mockImplementation(() => {
+      throw new TypeError("Cannot destructure null user payload");
+    });
 
     const response = await POST(reqWithUrl("http://test/api/user", null));
     const body = await response.json();
 
     expect(UserService.addUser).toHaveBeenCalledWith(null);
-    expect(response.status).toBe(200);
-    expect(body).toBeNull();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Cannot add new user:");
   });
 
   test("PUT updates user by id", async () => {
@@ -130,5 +132,15 @@ describe("app/api/user route", () => {
 
     expect(response.status).toBe(422);
     expect(body.message).toContain("Cannot add new user: bad payload");
+  });
+
+  test("PUT returns mapped error status when service throws", async () => {
+    UserService.editUser.mockRejectedValueOnce(Object.assign(new Error("update failed"), { status: 500 }));
+
+    const response = await PUT(reqWithUrl("http://test/api/user?id=3", { email: "c@c.com", jwt: "x" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.message).toContain("Cannot update user: update failed");
   });
 });

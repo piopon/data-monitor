@@ -1,4 +1,6 @@
 import path from "path";
+import fs from "fs";
+import os from "os";
 import { spawnSync } from "child_process";
 import { fileURLToPath, pathToFileURL } from "url";
 
@@ -10,20 +12,25 @@ const DATA_WORKER_LOADER_FILE = path.resolve(PROJECT_ROOT, "tests/lib/DataWorker
 
 function runDataWorkerScenario(scenario, env = {}, timeout = 5_000) {
   const loaderUrl = `${pathToFileURL(DATA_WORKER_LOADER_FILE).href}?scenario=${encodeURIComponent(scenario)}`;
-  return spawnSync(process.execPath, ["--loader", loaderUrl, DATA_WORKER_FILE], {
-    cwd: PROJECT_ROOT,
-    env: {
-      ...process.env,
-      SERVER_URL: "127.0.0.1",
-      SERVER_PORT: "3000",
-      CHECK_DELAY: "1",
-      CHECK_WAIT: "1",
-      CHECK_INTERVAL: "10",
-      ...env,
-    },
-    encoding: "utf8",
-    timeout,
-  });
+  const tempCwd = fs.mkdtempSync(path.join(os.tmpdir(), "data-worker-smoke-"));
+  try {
+    return spawnSync(process.execPath, ["--loader", loaderUrl, DATA_WORKER_FILE], {
+      cwd: tempCwd,
+      env: {
+        ...process.env,
+        SERVER_URL: "127.0.0.1",
+        SERVER_PORT: "3000",
+        CHECK_DELAY: "1",
+        CHECK_WAIT: "1",
+        CHECK_INTERVAL: "10",
+        ...env,
+      },
+      encoding: "utf8",
+      timeout,
+    });
+  } finally {
+    fs.rmSync(tempCwd, { recursive: true, force: true });
+  }
 }
 
 describe("DataWorker smoke", () => {

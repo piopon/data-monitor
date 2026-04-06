@@ -110,11 +110,11 @@ describe("RequestUtils", () => {
   test("getRequestRetryConfig falls back to defaults for non-numeric env values", () => {
     process.env.REQUEST_TIMEOUT = "abc";
     process.env.REQUEST_RETRIES = "nan";
-    process.env.REQUEST_RETRY_DELAY = "";
+    process.env.REQUEST_RETRY_DELAY = "invalid-delay";
 
     const config = RequestUtils.getRequestRetryConfig();
 
-    expect(config).toEqual({ timeout: 8000, retries: 2, retryDelay: 100 });
+    expect(config).toEqual({ timeout: 8000, retries: 2, retryDelay: 250 });
   });
 
   test("cancels unlocked response body before retrying", async () => {
