@@ -16,7 +16,7 @@ const customJestConfig = {
       statements: 70,
       lines: 70,
       functions: 70,
-      branches: 50,
+      branches: 70,
     },
   },
   moduleNameMapper: {
