@@ -40,4 +40,24 @@ describe("DataWorker smoke", () => {
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}\n${result.stderr}`).toContain("wait-on smoke failure");
   });
+
+  test("starts cleanly when validator and wait-on pass and there are no users", () => {
+    const result = runDataWorkerWithLoader("tests/fixtures/dataworker/loader-startup-success-empty-users.mjs");
+    const combinedOutput = `${result.stdout}\n${result.stderr}`;
+
+    expect(result.status).toBe(0);
+    expect(combinedOutput).toContain("wait-on ok: http://");
+    expect(combinedOutput).toContain(":3000");
+    expect(result.error).toBeUndefined();
+  });
+
+  test("logs user retrieval error when getUsers rejects", () => {
+    const result = runDataWorkerWithLoader("tests/fixtures/dataworker/loader-users-reject.mjs");
+    const combinedOutput = `${result.stdout}\n${result.stderr}`;
+
+    expect(result.status).toBe(0);
+    expect(combinedOutput).toContain("Cannot get users: Error: users fetch smoke failure");
+    expect(combinedOutput).toContain("wait-on ok: http://");
+    expect(combinedOutput).toContain(":3000");
+  });
 });
