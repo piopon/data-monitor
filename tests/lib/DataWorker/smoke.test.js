@@ -4,9 +4,9 @@ import { fileURLToPath, pathToFileURL } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const testDir = path.dirname(__filename);
-const PROJECT_ROOT = path.resolve(testDir, "../..");
+const PROJECT_ROOT = path.resolve(testDir, "../../..");
 const DATA_WORKER_FILE = path.resolve(PROJECT_ROOT, "src/lib/DataWorker.js");
-const DATA_WORKER_LOADER_FILE = path.resolve(PROJECT_ROOT, "tests/lib/fixtures/data-worker-scenario-loader.mjs");
+const DATA_WORKER_LOADER_FILE = path.resolve(PROJECT_ROOT, "tests/lib/DataWorker/scenarios/loader.mjs");
 
 function runDataWorkerScenario(scenario, env = {}, timeout = 5_000) {
   const loaderUrl = `${pathToFileURL(DATA_WORKER_LOADER_FILE).href}?scenario=${encodeURIComponent(scenario)}`;
