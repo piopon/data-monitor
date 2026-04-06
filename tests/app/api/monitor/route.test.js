@@ -76,6 +76,24 @@ describe("app/api/monitor route", () => {
     expect(MonitorService.addMonitor).toHaveBeenCalledWith({ user: 7, notifier: 9, parent: "btc" });
   });
 
+  test("POST returns 400 for invalid notifier id", async () => {
+    const response = await POST(reqWithUrl("http://test/api/monitor", { user: 7, notifier: "bad", parent: "btc" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid monitor notifier ID.");
+  });
+
+  test("POST returns 403 when notifier does not belong to authorized user", async () => {
+    NotifierService.filterNotifiers.mockResolvedValueOnce([]);
+
+    const response = await POST(reqWithUrl("http://test/api/monitor", { user: 7, notifier: 9, parent: "btc" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(body.message).toContain("Selected notifier does not belong to the authorized user.");
+  });
+
   test("PUT returns 404 when monitor does not exist for user", async () => {
     NotifierService.filterNotifiers.mockResolvedValue([{ id: 9 }]);
     MonitorService.editMonitorForUser.mockResolvedValue(null);

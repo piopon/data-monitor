@@ -80,6 +80,31 @@ describe("app/api/notifier route", () => {
     expect(notifyMock).toHaveBeenCalledWith({ receiver: "b@b.com" });
   });
 
+  test("POST with type returns 400 when notifier send fails", async () => {
+    NotifierCatalog.getClassInfo.mockReturnValue({ type: "MailNotifier", config: "email" });
+    NotifierService.filterNotifiers.mockResolvedValue([{ type: "email", origin: "gmail", sender: "a@a.com", password: "p" }]);
+    const notifyMock = jest.fn().mockResolvedValue({ result: false, info: "send failed" });
+    NotifierRegistry.create.mockReturnValue({ notify: notifyMock });
+
+    const response = await POST(reqWithUrl("http://test/api/notifier?type=email&user=7", { receiver: "b@b.com" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body).toBe("send failed");
+  });
+
+  test("POST with type returns 500 when configured notifier is missing", async () => {
+    NotifierCatalog.getClassInfo.mockReturnValue({ type: "MailNotifier", config: "email" });
+    NotifierService.filterNotifiers.mockResolvedValue([]);
+    RequestUtils.getErrorStatus.mockImplementationOnce((_error, fallbackStatus = 500) => fallbackStatus);
+
+    const response = await POST(reqWithUrl("http://test/api/notifier?type=email&user=7", { receiver: "b@b.com" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.message).toContain("Cannot find configured 'email' notifier.");
+  });
+
   test("POST without type creates notifier and normalizes placeholders", async () => {
     NotifierService.addNotifier.mockResolvedValue({ id: 2, type: "email", origin: "", password: "" });
 

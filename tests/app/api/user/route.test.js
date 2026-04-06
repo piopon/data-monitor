@@ -41,6 +41,7 @@ describe("app/api/user route", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    RequestUtils.getErrorStatus.mockImplementation((error, fallbackStatus = 400) => error?.status ?? fallbackStatus);
   });
 
   test("GET without query returns all users with masked jwt", async () => {
@@ -90,5 +91,25 @@ describe("app/api/user route", () => {
 
     expect(response.status).toBe(200);
     expect(body).toEqual({ message: "Deleted 1 user(s)" });
+  });
+
+  test("GET returns mapped error status when service throws", async () => {
+    UserService.getUsers.mockRejectedValueOnce(Object.assign(new Error("db down"), { status: 503 }));
+
+    const response = await GET(reqWithUrl("http://test/api/user"));
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body.message).toContain("Cannot get users: db down");
+  });
+
+  test("POST returns mapped error status when service throws", async () => {
+    UserService.addUser.mockRejectedValueOnce(Object.assign(new Error("bad payload"), { status: 422 }));
+
+    const response = await POST(reqWithUrl("http://test/api/user", { email: "a@a.com", jwt: "x" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(body.message).toContain("Cannot add new user: bad payload");
   });
 });
