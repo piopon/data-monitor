@@ -81,6 +81,16 @@ describe("app/api/notifier route", () => {
     });
   });
 
+  test("GET preserves null notifiers from service output", async () => {
+    NotifierService.filterNotifiers.mockResolvedValue([null]);
+
+    const response = await GET(reqWithUrl("http://test/api/notifier?user=7"));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toEqual([null]);
+  });
+
   test("POST with type sends notification", async () => {
     NotifierCatalog.getClassInfo.mockReturnValue({ type: "MailNotifier", config: "email" });
     NotifierService.filterNotifiers.mockResolvedValue([{ type: "email", origin: "gmail", sender: "a@a.com", password: "p" }]);
@@ -181,6 +191,17 @@ describe("app/api/notifier route", () => {
     expect(response.status).toBe(200);
     expect(body.origin).toBe("PRIVATE");
     expect(body.password).toBe("PRIVATE");
+  });
+
+  test("PUT forwards null payload and returns mapped error status", async () => {
+    NotifierService.editNotifierForUser.mockRejectedValueOnce(Object.assign(new Error("invalid notifier payload"), { status: 400 }));
+
+    const response = await PUT(reqWithUrl("http://test/api/notifier?id=3&user=7", null));
+    const body = await response.json();
+
+    expect(NotifierService.editNotifierForUser).toHaveBeenCalledWith("3", 7, null);
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Cannot update notifier: invalid notifier payload");
   });
 
   test("DELETE returns deleted notifier count", async () => {
