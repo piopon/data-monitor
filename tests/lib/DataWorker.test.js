@@ -28,21 +28,21 @@ function runDataWorkerWithLoader(loaderRelativePath, env = {}, timeout = 5_000) 
 
 describe("DataWorker smoke", () => {
   test("exits with code 1 when notifier validation fails", () => {
-    const result = runDataWorkerWithLoader("tests/fixtures/dataworker/loader-invalid-validator.mjs");
+    const result = runDataWorkerWithLoader("tests/lib/fixtures/loader-invalid-validator.mjs");
 
     expect(result.status).toBe(1);
     expect(result.error).toBeUndefined();
   });
 
   test("fails fast when wait-on rejects during startup", () => {
-    const result = runDataWorkerWithLoader("tests/fixtures/dataworker/loader-waiton-reject.mjs");
+    const result = runDataWorkerWithLoader("tests/lib/fixtures/loader-waiton-reject.mjs");
 
     expect(result.status).not.toBe(0);
     expect(`${result.stdout}\n${result.stderr}`).toContain("wait-on smoke failure");
   });
 
   test("starts cleanly when validator and wait-on pass and there are no users", () => {
-    const result = runDataWorkerWithLoader("tests/fixtures/dataworker/loader-startup-success-empty-users.mjs");
+    const result = runDataWorkerWithLoader("tests/lib/fixtures/loader-startup-success-empty-users.mjs");
     const combinedOutput = `${result.stdout}\n${result.stderr}`;
 
     expect(result.status).toBe(0);
@@ -52,7 +52,7 @@ describe("DataWorker smoke", () => {
   });
 
   test("logs user retrieval error when getUsers rejects", () => {
-    const result = runDataWorkerWithLoader("tests/fixtures/dataworker/loader-users-reject.mjs");
+    const result = runDataWorkerWithLoader("tests/lib/fixtures/loader-users-reject.mjs");
     const combinedOutput = `${result.stdout}\n${result.stderr}`;
 
     expect(result.status).toBe(0);
