@@ -135,4 +135,89 @@ describe("NotifierCard", () => {
       expect(toastErrorMock).toHaveBeenCalledWith("save failed");
     });
   });
+
+  test("renders only type selector when notifier type is empty", () => {
+    render(
+      <NotifierCard
+        data={{ type: "", origin: "", sender: "", password: "", user: 7, token: "jwt" }}
+        options={options}
+        onChange={jest.fn()}
+        onDelete={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText("type")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "save" })).not.toBeInTheDocument();
+  });
+
+  test("does not call delete API when notifier id is missing", async () => {
+    render(
+      <NotifierCard
+        data={{ type: "email", origin: "gmail", sender: "u@test.com", password: "p", user: 7, token: "jwt" }}
+        options={options}
+        onChange={jest.fn()}
+        onDelete={jest.fn()}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "delete" })).not.toBeInTheDocument();
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test("shows API error message when delete fails", async () => {
+    global.fetch.mockResolvedValueOnce({ ok: false, json: async () => ({ message: "delete failed" }) });
+
+    render(
+      <NotifierCard
+        data={{ id: 9, type: "email", origin: "gmail", sender: "u@test.com", password: "p", user: 7, token: "jwt" }}
+        options={options}
+        onChange={jest.fn()}
+        onDelete={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "delete" }));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("delete failed");
+    });
+  });
+
+  test("shows error when save request throws", async () => {
+    global.fetch.mockRejectedValueOnce(new Error("network down"));
+
+    render(
+      <NotifierCard
+        data={{ type: "email", origin: "gmail", sender: "u@test.com", password: "p", user: 7, token: "jwt" }}
+        options={options}
+        onChange={jest.fn()}
+        onDelete={jest.fn()}
+      />,
+    );
+
+    fireEvent.submit(screen.getByRole("button", { name: "save" }).closest("form"));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Error: network down");
+    });
+  });
+
+  test("shows error when delete request throws", async () => {
+    global.fetch.mockRejectedValueOnce(new Error("network down"));
+
+    render(
+      <NotifierCard
+        data={{ id: 9, type: "email", origin: "gmail", sender: "u@test.com", password: "p", user: 7, token: "jwt" }}
+        options={options}
+        onChange={jest.fn()}
+        onDelete={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "delete" }));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Error: network down");
+    });
+  });
 });

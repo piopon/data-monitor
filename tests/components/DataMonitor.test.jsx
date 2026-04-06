@@ -274,4 +274,86 @@ describe("DataMonitor", () => {
       expect(toastErrorMock).toHaveBeenCalledWith("save failed");
     });
   });
+
+  test("shows missing user id error when saving monitor", async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: true, json: async () => [] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [] });
+
+    renderWithLogin({ isDemo: false, userId: () => "", email: "u@test.com", token: "jwt" });
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Missing user ID, please re-login and try again.");
+    });
+  });
+
+  test("shows missing token error when saving monitor", async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: true, json: async () => [] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [] });
+
+    renderWithLogin({ isDemo: false, userId: () => 7, email: "u@test.com", token: "" });
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Missing user token, please re-login and try again.");
+    });
+  });
+
+  test("shows test notification API error when notifier call returns non-ok", async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 21, enabled: true, notifier_id: 2 }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
+      .mockResolvedValueOnce({ ok: false, json: async () => "send failed" });
+
+    renderWithLogin({ isDemo: false, userId: () => 7, email: "u@test.com", token: "jwt" });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(3);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "test" }));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Test notification ERROR: send failed");
+    });
+  });
+
+  test("shows test notification success message when notifier call succeeds", async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 21, enabled: true, notifier_id: 2 }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => "ok" });
+
+    renderWithLogin({ isDemo: false, userId: () => 7, email: "u@test.com", token: "jwt" });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(3);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "test" }));
+
+    await waitFor(() => {
+      expect(toastSuccessMock).toHaveBeenCalledWith("Test notification OK: ok");
+    });
+  });
+
+  test("shows notifier-id warning for malformed notifier selection", async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [] });
+
+    renderWithLogin({ isDemo: false, userId: () => 7, email: "u@test.com", token: "jwt" });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+    });
+
+    fireEvent.change(screen.getByLabelText("notifier"), { target: { value: "email@bad" } });
+
+    await waitFor(() => {
+      expect(toastWarningMock).toHaveBeenCalledWith(expect.stringMatching(/^Notifier does not have an ID:/));
+    });
+  });
 });
