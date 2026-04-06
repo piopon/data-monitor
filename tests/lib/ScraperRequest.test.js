@@ -83,4 +83,18 @@ describe("ScraperRequest", () => {
     expect(response.status).toBe(500);
     expect(await response.text()).toBe("Scraper backend is not available");
   });
+
+  test("passes through plain text response for non-json content types", async () => {
+    global.fetch.mockResolvedValueOnce(
+      new MockResponse("plain text", {
+        status: 200,
+        headers: { "content-type": "text/plain" },
+      }),
+    );
+
+    const response = await ScraperRequest.GET("/items", {});
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe("plain text");
+  });
 });

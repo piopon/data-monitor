@@ -70,6 +70,29 @@ describe("RequestUtils", () => {
     expect(await response.text()).toBe("ok");
   });
 
+  test("does not retry idempotent request on non-retryable status", async () => {
+    global.fetch.mockResolvedValueOnce(makeResponse({ status: 404, text: "not found" }));
+
+    const response = await RequestUtils.fetchWithRetry("/api/test", { method: "GET" }, { timeout: 50, retries: 2, retryDelay: 0 });
+
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(404);
+  });
+
+  test("retries after abort error and succeeds", async () => {
+    const abortError = new Error("aborted");
+    abortError.name = "AbortError";
+
+    global.fetch
+      .mockRejectedValueOnce(abortError)
+      .mockResolvedValueOnce(makeResponse({ status: 200, text: "ok" }));
+
+    const response = await RequestUtils.fetchWithRetry("/api/test", { method: "GET" }, { timeout: 10, retries: 1, retryDelay: 0 });
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(response.status).toBe(200);
+  });
+
   test("does not retry non-idempotent methods on failure", async () => {
     global.fetch.mockRejectedValueOnce(new Error("network down"));
 
