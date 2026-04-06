@@ -87,6 +87,40 @@ describe("app/api/init route", () => {
     expect(body).toEqual({ init: false, message: "user init failed" });
   });
 
+  test("returns 500 when notifier table init fails", async () => {
+    NotifierService.initializeTable.mockResolvedValueOnce({ result: false, message: "notifier init failed" });
+
+    const response = await GET({});
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body).toEqual({ init: false, message: "notifier init failed" });
+  });
+
+  test("returns 500 when monitor table init fails", async () => {
+    MonitorService.initializeTable.mockResolvedValueOnce({ result: false, message: "monitor init failed" });
+
+    const response = await GET({});
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body).toEqual({ init: false, message: "monitor init failed" });
+  });
+
+  test("returns scraper feature endpoint error status when feature call is non-ok", async () => {
+    ScraperRequest.GET.mockResolvedValueOnce({
+      ok: false,
+      status: 502,
+      text: async () => "features down",
+    });
+
+    const response = await GET({});
+    const body = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(body).toEqual({ init: false, message: "features down" });
+  });
+
   test("returns mapped error status on thrown exception", async () => {
     NotifierService.initializeTable.mockRejectedValueOnce(new Error("db down"));
     RequestUtils.getErrorStatus.mockReturnValueOnce(503);

@@ -97,4 +97,26 @@ describe("AppVersion", () => {
       sha: "unknown",
     });
   });
+
+  test("uses environment SHA over git command", async () => {
+    process.env.GIT_COMMIT_SHA = "envsha123";
+    const { execSync } = await import("node:child_process");
+    const { readFileSync } = await import("node:fs");
+
+    readFileSync.mockImplementation((filePath) => {
+      if (String(filePath).endsWith("package.json")) {
+        return JSON.stringify({ version: "2.3.4" });
+      }
+      return "";
+    });
+
+    const { getAppVersion, getAppVersionDetails } = await import("../../src/lib/AppVersion.js");
+    const version = getAppVersion({ verbose: false });
+    const details = getAppVersionDetails({ verbose: false });
+
+    expect(version).toBe("2.3.4+envsha123");
+    expect(details.hasSha).toBe(true);
+    expect(details.sha).toBe("envsha123");
+    expect(execSync).not.toHaveBeenCalled();
+  });
 });

@@ -83,3 +83,16 @@ test("MonitorService methods build expected SQL interactions", async () => {
     },
   );
 });
+
+test("filterMonitors supports empty filters without WHERE clause", async () => {
+  await withMockedQuery(
+    async (_text, _params) => ({ rows: [{ id: 1 }, { id: 2 }] }),
+    async (calls) => {
+      const filtered = await MonitorService.filterMonitors({});
+
+      expect(filtered).toEqual([{ id: 1 }, { id: 2 }]);
+      expect(calls[0].text).toMatch(/SELECT \* FROM monitors\s*$/);
+      expect(calls[0].params).toEqual([]);
+    },
+  );
+});

@@ -58,4 +58,19 @@ describe("DataCrypto", () => {
 
     expect(() => DataCrypto.assertConfigured()).toThrow("Missing or invalid CRYPTO_SECRET environment variable.");
   });
+
+  test("throws when CRYPTO_SECRET is too weak", async () => {
+    process.env.CRYPTO_SECRET = "short-secret";
+    const { DataCrypto } = await import("../../src/lib/DataCrypto.js");
+
+    expect(() => DataCrypto.assertConfigured()).toThrow("Weak CRYPTO_SECRET environment variable value.");
+  });
+
+  test("throws when legacy secrets JSON payload is invalid", async () => {
+    process.env.CRYPTO_SECRET = "super-secure-secret-value-123";
+    process.env.CRYPTO_LEGACY_SECRETS = "[invalid-json";
+    const { DataCrypto } = await import("../../src/lib/DataCrypto.js");
+
+    expect(() => DataCrypto.assertConfigured()).toThrow(/Cannot parse CRYPTO_LEGACY_SECRETS/);
+  });
 });

@@ -41,6 +41,7 @@ describe("app/api/user route", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    RequestUtils.getErrorStatus.mockImplementation((error, fallbackStatus = 400) => error?.status ?? fallbackStatus);
   });
 
   test("GET without query returns all users with masked jwt", async () => {
@@ -63,6 +64,14 @@ describe("app/api/user route", () => {
     expect(body).toEqual([{ id: 2, email: "b@b.com", jwt: "PRIVATE" }]);
   });
 
+  test("GET forwards id/email/jwt query filters together", async () => {
+    UserService.filterUsers.mockResolvedValue([{ id: 2, email: "b@b.com", jwt: "t" }]);
+
+    await GET(reqWithUrl("http://test/api/user?id=2&email=b%40b.com&jwt=token"));
+
+    expect(UserService.filterUsers).toHaveBeenCalledWith({ id: "2", email: "b@b.com", jwt: "token" });
+  });
+
   test("POST normalizes PRIVATE jwt input", async () => {
     UserService.addUser.mockResolvedValue({ id: 3, email: "c@c.com", jwt: "" });
 
@@ -71,6 +80,19 @@ describe("app/api/user route", () => {
 
     expect(UserService.addUser).toHaveBeenCalledWith({ email: "c@c.com", jwt: "" });
     expect(body).toEqual({ id: 3, email: "c@c.com", jwt: "" });
+  });
+
+  test("POST returns error when payload is null", async () => {
+    UserService.addUser.mockImplementation(() => {
+      throw new TypeError("Cannot destructure null user payload");
+    });
+
+    const response = await POST(reqWithUrl("http://test/api/user", null));
+    const body = await response.json();
+
+    expect(UserService.addUser).toHaveBeenCalledWith(null);
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Cannot add new user:");
   });
 
   test("PUT updates user by id", async () => {
@@ -90,5 +112,35 @@ describe("app/api/user route", () => {
 
     expect(response.status).toBe(200);
     expect(body).toEqual({ message: "Deleted 1 user(s)" });
+  });
+
+  test("GET returns mapped error status when service throws", async () => {
+    UserService.getUsers.mockRejectedValueOnce(Object.assign(new Error("db down"), { status: 503 }));
+
+    const response = await GET(reqWithUrl("http://test/api/user"));
+    const body = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(body.message).toContain("Cannot get users: db down");
+  });
+
+  test("POST returns mapped error status when service throws", async () => {
+    UserService.addUser.mockRejectedValueOnce(Object.assign(new Error("bad payload"), { status: 422 }));
+
+    const response = await POST(reqWithUrl("http://test/api/user", { email: "a@a.com", jwt: "x" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(body.message).toContain("Cannot add new user: bad payload");
+  });
+
+  test("PUT returns mapped error status when service throws", async () => {
+    UserService.editUser.mockRejectedValueOnce(Object.assign(new Error("update failed"), { status: 500 }));
+
+    const response = await PUT(reqWithUrl("http://test/api/user?id=3", { email: "c@c.com", jwt: "x" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.message).toContain("Cannot update user: update failed");
   });
 });
