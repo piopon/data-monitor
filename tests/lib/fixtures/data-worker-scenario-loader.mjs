@@ -14,7 +14,7 @@ const scenarioModes = {
 const mode = scenarioModes[scenario] || scenarioModes["startup-success-empty-users"];
 
 const FIXTURE_DIR = path.dirname(fileURLToPath(import.meta.url));
-const MOCKS_BASE_URL = pathToFileURL(path.join(FIXTURE_DIR, "data-worker-mocks.mjs")).href;
+const MOCKS_BASE_URL = pathToFileURL(path.join(FIXTURE_DIR, "data-worker-dependency-mocks.mjs")).href;
 
 function getMockUrl(specifier) {
   if (specifier === "../notifiers/core/NotifierValidator.js") {
