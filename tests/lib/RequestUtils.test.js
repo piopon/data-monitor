@@ -102,4 +102,64 @@ describe("RequestUtils", () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
+
+  test("uses fallback when getErrorStatus receives non-integer status", () => {
+    expect(RequestUtils.getErrorStatus({ status: "500" }, 409)).toBe(409);
+  });
+
+  test("getRequestRetryConfig falls back to defaults for non-numeric env values", () => {
+    process.env.REQUEST_TIMEOUT = "abc";
+    process.env.REQUEST_RETRIES = "nan";
+    process.env.REQUEST_RETRY_DELAY = "";
+
+    const config = RequestUtils.getRequestRetryConfig();
+
+    expect(config).toEqual({ timeout: 8000, retries: 2, retryDelay: 100 });
+  });
+
+  test("cancels unlocked response body before retrying", async () => {
+    const cancelMock = jest.fn(async () => {});
+    global.fetch
+      .mockResolvedValueOnce({ status: 500, ok: false, body: { locked: false, cancel: cancelMock } })
+      .mockResolvedValueOnce(makeResponse({ status: 200, text: "ok" }));
+
+    const response = await RequestUtils.fetchWithRetry("/api/test", { method: "GET" }, { timeout: 50, retries: 1, retryDelay: 0 });
+
+    expect(cancelMock).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(200);
+  });
+
+  test("drains response via arrayBuffer when body stream is unavailable", async () => {
+    const arrayBufferMock = jest.fn(async () => new ArrayBuffer(0));
+    global.fetch
+      .mockResolvedValueOnce({ status: 500, ok: false, arrayBuffer: arrayBufferMock })
+      .mockResolvedValueOnce(makeResponse({ status: 200, text: "ok" }));
+
+    const response = await RequestUtils.fetchWithRetry("/api/test", { method: "GET" }, { timeout: 50, retries: 1, retryDelay: 0 });
+
+    expect(arrayBufferMock).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(200);
+  });
+
+  test("retries GET request on generic error and then succeeds", async () => {
+    global.fetch
+      .mockRejectedValueOnce(new Error("temporary network issue"))
+      .mockResolvedValueOnce(makeResponse({ status: 200, text: "ok" }));
+
+    const response = await RequestUtils.fetchWithRetry("/api/test", {}, { timeout: 50, retries: 1, retryDelay: 0 });
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(response.status).toBe(200);
+  });
+
+  test("returns final retryable response when retry budget is exhausted", async () => {
+    global.fetch
+      .mockResolvedValueOnce(makeResponse({ status: 503, text: "retry-1" }))
+      .mockResolvedValueOnce(makeResponse({ status: 503, text: "retry-2" }));
+
+    const response = await RequestUtils.fetchWithRetry("/api/test", { method: "GET" }, { timeout: 50, retries: 1, retryDelay: 0 });
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(response.status).toBe(503);
+  });
 });

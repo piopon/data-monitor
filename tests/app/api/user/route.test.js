@@ -64,6 +64,14 @@ describe("app/api/user route", () => {
     expect(body).toEqual([{ id: 2, email: "b@b.com", jwt: "PRIVATE" }]);
   });
 
+  test("GET forwards id/email/jwt query filters together", async () => {
+    UserService.filterUsers.mockResolvedValue([{ id: 2, email: "b@b.com", jwt: "t" }]);
+
+    await GET(reqWithUrl("http://test/api/user?id=2&email=b%40b.com&jwt=token"));
+
+    expect(UserService.filterUsers).toHaveBeenCalledWith({ id: "2", email: "b@b.com", jwt: "token" });
+  });
+
   test("POST normalizes PRIVATE jwt input", async () => {
     UserService.addUser.mockResolvedValue({ id: 3, email: "c@c.com", jwt: "" });
 
@@ -72,6 +80,17 @@ describe("app/api/user route", () => {
 
     expect(UserService.addUser).toHaveBeenCalledWith({ email: "c@c.com", jwt: "" });
     expect(body).toEqual({ id: 3, email: "c@c.com", jwt: "" });
+  });
+
+  test("POST handles null user payload", async () => {
+    UserService.addUser.mockResolvedValue(null);
+
+    const response = await POST(reqWithUrl("http://test/api/user", null));
+    const body = await response.json();
+
+    expect(UserService.addUser).toHaveBeenCalledWith(null);
+    expect(response.status).toBe(200);
+    expect(body).toBeNull();
   });
 
   test("PUT updates user by id", async () => {

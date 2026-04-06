@@ -66,6 +66,21 @@ describe("app/api/notifier route", () => {
     expect(body).toEqual([{ id: 1, type: "email", origin: "PRIVATE", password: "PRIVATE" }]);
   });
 
+  test("GET forwards all query filters", async () => {
+    NotifierService.filterNotifiers.mockResolvedValue([]);
+
+    await GET(reqWithUrl("http://test/api/notifier?user=7&id=3&type=email&origin=gmail&sender=a%40a.com&password=secret"));
+
+    expect(NotifierService.filterNotifiers).toHaveBeenCalledWith({
+      id: "3",
+      type: "email",
+      origin: "gmail",
+      sender: "a@a.com",
+      password: "secret",
+      user: 7,
+    });
+  });
+
   test("POST with type sends notification", async () => {
     NotifierCatalog.getClassInfo.mockReturnValue({ type: "MailNotifier", config: "email" });
     NotifierService.filterNotifiers.mockResolvedValue([{ type: "email", origin: "gmail", sender: "a@a.com", password: "p" }]);
@@ -91,6 +106,32 @@ describe("app/api/notifier route", () => {
 
     expect(response.status).toBe(400);
     expect(body).toBe("send failed");
+  });
+
+  test("POST with type supports discord runtime config", async () => {
+    NotifierCatalog.getClassInfo.mockReturnValue({ type: "DiscordNotifier", config: "discord" });
+    NotifierService.filterNotifiers.mockResolvedValue([{ type: "discord", origin: "https://discord/webhook", sender: "bot", password: "unused" }]);
+    const notifyMock = jest.fn().mockResolvedValue({ result: true, info: "discord sent" });
+    NotifierRegistry.create.mockReturnValue({ notify: notifyMock });
+
+    const response = await POST(reqWithUrl("http://test/api/notifier?type=discord&user=7", { receiver: "user" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body).toBe("discord sent");
+    expect(NotifierRegistry.create).toHaveBeenCalled();
+  });
+
+  test("POST with type returns 500 for unsupported notifier type", async () => {
+    NotifierCatalog.getClassInfo.mockReturnValue({ type: "CustomNotifier", config: "custom" });
+    NotifierService.filterNotifiers.mockResolvedValue([{ type: "custom", origin: "x", sender: "y", password: "z" }]);
+    RequestUtils.getErrorStatus.mockImplementationOnce((_error, fallbackStatus = 500) => fallbackStatus);
+
+    const response = await POST(reqWithUrl("http://test/api/notifier?type=custom&user=7", { receiver: "b@b.com" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(body.message).toContain("Unsupported notifier type: custom");
   });
 
   test("POST with type returns 500 when configured notifier is missing", async () => {
@@ -123,6 +164,23 @@ describe("app/api/notifier route", () => {
     const response = await PUT(reqWithUrl("http://test/api/notifier?id=3&user=7", { type: "email" }));
 
     expect(response.status).toBe(404);
+  });
+
+  test("PUT updates notifier and masks sensitive output", async () => {
+    NotifierService.editNotifierForUser.mockResolvedValue({
+      id: 3,
+      type: "email",
+      origin: "smtp.gmail.com",
+      sender: "sender@test.com",
+      password: "new-secret",
+    });
+
+    const response = await PUT(reqWithUrl("http://test/api/notifier?id=3&user=7", { type: "email", origin: "PRIVATE" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.origin).toBe("PRIVATE");
+    expect(body.password).toBe("PRIVATE");
   });
 
   test("DELETE returns deleted notifier count", async () => {

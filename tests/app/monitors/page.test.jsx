@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 
 import Monitors from "../../../src/app/monitors/page.js";
 import { LoginContext, PageContext } from "../../../src/context/Contexts.jsx";
@@ -30,6 +30,10 @@ describe("app/monitors/page", () => {
     global.fetch = jest.fn();
     toastWarnMock.mockReset();
     toastErrorMock.mockReset();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   afterAll(() => {
@@ -74,5 +78,42 @@ describe("app/monitors/page", () => {
       expect(toastErrorMock).toHaveBeenCalledWith("backend error");
       expect(screen.getByTestId("monitors-view")).toHaveTextContent("loading:false|count:0");
     });
+  });
+
+  test("does not fetch data when auth token is missing", async () => {
+    const setPageId = jest.fn();
+
+    renderWithContexts({
+      login: { isDemo: false, token: "" },
+      page: { setPageId },
+    });
+
+    await waitFor(() => {
+      expect(setPageId).toHaveBeenCalledWith("monitors");
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test("retries in demo mode and succeeds after initial failure", async () => {
+    jest.useFakeTimers();
+    const setPageId = jest.fn();
+    global.fetch
+      .mockResolvedValueOnce({ ok: false, text: async () => "not ready" })
+      .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 1 }] });
+
+    renderWithContexts({
+      login: { isDemo: true, token: "jwt" },
+      page: { setPageId },
+    });
+
+    await act(async () => {
+      jest.runAllTimers();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("monitors-view")).toHaveTextContent("loading:false|count:1");
+    });
+    expect(toastWarnMock).toHaveBeenCalledWith("Waiting for demo initialization...");
+    jest.useRealTimers();
   });
 });
