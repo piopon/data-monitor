@@ -236,12 +236,29 @@ async function checkData(user) {
   }
   RUNNING_USER_CHECKS.add(userCheckKey);
   try {
+    let currentUser = user;
+    if (user?.id != null) {
+      try {
+        const users = await UserService.filterUsers({ id: user.id });
+        if (users.length !== 1) {
+          workerWarn("Cannot refresh user credentials for this run. Skipping check.", user);
+          return;
+        }
+        currentUser = users[0];
+      } catch (error) {
+        workerError(`Cannot refresh user credentials: ${error.message}`, user);
+        return;
+      }
+    }
     // filter out enabled monitors which were not notified in their timeframe (cooldown)
-    const enabledMonitors = await MonitorService.filterMonitors({ user: user.id, enabled: true });
+    const enabledMonitors = await MonitorService.filterMonitors({ user: currentUser.id, enabled: true });
     const monitorsToCheck = enabledMonitors.filter((monitor) => {
       const sendInterval = monitor.interval || SEND_INTERVAL;
-      if (checkSendTimestamp(user, monitor.parent, sendInterval)) {
-        workerInfo(`Skipping ${monitor.parent}: Notification was sent in the last ${sendInterval / 1_000} seconds.`, user);
+      if (checkSendTimestamp(currentUser, monitor.parent, sendInterval)) {
+        workerInfo(
+          `Skipping ${monitor.parent}: Notification was sent in the last ${sendInterval / 1_000} seconds.`,
+          currentUser,
+        );
         return false;
       }
       return true;
@@ -254,19 +271,19 @@ async function checkData(user) {
     try {
       scraperResponse = await RequestUtils.fetchWithRetry(`${SERVER_ADDRESS}/api/scraper/items`, {
         method: "GET",
-        headers: { Authorization: `Bearer ${user.jwt}` },
+        headers: { Authorization: `Bearer ${currentUser.jwt}` },
       });
     } catch (error) {
-      workerError(`Cannot fetch scraper data: ${error.message}`, user);
+      workerError(`Cannot fetch scraper data: ${error.message}`, currentUser);
       return;
     }
     if (!scraperResponse.ok) {
-      workerError(`Cannot get scraper data: ${await scraperResponse.text()}`, user);
+      workerError(`Cannot get scraper data: ${await scraperResponse.text()}`, currentUser);
       return;
     }
     const scraperData = await scraperResponse.json();
     if (!Array.isArray(scraperData)) {
-      workerError("Cannot parse scraper data response.", user);
+      workerError("Cannot parse scraper data response.", currentUser);
       return;
     }
     const scraperDataByName = new Map();
@@ -288,15 +305,15 @@ async function checkData(user) {
             const monitorItemId = DataUtils.nameToId(monitor.parent);
             const scraperItem = scraperDataByName.get(monitorItemId);
             if (!scraperItem) {
-              workerError(`Cannot find ${monitor.parent} in scraper data...`, user);
+              workerError(`Cannot find ${monitor.parent} in scraper data...`, currentUser);
               return;
             }
             if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
-              const notifierType = await getNotifierType(monitor, user);
+              const notifierType = await getNotifierType(monitor, currentUser);
               if (!notifierType) {
                 return;
               }
-              workerInfo(`Sending notification: ${monitor.parent} over threshold!`, user);
+              workerInfo(`Sending notification: ${monitor.parent} over threshold!`, currentUser);
               const matchedNotifiers = NotifierCatalog.getSupportedNotifiers()
                 .keys()
                 .filter((notifier) => notifierType === notifier);
@@ -308,38 +325,38 @@ async function checkData(user) {
                   try {
                     const notifyUrl = RequestUtils.buildUrl(`${SERVER_ADDRESS}/api/notifier`, {
                       type: notifier,
-                      user: user.id,
+                      user: currentUser.id,
                     });
                     notifyResponse = await RequestUtils.fetchWithRetry(
                       notifyUrl,
                       {
                         method: "POST",
-                        headers: { Authorization: `Bearer ${user.jwt}` },
+                        headers: { Authorization: `Bearer ${currentUser.jwt}` },
                         body: JSON.stringify({
                           name: monitor.parent,
-                          receiver: user.email,
+                          receiver: currentUser.email,
                           avatar: scraperItem.icon,
                           details: { message, data: scraperItem.data, threshold: monitor.threshold },
                         }),
                       },
                     );
                   } catch (error) {
-                    workerError(`Notification error: ${error.message}`, user);
+                    workerError(`Notification error: ${error.message}`, currentUser);
                     return;
                   }
                   if (!notifyResponse.ok) {
-                    workerError(`Notification error: ${await notifyResponse.json()}`, user);
+                    workerError(`Notification error: ${await notifyResponse.json()}`, currentUser);
                     return;
                   }
-                  updateSendTimestamp(user, monitor.parent);
-                  workerInfo(`Notification ok: ${await notifyResponse.json()}`, user);
+                  updateSendTimestamp(currentUser, monitor.parent);
+                  workerInfo(`Notification ok: ${await notifyResponse.json()}`, currentUser);
                 }),
               );
             } else {
-              workerInfo(`Skipping ${monitor.parent}: Threshold value was not met.`, user);
+              workerInfo(`Skipping ${monitor.parent}: Threshold value was not met.`, currentUser);
             }
           } catch (error) {
-            workerError(error.message, user);
+            workerError(error.message, currentUser);
           }
         }),
       );
