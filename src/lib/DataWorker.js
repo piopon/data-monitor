@@ -81,6 +81,15 @@ function workerError(message, user = null) {
 }
 
 /**
+ * Method used to retrieve log-safe monitor name
+ * @param {Object} monitor Monitor context object
+ * @returns single-line safe monitor name for logs
+ */
+function getSafeMonitorName(monitor) {
+  return DataSanitizer.sanitizeTextForLog(monitor?.parent == null ? "" : String(monitor.parent));
+}
+
+/**
  * Method used to verify two input values against each other
  * @param {Number} val1 First value to be verified
  * @param {String} operator The operator used to verify both values
@@ -107,7 +116,8 @@ function verify(val1, operator, val2) {
  * @returns path with input user's timestamp file name
  */
 function getUserTimestampFile(user) {
-  return `${SEND_ROOT_DIR}/${user.email}_timestamps.json`;
+  const safeEmailToken = DataSanitizer.sanitizeFileToken(user?.email);
+  return `${SEND_ROOT_DIR}/${safeEmailToken}_timestamps.json`;
 }
 
 /**
@@ -181,8 +191,9 @@ function updateSendTimestamp(user, monitorId) {
  * @returns notifier type when available, null otherwise
  */
 async function getNotifierType(monitor, user) {
+  const safeMonitorName = getSafeMonitorName(monitor);
   if (monitor?.notifier_id == null) {
-    workerWarn(`Monitor ${monitor.parent} has no notifier configured.`, user);
+    workerWarn(`Monitor ${safeMonitorName} has no notifier configured.`, user);
     return null;
   }
   const notifierId = String(monitor.notifier_id);
@@ -212,11 +223,11 @@ async function getNotifierType(monitor, user) {
     return null;
   }
   if (0 === notifierData.length) {
-    workerWarn(`Notifier not configured for monitor ${monitor.parent}.`, user);
+    workerWarn(`Notifier not configured for monitor ${safeMonitorName}.`, user);
     return null;
   }
   if (1 !== notifierData.length) {
-    workerError(`Received multiple notifiers for monitor ${monitor.parent}!`, user);
+    workerError(`Received multiple notifiers for monitor ${safeMonitorName}!`, user);
     return null;
   }
 
@@ -254,10 +265,11 @@ async function checkData(user) {
     // filter out enabled monitors which were not notified in their timeframe (cooldown)
     const enabledMonitors = await MonitorService.filterMonitors({ user: currentUser.id, enabled: true });
     const monitorsToCheck = enabledMonitors.filter((monitor) => {
+      const safeMonitorName = getSafeMonitorName(monitor);
       const sendInterval = monitor.interval || SEND_INTERVAL;
       if (checkSendTimestamp(currentUser, monitor.parent, sendInterval)) {
         workerInfo(
-          `Skipping ${monitor.parent}: Notification was sent in the last ${sendInterval / 1_000} seconds.`,
+          `Skipping ${safeMonitorName}: Notification was sent in the last ${sendInterval / 1_000} seconds.`,
           currentUser,
         );
         return false;
@@ -303,10 +315,11 @@ async function checkData(user) {
       await Promise.allSettled(
         monitorBatch.map(async (monitor) => {
           try {
+            const safeMonitorName = getSafeMonitorName(monitor);
             const monitorItemId = DataUtils.nameToId(monitor.parent);
             const scraperItem = scraperDataByName.get(monitorItemId);
             if (!scraperItem) {
-              workerError(`Cannot find ${monitor.parent} in scraper data...`, currentUser);
+              workerError(`Cannot find ${safeMonitorName} in scraper data...`, currentUser);
               return;
             }
             if (verify(parseFloat(scraperItem.data), monitor.condition, parseFloat(monitor.threshold))) {
@@ -314,7 +327,7 @@ async function checkData(user) {
               if (!notifierType) {
                 return;
               }
-              workerInfo(`Sending notification: ${monitor.parent} over threshold!`, currentUser);
+              workerInfo(`Sending notification: ${safeMonitorName} over threshold!`, currentUser);
               const matchedNotifiers = NotifierCatalog.getSupportedNotifiers()
                 .keys()
                 .filter((notifier) => notifierType === notifier);
@@ -357,7 +370,7 @@ async function checkData(user) {
                 }),
               );
             } else {
-              workerInfo(`Skipping ${monitor.parent}: Threshold value was not met.`, currentUser);
+              workerInfo(`Skipping ${safeMonitorName}: Threshold value was not met.`, currentUser);
             }
           } catch (error) {
             workerError(error.message, currentUser);
