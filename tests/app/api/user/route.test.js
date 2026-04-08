@@ -64,6 +64,14 @@ describe("app/api/user route", () => {
     expect(body).toEqual([{ id: 2, email: "b@b.com", jwt: "PRIVATE" }]);
   });
 
+  test("GET sanitizes email and jwt query filters", async () => {
+    UserService.filterUsers.mockResolvedValue([]);
+
+    await GET(reqWithUrl("http://test/api/user?email=user%0A%40example.com&jwt=abc%0Adef"));
+
+    expect(UserService.filterUsers).toHaveBeenCalledWith({ jwt: "abc def" });
+  });
+
   test("GET forwards id/email/jwt query filters together", async () => {
     UserService.filterUsers.mockResolvedValue([{ id: 2, email: "b@b.com", jwt: "t" }]);
 
@@ -80,6 +88,14 @@ describe("app/api/user route", () => {
 
     expect(UserService.addUser).toHaveBeenCalledWith({ email: "c@c.com", jwt: "" });
     expect(body).toEqual({ id: 3, email: "c@c.com", jwt: "" });
+  });
+
+  test("POST sanitizes email and jwt payload fields", async () => {
+    UserService.addUser.mockResolvedValue({ id: 4, email: "", jwt: "abc def" });
+
+    await POST(reqWithUrl("http://test/api/user", { email: "a b@x.com", jwt: "abc\ndef" }));
+
+    expect(UserService.addUser).toHaveBeenCalledWith({ email: "", jwt: "abc def" });
   });
 
   test("POST returns error when payload is null", async () => {

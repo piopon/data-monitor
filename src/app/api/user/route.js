@@ -1,4 +1,5 @@
 import { UserService } from "@/model/UserService";
+import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
@@ -13,6 +14,40 @@ function normalizeSensitiveInput(value) {
 }
 
 /**
+ * Method used to sanitize user email values at API boundary
+ * @param {unknown} value Raw email input
+ * @returns sanitized email value when valid, empty string otherwise
+ */
+function sanitizeUserEmail(value) {
+  return DataSanitizer.sanitizeEmail(typeof value === "string" ? value : "");
+}
+
+/**
+ * Method used to sanitize user jwt values at API boundary
+ * @param {unknown} value Raw jwt input
+ * @returns single-line sanitized jwt string
+ */
+function sanitizeUserJwt(value) {
+  return DataSanitizer.sanitizeTextForLog(typeof value === "string" ? value : "", 2048);
+}
+
+/**
+ * Method used to normalize GET query filters for user route
+ * @param {URLSearchParams} searchParams User query parameters
+ * @returns normalized filter object
+ */
+function normalizeUserFilters(searchParams) {
+  const id = searchParams.get("id");
+  const email = sanitizeUserEmail(searchParams.get("email"));
+  const jwt = sanitizeUserJwt(searchParams.get("jwt"));
+  return {
+    ...(id && { id }),
+    ...(email && { email }),
+    ...(jwt && { jwt }),
+  };
+}
+
+/**
  * Method used to normalize incoming user payload before save/update operations
  * @param {Object} user Input user payload from request body
  * @returns normalized user payload
@@ -21,9 +56,11 @@ function normalizeUserInput(user) {
   if (user == null) {
     return user;
   }
+  const normalizedJwt = normalizeSensitiveInput(user.jwt);
   return {
     ...user,
-    jwt: normalizeSensitiveInput(user.jwt),
+    ...(user.email != null && { email: sanitizeUserEmail(user.email) }),
+    jwt: sanitizeUserJwt(normalizedJwt),
   };
 }
 
@@ -52,13 +89,8 @@ export async function GET(request) {
         headers: { "Content-Type": "application/json" },
       });
     }
-    const id = searchParams.get("id");
-    const email = searchParams.get("email");
-    const jwt = searchParams.get("jwt");
     const users = await UserService.filterUsers({
-      ...(id && { id }),
-      ...(email && { email }),
-      ...(jwt && { jwt }),
+      ...normalizeUserFilters(searchParams),
     });
     return new Response(JSON.stringify(users.map((user) => getSafeUser(user))), {
       status: 200,
