@@ -162,4 +162,70 @@ describe("RequestUtils", () => {
     expect(global.fetch).toHaveBeenCalledTimes(2);
     expect(response.status).toBe(503);
   });
+
+  test("getResponseMessage returns JSON string payload", async () => {
+    const response = {
+      json: jest.fn(async () => "plain message"),
+      text: jest.fn(async () => "unused"),
+    };
+
+    const message = await RequestUtils.getResponseMessage(response);
+
+    expect(message).toBe("plain message");
+    expect(response.text).not.toHaveBeenCalled();
+  });
+
+  test("getResponseMessage returns message field from JSON payload", async () => {
+    const response = {
+      json: jest.fn(async () => ({ message: "bad request" })),
+      text: jest.fn(async () => "unused"),
+    };
+
+    const message = await RequestUtils.getResponseMessage(response);
+
+    expect(message).toBe("bad request");
+    expect(response.text).not.toHaveBeenCalled();
+  });
+
+  test("getResponseMessage stringifies JSON payload without message field", async () => {
+    const response = {
+      json: jest.fn(async () => ({ error: "boom", code: 123 })),
+      text: jest.fn(async () => "unused"),
+    };
+
+    const message = await RequestUtils.getResponseMessage(response);
+
+    expect(message).toBe('{"error":"boom","code":123}');
+    expect(response.text).not.toHaveBeenCalled();
+  });
+
+  test("getResponseMessage falls back to text when JSON parsing fails", async () => {
+    const response = {
+      json: jest.fn(async () => {
+        throw new Error("invalid json");
+      }),
+      text: jest.fn(async () => "service unavailable"),
+    };
+
+    const message = await RequestUtils.getResponseMessage(response);
+
+    expect(message).toBe("service unavailable");
+    expect(response.text).toHaveBeenCalledTimes(1);
+  });
+
+  test("getResponseMessage returns default fallback when JSON and text parsing fail", async () => {
+    const response = {
+      json: jest.fn(async () => {
+        throw new Error("invalid json");
+      }),
+      text: jest.fn(async () => {
+        throw new Error("text stream failed");
+      }),
+    };
+
+    const message = await RequestUtils.getResponseMessage(response);
+
+    expect(message).toBe("No response details available.");
+    expect(response.text).toHaveBeenCalledTimes(1);
+  });
 });
