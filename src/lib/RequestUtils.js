@@ -32,6 +32,34 @@ export class RequestUtils {
   }
 
   /**
+   * Method used to extract human-readable response message from fetch response
+   * @param {Response} response Response object returned by fetch
+   * @returns parsed response message string
+   */
+  static async getResponseMessage(response) {
+    try {
+      const rawBody = await response.text();
+      if (rawBody == null || rawBody === "") {
+        return "";
+      }
+      try {
+        const payload = JSON.parse(rawBody);
+        if (typeof payload === "string") {
+          return payload;
+        }
+        if (payload?.message != null) {
+          return String(payload.message);
+        }
+        return JSON.stringify(payload);
+      } catch {
+        return rawBody;
+      }
+    } catch {
+      return "No response details available.";
+    }
+  }
+
+  /**
    * Method used to convert input value to number with fallback
    * @param {unknown} value Input value to be converted
    * @param {Number} fallback Number used when input cannot be converted

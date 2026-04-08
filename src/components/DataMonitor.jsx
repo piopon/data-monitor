@@ -219,11 +219,12 @@ const DataMonitor = ({ parentName }) => {
           details: { message, data: "123.456", threshold },
         }),
       });
+      const responseMessage = await RequestUtils.getResponseMessage(notifyResponse);
       if (!notifyResponse.ok) {
-        toast.error(`Test notification ERROR: ${await notifyResponse.json()}`);
+        toast.error(`Test notification ERROR: ${responseMessage}`);
         return;
       }
-      toast.success(`Test notification OK: ${await notifyResponse.json()}`);
+      toast.success(`Test notification OK: ${responseMessage}`);
     } catch (e) {
       toast.error(`Error: ${e.message}`);
     }

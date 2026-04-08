@@ -304,7 +304,7 @@ describe("DataMonitor", () => {
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 21, enabled: true, notifier_id: 2 }] })
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
-      .mockResolvedValueOnce({ ok: false, json: async () => "send failed" });
+      .mockResolvedValueOnce({ ok: false, text: async () => '"send failed"' });
 
     renderWithLogin({ isDemo: false, userId: () => 7, email: "u@test.com", token: "jwt" });
 
@@ -324,7 +324,7 @@ describe("DataMonitor", () => {
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 21, enabled: true, notifier_id: 2 }] })
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
-      .mockResolvedValueOnce({ ok: true, json: async () => "ok" });
+      .mockResolvedValueOnce({ ok: true, text: async () => '"ok"' });
 
     renderWithLogin({ isDemo: false, userId: () => 7, email: "u@test.com", token: "jwt" });
 

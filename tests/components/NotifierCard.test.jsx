@@ -118,7 +118,7 @@ describe("NotifierCard", () => {
   });
 
   test("shows API error message when save fails", async () => {
-    global.fetch.mockResolvedValueOnce({ ok: false, json: async () => ({ message: "save failed" }) });
+    global.fetch.mockResolvedValueOnce({ ok: false, text: async () => '{"message":"save failed"}' });
 
     render(
       <NotifierCard
@@ -165,7 +165,7 @@ describe("NotifierCard", () => {
   });
 
   test("shows API error message when delete fails", async () => {
-    global.fetch.mockResolvedValueOnce({ ok: false, json: async () => ({ message: "delete failed" }) });
+    global.fetch.mockResolvedValueOnce({ ok: false, text: async () => '{"message":"delete failed"}' });
 
     render(
       <NotifierCard

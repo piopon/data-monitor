@@ -17,7 +17,7 @@ jest.mock("@/lib/ScraperRequest", () => ({
   ScraperRequest: { GET: jest.fn() },
 }));
 jest.mock("@/lib/RequestUtils", () => ({
-  RequestUtils: { getErrorStatus: jest.fn() },
+  RequestUtils: { getErrorStatus: jest.fn(), getResponseMessage: jest.fn() },
 }));
 jest.mock("@/model/MonitorService", () => ({
   MonitorService: { initializeTable: jest.fn() },
@@ -64,6 +64,7 @@ describe("app/api/init route", () => {
     MonitorService.initializeTable.mockResolvedValue({ result: true });
     UserService.migrateSensitiveData.mockResolvedValue(1);
     NotifierService.migrateSensitiveData.mockResolvedValue(2);
+    RequestUtils.getResponseMessage.mockResolvedValue("features down");
   });
 
   test("returns initialized features payload on success", async () => {
@@ -119,6 +120,7 @@ describe("app/api/init route", () => {
 
     expect(response.status).toBe(502);
     expect(body).toEqual({ init: false, message: "features down" });
+    expect(RequestUtils.getResponseMessage).toHaveBeenCalledTimes(1);
   });
 
   test("returns mapped error status on thrown exception", async () => {

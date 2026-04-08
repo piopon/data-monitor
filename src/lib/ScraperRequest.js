@@ -1,4 +1,5 @@
 import { AppConfig } from "@/config/AppConfig";
+import { RequestUtils } from "@/lib/RequestUtils";
 
 export class ScraperRequest {
   static #config = AppConfig.getConfig();
@@ -60,11 +61,7 @@ export class ScraperRequest {
       if (response.ok) {
         return JSON.stringify(await response.json());
       }
-      const textResponse = await response.text();
-      if (textResponse.startsWith('"') && textResponse.endsWith('"')) {
-        return textResponse.substring(1, textResponse.length - 1);
-      }
-      return textResponse;
+      return await RequestUtils.getResponseMessage(response);
     }
     return await response.text();
   }

@@ -154,7 +154,7 @@ describe("HomePage", () => {
       })
       .mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ message: "create failed" }),
+        text: async () => '{"message":"create failed"}',
       });
 
     renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
@@ -188,7 +188,7 @@ describe("HomePage", () => {
       })
       .mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ message: "update failed" }),
+        text: async () => '{"message":"update failed"}',
       });
 
     renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
@@ -218,7 +218,7 @@ describe("HomePage", () => {
       })
       .mockResolvedValueOnce({
         ok: false,
-        json: async () => ({ message: "lookup failed" }),
+        text: async () => '{"message":"lookup failed"}',
       });
 
     renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });

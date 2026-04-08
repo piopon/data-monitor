@@ -114,7 +114,7 @@ describe("NotifiersPage", () => {
   test("shows API message when notifier fetch returns a non-ok response", async () => {
     global.fetch.mockResolvedValueOnce({
       ok: false,
-      json: async () => ({ message: "notifiers unavailable" }),
+      text: async () => '{"message":"notifiers unavailable"}',
     });
 
     renderWithLogin({ userIdValue: 4, token: "token-4" });
