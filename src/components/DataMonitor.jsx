@@ -29,25 +29,6 @@ const parseNotifierValue = (input) => {
   return { type, id: Number.isNaN(id) ? null : id };
 };
 
-const getResponseMessage = async (response) => {
-  try {
-    const payload = await response.json();
-    if (typeof payload === "string") {
-      return payload;
-    }
-    if (payload?.message) {
-      return String(payload.message);
-    }
-    return JSON.stringify(payload);
-  } catch {
-    try {
-      return await response.text();
-    } catch {
-      return "No response details available.";
-    }
-  }
-};
-
 const DataMonitor = ({ parentName }) => {
   const parentId = DataUtils.nameToId(parentName);
   const { isDemo, userId, email, token } = useContext(LoginContext);
@@ -238,7 +219,7 @@ const DataMonitor = ({ parentName }) => {
           details: { message, data: "123.456", threshold },
         }),
       });
-      const responseMessage = await getResponseMessage(notifyResponse);
+      const responseMessage = await RequestUtils.getResponseMessage(notifyResponse);
       if (!notifyResponse.ok) {
         toast.error(`Test notification ERROR: ${responseMessage}`);
         return;

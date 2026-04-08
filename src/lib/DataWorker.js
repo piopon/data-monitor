@@ -80,30 +80,6 @@ function workerError(message, user = null) {
 }
 
 /**
- * Method used to extract human-readable response message from fetch response
- * @param {Response} response Response object returned by fetch
- * @returns parsed response message string
- */
-async function getResponseMessage(response) {
-  try {
-    const payload = await response.json();
-    if (typeof payload === "string") {
-      return payload;
-    }
-    if (payload?.message) {
-      return String(payload.message);
-    }
-    return JSON.stringify(payload);
-  } catch {
-    try {
-      return await response.text();
-    } catch {
-      return "No response details available.";
-    }
-  }
-}
-
-/**
  * Method used to verify two input values against each other
  * @param {Number} val1 First value to be verified
  * @param {String} operator The operator used to verify both values
@@ -369,11 +345,14 @@ async function checkData(user) {
                     return;
                   }
                   if (!notifyResponse.ok) {
-                    workerError(`Notification error: ${await getResponseMessage(notifyResponse)}`, currentUser);
+                    workerError(
+                      `Notification error: ${await RequestUtils.getResponseMessage(notifyResponse)}`,
+                      currentUser,
+                    );
                     return;
                   }
                   updateSendTimestamp(currentUser, monitor.parent);
-                  workerInfo(`Notification ok: ${await getResponseMessage(notifyResponse)}`, currentUser);
+                  workerInfo(`Notification ok: ${await RequestUtils.getResponseMessage(notifyResponse)}`, currentUser);
                 }),
               );
             } else {
