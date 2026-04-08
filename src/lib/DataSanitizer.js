@@ -1,5 +1,6 @@
 export class DataSanitizer {
   static #LOG_MAX_LENGTH = 512;
+  static #FILE_TOKEN_MAX_LENGTH = 120;
 
   /**
    * Method used to sanitize email into a safe, normalized representation
@@ -51,6 +52,28 @@ export class DataSanitizer {
       .replace(/\s{2,}/g, " ")
       .trim()
       .slice(0, boundedLength);
+  }
+
+  /**
+   * Method used to sanitize user-derived values used in file names
+   * @param {String} value Raw token value
+   * @param {Number} maxLength Maximum output length
+   * @returns file-safe token, or fallback token when input cannot be sanitized
+   */
+  static sanitizeFileToken(value, maxLength = DataSanitizer.#FILE_TOKEN_MAX_LENGTH) {
+    if (typeof value !== "string") {
+      return "unknown";
+    }
+    const boundedLength =
+      Number.isInteger(maxLength) && maxLength > 0 ? maxLength : DataSanitizer.#FILE_TOKEN_MAX_LENGTH;
+    const sanitized = value
+      .normalize("NFKC")
+      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
+      .replace(/[^A-Za-z0-9._-]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^[._-]+|[._-]+$/g, "")
+      .slice(0, boundedLength);
+    return sanitized || "unknown";
   }
 
   /**

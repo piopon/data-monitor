@@ -45,3 +45,13 @@ test("DataSanitizer.sanitizeTextForLog returns empty string for non-string input
   expect(DataSanitizer.sanitizeTextForLog(undefined)).toBe("");
   expect(DataSanitizer.sanitizeTextForLog(123)).toBe("");
 });
+
+test("DataSanitizer.sanitizeFileToken normalizes unsafe file token characters", () => {
+  const raw = " ../u\nser\\name@example.com ";
+  expect(DataSanitizer.sanitizeFileToken(raw)).toBe("user_name_example.com");
+});
+
+test("DataSanitizer.sanitizeFileToken returns fallback token when empty", () => {
+  expect(DataSanitizer.sanitizeFileToken("...///***")).toBe("unknown");
+  expect(DataSanitizer.sanitizeFileToken(null)).toBe("unknown");
+});
