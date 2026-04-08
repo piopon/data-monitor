@@ -8,12 +8,16 @@ export class DataSanitizer {
     if (typeof email !== "string") {
       return "";
     }
-    // Normalize and remove non-printable/control chars to prevent injection/spoofing.
-    const normalized = email
-      .normalize("NFKC")
-      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
-      .trim()
-      .replace(/\s+/g, "");
+    const trimmed = email.normalize("NFKC").trim();
+    // Reject addresses containing any whitespace to avoid mutating identity-like values.
+    if (/\s/.test(trimmed)) {
+      return "";
+    }
+    // Remove non-printable/control chars to prevent injection/spoofing.
+    const normalized = trimmed.replace(
+      /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g,
+      "",
+    );
     const atIndex = normalized.indexOf("@");
     const hasSingleAt = atIndex > 0 && atIndex === normalized.lastIndexOf("@") && atIndex < normalized.length - 1;
     if (!hasSingleAt) {

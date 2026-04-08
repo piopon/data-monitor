@@ -1,8 +1,14 @@
 import { DataSanitizer } from "../../src/lib/DataSanitizer.js";
 
-test("DataSanitizer.sanitizeEmail normalizes spaces and lowercases domain", () => {
+test("DataSanitizer.sanitizeEmail trims surrounding spaces and lowercases domain", () => {
   const sanitized = DataSanitizer.sanitizeEmail("  User.Name+tag@Example.COM  ");
   expect(sanitized).toBe("User.Name+tag@example.com");
+});
+
+test("DataSanitizer.sanitizeEmail rejects emails containing whitespace", () => {
+  expect(DataSanitizer.sanitizeEmail("a b@x.com")).toBe("");
+  expect(DataSanitizer.sanitizeEmail("user@exa mple.com")).toBe("");
+  expect(DataSanitizer.sanitizeEmail("user\t@example.com")).toBe("");
 });
 
 test("DataSanitizer.sanitizeEmail removes zero-width and bidi control characters", () => {
