@@ -49,7 +49,8 @@ function getLogPrefix(level, user) {
  * @param {Object} user User context related to the log line
  */
 function workerLog(level, message, user = null) {
-  console[level](`${getLogPrefix(level, user)}${message}`);
+  const safeMessage = DataSanitizer.sanitizeTextForLog(message == null ? "" : String(message));
+  console[level](`${getLogPrefix(level, user)}${safeMessage}`);
 }
 
 /**
