@@ -1,4 +1,6 @@
 export class DataSanitizer {
+  static #LOG_MAX_LENGTH = 512;
+
   /**
    * Method used to sanitize email into a safe, normalized representation
    * @param {String} email Raw email value
@@ -29,6 +31,26 @@ export class DataSanitizer {
       return "";
     }
     return `${localPart}@${domainPart}`;
+  }
+
+  /**
+   * Method used to sanitize dynamic text before interpolation into logs
+   * @param {String} value Raw dynamic value used in logs
+   * @param {Number} maxLength Maximum output length
+   * @returns single-line log-safe text representation
+   */
+  static sanitizeTextForLog(value, maxLength = DataSanitizer.#LOG_MAX_LENGTH) {
+    if (typeof value !== "string") {
+      return "";
+    }
+    const boundedLength = Number.isInteger(maxLength) && maxLength > 0 ? maxLength : DataSanitizer.#LOG_MAX_LENGTH;
+    return value
+      .normalize("NFKC")
+      .replace(/[\r\n\t]+/g, " ")
+      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
+      .replace(/\s{2,}/g, " ")
+      .trim()
+      .slice(0, boundedLength);
   }
 
   /**

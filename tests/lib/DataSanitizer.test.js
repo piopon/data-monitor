@@ -30,3 +30,18 @@ test("DataSanitizer.sanitizeEmail returns empty string for malformed emails", ()
   expect(DataSanitizer.sanitizeEmail(".user@example.com")).toBe("");
   expect(DataSanitizer.sanitizeEmail("user@-example.com")).toBe("");
 });
+
+test("DataSanitizer.sanitizeTextForLog returns single-line safe output", () => {
+  const raw = "line1\nline2\t\u202Eend";
+  expect(DataSanitizer.sanitizeTextForLog(raw)).toBe("line1 line2 end");
+});
+
+test("DataSanitizer.sanitizeTextForLog truncates output to requested length", () => {
+  expect(DataSanitizer.sanitizeTextForLog("abcdef", 4)).toBe("abcd");
+});
+
+test("DataSanitizer.sanitizeTextForLog returns empty string for non-string input", () => {
+  expect(DataSanitizer.sanitizeTextForLog(null)).toBe("");
+  expect(DataSanitizer.sanitizeTextForLog(undefined)).toBe("");
+  expect(DataSanitizer.sanitizeTextForLog(123)).toBe("");
+});
