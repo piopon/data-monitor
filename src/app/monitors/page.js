@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { LoginContext, PageContext } from "@/context/Contexts";
 import UserAccess from "@/components/UserAccess";
 import MonitorsPage from "@/views/MonitorsPage";
+import { RequestUtils } from "@/lib/RequestUtils";
 
 export default function Monitors() {
   const MAX_ATTEMPTS = 5;
@@ -31,7 +32,7 @@ export default function Monitors() {
             toast.warn("Waiting for demo initialization...");
             await new Promise((res) => setTimeout(res, WAIT_TIME_MS));
           } else {
-            const message = await response.text();
+            const message = await RequestUtils.getResponseMessage(response);
             toast.error(message);
             return;
           }

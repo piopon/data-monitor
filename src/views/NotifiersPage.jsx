@@ -37,11 +37,11 @@ const NotifiersPage = () => {
       }
       const notifiersUrl = RequestUtils.buildUrl("/api/notifier", { user });
       const notifiersResponse = await fetch(notifiersUrl, { headers: getAuthHeaders() });
-      const notifiersData = await notifiersResponse.json();
       if (!notifiersResponse.ok) {
-        toast.error(notifiersData.message);
+        toast.error(await RequestUtils.getResponseMessage(notifiersResponse));
         return;
       }
+      const notifiersData = await notifiersResponse.json();
       setNotifiers(notifiersData);
       setAddDisabled(notifiersData.length === TOTAL_NOTIFIERS_NO);
     } catch (error) {

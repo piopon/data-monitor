@@ -66,7 +66,7 @@ export async function GET(request) {
     await migrateSensitiveData();
     const featuresResponse = await ScraperRequest.GET(AppConfig.getConfig().scraper.endpoints.features);
     if (!featuresResponse.ok) {
-      const result = { init: false, message: await featuresResponse.text() };
+      const result = { init: false, message: await RequestUtils.getResponseMessage(featuresResponse) };
       return new Response(JSON.stringify(result), {
         status: featuresResponse.status,
         headers: { "Content-Type": "application/json" },

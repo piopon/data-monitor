@@ -4,6 +4,7 @@ import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
+import { RequestUtils } from "@/lib/RequestUtils";
 
 export default function HomePage({ demoEnabled, initError }) {
   const [email, setEmail] = useState("");
@@ -19,10 +20,10 @@ export default function HomePage({ demoEnabled, initError }) {
 
   const userSave = async (userData) => {
     const getUserResponse = await fetch(`/api/user?email=${userData.email}`);
-    const getUserData = await getUserResponse.json();
     if (!getUserResponse.ok) {
-      return { id: undefined, message: getUserData.message };
+      return { id: undefined, message: await RequestUtils.getResponseMessage(getUserResponse) };
     }
+    const getUserData = await getUserResponse.json();
     if (getUserData.length > 1) {
       return { id: undefined, message: "Error: Received multiple user entries." };
     }
@@ -33,10 +34,10 @@ export default function HomePage({ demoEnabled, initError }) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
     });
-    const addUserData = await addUserResponse.json();
     if (!addUserResponse.ok) {
-      return { id: undefined, message: addUserData.message };
+      return { id: undefined, message: await RequestUtils.getResponseMessage(addUserResponse) };
     }
+    const addUserData = await addUserResponse.json();
     return { id: addUserData.id, message: `User ${userData.email} saved.` };
   };
 
@@ -49,7 +50,7 @@ export default function HomePage({ demoEnabled, initError }) {
       });
       if (!response.ok) {
         logout();
-        toast.error(await response.text());
+        toast.error(await RequestUtils.getResponseMessage(response));
         return;
       }
       const shouldProceed = await action(await response.json());

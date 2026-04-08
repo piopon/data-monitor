@@ -22,9 +22,8 @@ const NotifierCard = ({ data, options, onChange, onDelete }) => {
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
         body: JSON.stringify({ ...notifier, user: data.user }),
       });
-      const notifierData = await notifierResponse.json();
       if (!notifierResponse.ok) {
-        toast.error(notifierData.message);
+        toast.error(await RequestUtils.getResponseMessage(notifierResponse));
         return;
       }
       onChange();
@@ -44,9 +43,8 @@ const NotifierCard = ({ data, options, onChange, onDelete }) => {
         method: "DELETE",
         headers: { "Content-Type": "application/json", ...getAuthHeaders() },
       });
-      const notifierData = await notifierResponse.json();
       if (!notifierResponse.ok) {
-        toast.error(notifierData.message);
+        toast.error(await RequestUtils.getResponseMessage(notifierResponse));
         return;
       }
       onDelete(data.id);
