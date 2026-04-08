@@ -38,20 +38,24 @@ export class RequestUtils {
    */
   static async getResponseMessage(response) {
     try {
-      const payload = await response.json();
-      if (typeof payload === "string") {
-        return payload;
+      const rawBody = await response.text();
+      if (rawBody == null || rawBody === "") {
+        return "";
       }
-      if (payload?.message) {
-        return String(payload.message);
-      }
-      return JSON.stringify(payload);
-    } catch {
       try {
-        return await response.text();
+        const payload = JSON.parse(rawBody);
+        if (typeof payload === "string") {
+          return payload;
+        }
+        if (payload?.message != null) {
+          return String(payload.message);
+        }
+        return JSON.stringify(payload);
       } catch {
-        return "No response details available.";
+        return rawBody;
       }
+    } catch {
+      return "No response details available.";
     }
   }
 

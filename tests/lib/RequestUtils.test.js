@@ -165,45 +165,39 @@ describe("RequestUtils", () => {
 
   test("getResponseMessage returns JSON string payload", async () => {
     const response = {
-      json: jest.fn(async () => "plain message"),
-      text: jest.fn(async () => "unused"),
+      text: jest.fn(async () => '"plain message"'),
     };
 
     const message = await RequestUtils.getResponseMessage(response);
 
     expect(message).toBe("plain message");
-    expect(response.text).not.toHaveBeenCalled();
+    expect(response.text).toHaveBeenCalledTimes(1);
   });
 
   test("getResponseMessage returns message field from JSON payload", async () => {
     const response = {
-      json: jest.fn(async () => ({ message: "bad request" })),
-      text: jest.fn(async () => "unused"),
+      text: jest.fn(async () => '{"message":"bad request"}'),
     };
 
     const message = await RequestUtils.getResponseMessage(response);
 
     expect(message).toBe("bad request");
-    expect(response.text).not.toHaveBeenCalled();
+    expect(response.text).toHaveBeenCalledTimes(1);
   });
 
   test("getResponseMessage stringifies JSON payload without message field", async () => {
     const response = {
-      json: jest.fn(async () => ({ error: "boom", code: 123 })),
-      text: jest.fn(async () => "unused"),
+      text: jest.fn(async () => '{"error":"boom","code":123}'),
     };
 
     const message = await RequestUtils.getResponseMessage(response);
 
     expect(message).toBe('{"error":"boom","code":123}');
-    expect(response.text).not.toHaveBeenCalled();
+    expect(response.text).toHaveBeenCalledTimes(1);
   });
 
-  test("getResponseMessage falls back to text when JSON parsing fails", async () => {
+  test("getResponseMessage returns raw text when JSON parsing fails", async () => {
     const response = {
-      json: jest.fn(async () => {
-        throw new Error("invalid json");
-      }),
       text: jest.fn(async () => "service unavailable"),
     };
 
@@ -213,11 +207,19 @@ describe("RequestUtils", () => {
     expect(response.text).toHaveBeenCalledTimes(1);
   });
 
-  test("getResponseMessage returns default fallback when JSON and text parsing fail", async () => {
+  test("getResponseMessage returns empty string for empty response body", async () => {
     const response = {
-      json: jest.fn(async () => {
-        throw new Error("invalid json");
-      }),
+      text: jest.fn(async () => ""),
+    };
+
+    const message = await RequestUtils.getResponseMessage(response);
+
+    expect(message).toBe("");
+    expect(response.text).toHaveBeenCalledTimes(1);
+  });
+
+  test("getResponseMessage returns default fallback when text parsing fails", async () => {
+    const response = {
       text: jest.fn(async () => {
         throw new Error("text stream failed");
       }),
