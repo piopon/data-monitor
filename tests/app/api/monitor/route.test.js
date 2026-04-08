@@ -80,6 +80,18 @@ describe("app/api/monitor route", () => {
     });
   });
 
+  test("GET sanitizes parent and condition query filters", async () => {
+    MonitorService.filterMonitors.mockResolvedValue([]);
+
+    await GET(reqWithUrl("http://test/api/monitor?user=7&parent=btc%0Aspoof&condition=%3E%0A"));
+
+    expect(MonitorService.filterMonitors).toHaveBeenCalledWith({
+      parent: "btc spoof",
+      condition: ">",
+      user: 7,
+    });
+  });
+
   test("POST creates monitor when notifier belongs to user", async () => {
     NotifierService.filterNotifiers.mockResolvedValue([{ id: 9 }]);
     MonitorService.addMonitor.mockResolvedValue({ id: 12 });
@@ -91,6 +103,20 @@ describe("app/api/monitor route", () => {
     expect(body).toEqual({ id: 12 });
     expect(NotifierService.filterNotifiers).toHaveBeenCalledWith({ id: 9, user: 7 });
     expect(MonitorService.addMonitor).toHaveBeenCalledWith({ user: 7, notifier: 9, parent: "btc" });
+  });
+
+  test("POST sanitizes monitor payload text fields", async () => {
+    NotifierService.filterNotifiers.mockResolvedValue([{ id: 9 }]);
+    MonitorService.addMonitor.mockResolvedValue({ id: 13, parent: "btc spoof", condition: ">" });
+
+    await POST(reqWithUrl("http://test/api/monitor", { user: 7, notifier: 9, parent: "btc\nspoof", condition: ">\n" }));
+
+    expect(MonitorService.addMonitor).toHaveBeenCalledWith({
+      user: 7,
+      notifier: 9,
+      parent: "btc spoof",
+      condition: ">",
+    });
   });
 
   test("POST returns 400 for invalid notifier id", async () => {

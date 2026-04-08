@@ -1,7 +1,58 @@
 import { MonitorService } from "@/model/MonitorService";
 import { NotifierService } from "@/model/NotifierService";
 import { authorizeUser } from "@/lib/ApiUserAuth";
+import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
+
+/**
+ * Method used to sanitize monitor text input values at API boundary
+ * @param {unknown} value Raw monitor text value
+ * @param {Number} maxLength Maximum output length
+ * @returns sanitized monitor text value
+ */
+function sanitizeMonitorText(value, maxLength) {
+  return DataSanitizer.sanitizeTextForLog(typeof value === "string" ? value : "", maxLength);
+}
+
+/**
+ * Method used to normalize query filter values before querying monitor data
+ * @param {URLSearchParams} searchParams Query parameters object
+ * @returns normalized monitor filters object
+ */
+function normalizeMonitorFilters(searchParams) {
+  const id = searchParams.get("id");
+  const parent = sanitizeMonitorText(searchParams.get("parent"), 256);
+  const enabled = searchParams.get("enabled");
+  const threshold = searchParams.get("threshold");
+  const condition = sanitizeMonitorText(searchParams.get("condition"), 8);
+  const notifier = searchParams.get("notifier");
+  const interval = searchParams.get("interval");
+  return {
+    ...(id && { id }),
+    ...(parent && { parent }),
+    ...(enabled && { enabled }),
+    ...(threshold && { threshold }),
+    ...(condition && { condition }),
+    ...(notifier && { notifier }),
+    ...(interval && { interval }),
+  };
+}
+
+/**
+ * Method used to normalize monitor payload text fields before save/update operations
+ * @param {Object} monitorData Input monitor payload
+ * @returns normalized monitor payload
+ */
+function normalizeMonitorInput(monitorData) {
+  if (monitorData == null) {
+    return monitorData;
+  }
+  return {
+    ...monitorData,
+    ...(monitorData.parent != null && { parent: sanitizeMonitorText(monitorData.parent, 256) }),
+    ...(monitorData.condition != null && { condition: sanitizeMonitorText(monitorData.condition, 8) }),
+  };
+}
 
 /**
  * Method used to validate notifier ownership for monitor operations
@@ -36,21 +87,8 @@ export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const id = searchParams.get("id");
-    const parent = searchParams.get("parent");
-    const enabled = searchParams.get("enabled");
-    const threshold = searchParams.get("threshold");
-    const condition = searchParams.get("condition");
-    const notifier = searchParams.get("notifier");
-    const interval = searchParams.get("interval");
     const monitors = await MonitorService.filterMonitors({
-      ...(id && { id }),
-      ...(parent && { parent }),
-      ...(enabled && { enabled }),
-      ...(threshold && { threshold }),
-      ...(condition && { condition }),
-      ...(notifier && { notifier }),
-      ...(interval && { interval }),
+      ...normalizeMonitorFilters(searchParams),
       user: authorizedUserId,
     });
     return new Response(JSON.stringify(monitors), {
@@ -73,7 +111,7 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
-    const monitorData = await request.json();
+    const monitorData = normalizeMonitorInput(await request.json());
     const authorizedUserId = await authorizeUser(request, monitorData.user);
     await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
     const monitor = await MonitorService.addMonitor({
@@ -104,7 +142,7 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const monitorData = await request.json();
+    const monitorData = normalizeMonitorInput(await request.json());
     await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
     const monitor = await MonitorService.editMonitorForUser(id, authorizedUserId, monitorData);
     if (monitor == null) {
