@@ -40,10 +40,11 @@ function normalizeUserFilters(searchParams) {
   const id = searchParams.get("id");
   const email = sanitizeUserEmail(searchParams.get("email"));
   const jwt = sanitizeUserJwt(searchParams.get("jwt"));
+  const hasIndexedFilter = Boolean(id || email);
   return {
     ...(id && { id }),
     ...(email && { email }),
-    ...(jwt && { jwt }),
+    ...(hasIndexedFilter && jwt && { jwt }),
   };
 }
 

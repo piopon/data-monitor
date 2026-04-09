@@ -64,12 +64,12 @@ describe("app/api/user route", () => {
     expect(body).toEqual([{ id: 2, email: "b@b.com", jwt: "PRIVATE" }]);
   });
 
-  test("GET sanitizes email and jwt query filters", async () => {
+  test("GET drops jwt filter when sanitized id/email filters are missing", async () => {
     UserService.filterUsers.mockResolvedValue([]);
 
     await GET(reqWithUrl("http://test/api/user?email=user%0A%40example.com&jwt=abc%0Adef"));
 
-    expect(UserService.filterUsers).toHaveBeenCalledWith({ jwt: "abc def" });
+    expect(UserService.filterUsers).toHaveBeenCalledWith({});
   });
 
   test("GET forwards id/email/jwt query filters together", async () => {

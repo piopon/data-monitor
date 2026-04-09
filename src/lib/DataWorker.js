@@ -116,8 +116,10 @@ function verify(val1, operator, val2) {
  * @returns path with input user's timestamp file name
  */
 function getUserTimestampFile(user) {
+  const safeUserKeyToken = DataSanitizer.sanitizeFileToken(getUserCacheKey(user));
   const safeEmailToken = DataSanitizer.sanitizeFileToken(user?.email);
-  return `${SEND_ROOT_DIR}/${safeEmailToken}_timestamps.json`;
+  const emailSuffix = safeEmailToken !== "unknown" ? `_${safeEmailToken}` : "";
+  return `${SEND_ROOT_DIR}/${safeUserKeyToken}${emailSuffix}_timestamps.json`;
 }
 
 /**
@@ -126,7 +128,13 @@ function getUserTimestampFile(user) {
  * @returns stable cache key for user-related in-memory maps
  */
 function getUserCacheKey(user) {
-  return String(user.id || user.email);
+  if (user?.id != null && user.id !== "") {
+    return String(user.id);
+  }
+  if (typeof user?.email === "string" && user.email !== "") {
+    return user.email;
+  }
+  return "unknown-user";
 }
 
 /**
