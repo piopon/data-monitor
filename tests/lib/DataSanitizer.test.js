@@ -33,17 +33,17 @@ test("DataSanitizer.sanitizeEmail returns empty string for malformed emails", ()
 
 test("DataSanitizer.sanitizeTextForLog returns single-line safe output", () => {
   const raw = "line1\nline2\t\u202Eend";
-  expect(DataSanitizer.sanitizeTextForLog(raw)).toBe("line1 line2 end");
+  expect(DataSanitizer.sanitizeText(raw)).toBe("line1 line2 end");
 });
 
 test("DataSanitizer.sanitizeTextForLog truncates output to requested length", () => {
-  expect(DataSanitizer.sanitizeTextForLog("abcdef", 4)).toBe("abcd");
+  expect(DataSanitizer.sanitizeText("abcdef", 4)).toBe("abcd");
 });
 
 test("DataSanitizer.sanitizeTextForLog returns empty string for non-string input", () => {
-  expect(DataSanitizer.sanitizeTextForLog(null)).toBe("");
-  expect(DataSanitizer.sanitizeTextForLog(undefined)).toBe("");
-  expect(DataSanitizer.sanitizeTextForLog(123)).toBe("");
+  expect(DataSanitizer.sanitizeText(null)).toBe("");
+  expect(DataSanitizer.sanitizeText(undefined)).toBe("");
+  expect(DataSanitizer.sanitizeText(123)).toBe("");
 });
 
 test("DataSanitizer.sanitizeFileToken normalizes unsafe file token characters", () => {

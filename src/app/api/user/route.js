@@ -28,7 +28,7 @@ function sanitizeUserEmail(value) {
  * @returns single-line sanitized jwt string
  */
 function sanitizeUserJwt(value) {
-  return DataSanitizer.sanitizeTextForLog(typeof value === "string" ? value : "", 2048);
+  return DataSanitizer.sanitizeText(typeof value === "string" ? value : "", 2048);
 }
 
 /**

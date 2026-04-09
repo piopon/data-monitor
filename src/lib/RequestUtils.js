@@ -144,7 +144,7 @@ export class RequestUtils {
 
         await this.#cancelResponseBody(response);
         console.warn(
-          DataSanitizer.sanitizeTextForLog(
+          DataSanitizer.sanitizeText(
             `Request ${method} failed with status ${response.status}. Retrying ${attempt + 1}/${config.retries}...`,
           ),
         );
@@ -154,7 +154,7 @@ export class RequestUtils {
         }
         const message = error.name === "AbortError" ? `Request timeout after ${config.timeout} ms` : error.message;
         console.warn(
-          DataSanitizer.sanitizeTextForLog(
+          DataSanitizer.sanitizeText(
             `Request ${method} failed: ${message}. Retrying ${attempt + 1}/${config.retries}...`,
           ),
         );

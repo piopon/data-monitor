@@ -49,7 +49,7 @@ function getLogPrefix(level, user) {
  * @param {Object} user User context related to the log line
  */
 function workerLog(level, message, user = null) {
-  const safeMessage = DataSanitizer.sanitizeTextForLog(message == null ? "" : String(message));
+  const safeMessage = DataSanitizer.sanitizeText(message == null ? "" : String(message));
   console[level](`${getLogPrefix(level, user)}${safeMessage}`);
 }
 
@@ -86,7 +86,7 @@ function workerError(message, user = null) {
  * @returns single-line safe monitor name for logs
  */
 function getSafeMonitorName(monitor) {
-  return DataSanitizer.sanitizeTextForLog(monitor?.parent == null ? "" : String(monitor.parent));
+  return DataSanitizer.sanitizeText(monitor?.parent == null ? "" : String(monitor.parent));
 }
 
 /**

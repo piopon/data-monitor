@@ -11,7 +11,7 @@ import { RequestUtils } from "@/lib/RequestUtils";
  * @returns sanitized monitor text value
  */
 function sanitizeMonitorText(value, maxLength) {
-  return DataSanitizer.sanitizeTextForLog(typeof value === "string" ? value : "", maxLength);
+  return DataSanitizer.sanitizeText(typeof value === "string" ? value : "", maxLength);
 }
 
 /**

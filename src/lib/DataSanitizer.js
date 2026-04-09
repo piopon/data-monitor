@@ -40,7 +40,7 @@ export class DataSanitizer {
    * @param {Number} maxLength Maximum output length
    * @returns single-line log-safe text representation
    */
-  static sanitizeTextForLog(value, maxLength = DataSanitizer.#LOG_MAX_LENGTH) {
+  static sanitizeText(value, maxLength = DataSanitizer.#LOG_MAX_LENGTH) {
     if (typeof value !== "string") {
       return "";
     }

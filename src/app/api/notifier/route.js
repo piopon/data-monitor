@@ -24,7 +24,7 @@ function normalizeSensitiveInput(value) {
  * @returns sanitized single-line text value
  */
 function sanitizeNotifierText(value, maxLength) {
-  return DataSanitizer.sanitizeTextForLog(typeof value === "string" ? value : "", maxLength);
+  return DataSanitizer.sanitizeText(typeof value === "string" ? value : "", maxLength);
 }
 
 /**
