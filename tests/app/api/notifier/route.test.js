@@ -81,6 +81,18 @@ describe("app/api/notifier route", () => {
     });
   });
 
+  test("GET sanitizes notifier query text filters", async () => {
+    NotifierService.filterNotifiers.mockResolvedValue([]);
+
+    await GET(reqWithUrl("http://test/api/notifier?user=7&type=email%0A&sender=bot%0Aname"));
+
+    expect(NotifierService.filterNotifiers).toHaveBeenCalledWith({
+      type: "email",
+      sender: "bot name",
+      user: 7,
+    });
+  });
+
   test("GET preserves null notifiers from service output", async () => {
     NotifierService.filterNotifiers.mockResolvedValue([null]);
 
@@ -166,6 +178,28 @@ describe("app/api/notifier route", () => {
 
     expect(NotifierService.addNotifier).toHaveBeenCalledWith({ user: 7, type: "email", origin: "", password: "" });
     expect(body).toEqual({ id: 2, type: "email", origin: "", password: "" });
+  });
+
+  test("POST without type sanitizes notifier payload text fields", async () => {
+    NotifierService.addNotifier.mockResolvedValue({ id: 5, type: "email", sender: "bot name", origin: "gmail", password: "sec ret" });
+
+    await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "email\n",
+        sender: "bot\nname",
+        origin: "gmail\n",
+        password: "sec\nret",
+      }),
+    );
+
+    expect(NotifierService.addNotifier).toHaveBeenCalledWith({
+      user: 7,
+      type: "email",
+      sender: "bot name",
+      origin: "gmail",
+      password: "sec ret",
+    });
   });
 
   test("PUT returns 404 when notifier does not exist", async () => {

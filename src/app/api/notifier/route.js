@@ -1,5 +1,6 @@
 import { NotifierService } from "@/model/NotifierService";
 import { authorizeUser } from "@/lib/ApiUserAuth";
+import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
@@ -17,6 +18,36 @@ function normalizeSensitiveInput(value) {
 }
 
 /**
+ * Method used to sanitize notifier text fields at API boundary
+ * @param {unknown} value Raw text input
+ * @param {Number} maxLength Maximum output length
+ * @returns sanitized single-line text value
+ */
+function sanitizeNotifierText(value, maxLength) {
+  return DataSanitizer.sanitizeTextForLog(typeof value === "string" ? value : "", maxLength);
+}
+
+/**
+ * Method used to normalize notifier GET query filters
+ * @param {URLSearchParams} searchParams Query parameters object
+ * @returns normalized notifier filter object
+ */
+function normalizeNotifierFilters(searchParams) {
+  const id = searchParams.get("id");
+  const type = sanitizeNotifierText(searchParams.get("type"), 64);
+  const origin = sanitizeNotifierText(searchParams.get("origin"), 512);
+  const sender = sanitizeNotifierText(searchParams.get("sender"), 256);
+  const password = sanitizeNotifierText(searchParams.get("password"), 512);
+  return {
+    ...(id && { id }),
+    ...(type && { type }),
+    ...(origin && { origin }),
+    ...(sender && { sender }),
+    ...(password && { password }),
+  };
+}
+
+/**
  * Method used to normalize incoming notifier payload before save/update operations
  * @param {Object} notifier Input notifier payload from request body
  * @returns normalized notifier payload
@@ -25,10 +56,14 @@ function normalizeNotifierInput(notifier) {
   if (notifier == null) {
     return notifier;
   }
+  const normalizedOrigin = normalizeSensitiveInput(notifier.origin);
+  const normalizedPassword = normalizeSensitiveInput(notifier.password);
   return {
     ...notifier,
-    origin: normalizeSensitiveInput(notifier.origin),
-    password: normalizeSensitiveInput(notifier.password),
+    ...(notifier.type != null && { type: sanitizeNotifierText(notifier.type, 64) }),
+    ...(notifier.sender != null && { sender: sanitizeNotifierText(notifier.sender, 256) }),
+    origin: sanitizeNotifierText(normalizedOrigin, 512),
+    password: sanitizeNotifierText(normalizedPassword, 512),
   };
 }
 
@@ -94,17 +129,8 @@ export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const id = searchParams.get("id");
-    const type = searchParams.get("type");
-    const origin = searchParams.get("origin");
-    const sender = searchParams.get("sender");
-    const password = searchParams.get("password");
     const notifiers = await NotifierService.filterNotifiers({
-      ...(id && { id }),
-      ...(type && { type }),
-      ...(origin && { origin }),
-      ...(sender && { sender }),
-      ...(password && { password }),
+      ...normalizeNotifierFilters(searchParams),
       user: authorizedUserId,
     });
     return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
@@ -126,7 +152,7 @@ export async function GET(request) {
  * @returns Response object with JSON value containing notification sent result
  */
 export async function POST(request) {
-  const notifierType = request.nextUrl.searchParams.get("type");
+  const notifierType = sanitizeNotifierText(request.nextUrl.searchParams.get("type"), 64);
   try {
     const searchParams = request.nextUrl.searchParams;
     const userFromQuery = searchParams.get("user");
