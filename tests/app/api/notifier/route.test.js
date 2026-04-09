@@ -168,16 +168,30 @@ describe("app/api/notifier route", () => {
     expect(body.message).toContain("Cannot find configured 'email' notifier.");
   });
 
-  test("POST without type creates notifier and normalizes placeholders", async () => {
-    NotifierService.addNotifier.mockResolvedValue({ id: 2, type: "email", origin: "", password: "" });
+  test("POST without type creates notifier when required origin is provided", async () => {
+    NotifierService.addNotifier.mockResolvedValue({ id: 2, type: "email", origin: "smtp.gmail.com", password: "" });
 
     const response = await POST(
-      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", origin: "PRIVATE", password: "PRIVATE" }),
+      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", origin: "smtp.gmail.com", password: "PRIVATE" }),
     );
     const body = await response.json();
 
-    expect(NotifierService.addNotifier).toHaveBeenCalledWith({ user: 7, type: "email", origin: "", password: "" });
-    expect(body).toEqual({ id: 2, type: "email", origin: "", password: "" });
+    expect(NotifierService.addNotifier).toHaveBeenCalledWith({
+      user: 7,
+      type: "email",
+      origin: "smtp.gmail.com",
+      password: "",
+    });
+    expect(body).toEqual({ id: 2, type: "email", origin: "PRIVATE", password: "" });
+  });
+
+  test("POST without type returns 400 when origin is missing", async () => {
+    const response = await POST(reqWithUrl("http://test/api/notifier", { user: 7, type: "email", password: "secret" }));
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Notifier origin is required");
   });
 
   test("POST without type sanitizes non-sensitive fields and preserves credential whitespace", async () => {

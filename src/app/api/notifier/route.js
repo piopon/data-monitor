@@ -71,14 +71,22 @@ function normalizeNotifierFilters(searchParams) {
 /**
  * Method used to normalize incoming notifier payload before save/update operations
  * @param {Object} notifier Input notifier payload from request body
+ * @param {Object} options Normalization behavior flags
+ * @param {Boolean} options.requireOrigin Indicates whether non-empty origin is required
  * @returns normalized notifier payload
  */
-function normalizeNotifierInput(notifier) {
+function normalizeNotifierInput(notifier, options = {}) {
   if (notifier == null) {
     return notifier;
   }
+  const requireOrigin = options.requireOrigin === true;
   const normalizedOrigin = normalizeSensitiveInput(notifier.origin);
   const normalizedPassword = normalizeSensitiveInput(notifier.password);
+  if (requireOrigin && (normalizedOrigin == null || String(normalizedOrigin) === "")) {
+    const error = new Error("Notifier origin is required.");
+    error.status = 400;
+    throw error;
+  }
   return {
     ...notifier,
     ...(notifier.type != null && { type: sanitizeNotifierText(notifier.type, 64) }),
@@ -191,7 +199,7 @@ export async function POST(request) {
       });
     }
     // no 'type' parameter provider hence we want to create new notifier
-    const input = normalizeNotifierInput(await request.json());
+    const input = normalizeNotifierInput(await request.json(), { requireOrigin: true });
     const authorizedUserId = await authorizeUser(request, input.user);
     const notifier = await NotifierService.addNotifier({
       ...input,
@@ -221,7 +229,7 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const notifierData = normalizeNotifierInput(await request.json());
+    const notifierData = normalizeNotifierInput(await request.json(), { requireOrigin: false });
     const notifier = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
     if (notifier == null) {
       const error = new Error("Notifier not found for provided user and id.");
