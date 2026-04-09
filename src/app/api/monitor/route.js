@@ -1,8 +1,11 @@
+import { Monitor } from "@/model/Monitor";
 import { MonitorService } from "@/model/MonitorService";
 import { NotifierService } from "@/model/NotifierService";
 import { authorizeUser } from "@/lib/ApiUserAuth";
 import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
+
+const SUPPORTED_CONDITIONS = new Set(Monitor.CONDITIONS.map((condition) => condition.value));
 
 /**
  * Method used to sanitize monitor text input values at API boundary
@@ -15,6 +18,16 @@ function sanitizeMonitorText(value, maxLength) {
 }
 
 /**
+ * Method used to normalize monitor condition values
+ * @param {unknown} value Raw monitor condition
+ * @returns sanitized condition when valid, empty string otherwise
+ */
+function sanitizeMonitorCondition(value) {
+  const sanitized = sanitizeMonitorText(value, 8);
+  return SUPPORTED_CONDITIONS.has(sanitized) ? sanitized : "";
+}
+
+/**
  * Method used to normalize query filter values before querying monitor data
  * @param {URLSearchParams} searchParams Query parameters object
  * @returns normalized monitor filters object
@@ -24,7 +37,7 @@ function normalizeMonitorFilters(searchParams) {
   const parent = sanitizeMonitorText(searchParams.get("parent"), 256);
   const enabled = searchParams.get("enabled");
   const threshold = searchParams.get("threshold");
-  const condition = sanitizeMonitorText(searchParams.get("condition"), 8);
+  const condition = sanitizeMonitorCondition(searchParams.get("condition"));
   const notifier = searchParams.get("notifier");
   const interval = searchParams.get("interval");
   return {
@@ -47,11 +60,26 @@ function normalizeMonitorInput(monitorData) {
   if (monitorData == null) {
     return monitorData;
   }
-  return {
-    ...monitorData,
-    ...(monitorData.parent != null && { parent: sanitizeMonitorText(monitorData.parent, 256) }),
-    ...(monitorData.condition != null && { condition: sanitizeMonitorText(monitorData.condition, 8) }),
-  };
+  const normalized = { ...monitorData };
+  if (monitorData.parent != null) {
+    const sanitizedParent = sanitizeMonitorText(monitorData.parent, 256);
+    if (!sanitizedParent) {
+      const error = new Error("Invalid monitor parent.");
+      error.status = 400;
+      throw error;
+    }
+    normalized.parent = sanitizedParent;
+  }
+  if (monitorData.condition != null) {
+    const sanitizedCondition = sanitizeMonitorCondition(monitorData.condition);
+    if (!sanitizedCondition) {
+      const error = new Error("Invalid monitor condition.");
+      error.status = 400;
+      throw error;
+    }
+    normalized.condition = sanitizedCondition;
+  }
+  return normalized;
 }
 
 /**

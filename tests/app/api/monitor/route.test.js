@@ -119,6 +119,24 @@ describe("app/api/monitor route", () => {
     });
   });
 
+  test("POST returns 400 when monitor parent sanitizes to empty", async () => {
+    const response = await POST(reqWithUrl("http://test/api/monitor", { user: 7, notifier: 9, parent: "\u202E" }));
+    const body = await response.json();
+
+    expect(MonitorService.addMonitor).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid monitor parent");
+  });
+
+  test("POST returns 400 when monitor condition is unsupported", async () => {
+    const response = await POST(reqWithUrl("http://test/api/monitor", { user: 7, notifier: 9, parent: "btc", condition: "abc" }));
+    const body = await response.json();
+
+    expect(MonitorService.addMonitor).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid monitor condition");
+  });
+
   test("POST returns 400 for invalid notifier id", async () => {
     const response = await POST(reqWithUrl("http://test/api/monitor", { user: 7, notifier: "bad", parent: "btc" }));
     const body = await response.json();
@@ -168,6 +186,15 @@ describe("app/api/monitor route", () => {
 
     expect(response.status).toBe(200);
     expect(body).toEqual({ id: 1, notifier: 9, parent: "btc" });
+  });
+
+  test("PUT returns 400 when monitor condition sanitizes to invalid value", async () => {
+    const response = await PUT(reqWithUrl("http://test/api/monitor?id=1&user=7", { notifier: 9, condition: "\u202E" }));
+    const body = await response.json();
+
+    expect(MonitorService.editMonitorForUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid monitor condition");
   });
 
   test("DELETE returns deleted monitor count", async () => {

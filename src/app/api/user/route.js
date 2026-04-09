@@ -53,14 +53,26 @@ function normalizeUserFilters(searchParams) {
  * @param {Object} user Input user payload from request body
  * @returns normalized user payload
  */
-function normalizeUserInput(user) {
+function normalizeUserInput(user, options = {}) {
   if (user == null) {
     return user;
   }
+  const requireJwt = options.requireJwt === true;
   const normalizedJwt = normalizeSensitiveInput(user.jwt);
+  const sanitizedJwt = sanitizeUserJwt(normalizedJwt);
+  if (requireJwt && !sanitizedJwt) {
+    const error = new Error("User JWT is required.");
+    error.status = 400;
+    throw error;
+  }
+  if (user.jwt != null && normalizedJwt !== "" && !sanitizedJwt) {
+    const error = new Error("Invalid user JWT.");
+    error.status = 400;
+    throw error;
+  }
   const normalized = {
     ...user,
-    jwt: sanitizeUserJwt(normalizedJwt),
+    jwt: sanitizedJwt,
   };
   if (user.email != null) {
     const sanitizedEmail = sanitizeUserEmail(user.email);
@@ -117,7 +129,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const userData = normalizeUserInput(await request.json());
+    const userData = normalizeUserInput(await request.json(), { requireJwt: true });
     const user = await UserService.addUser(userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
@@ -136,7 +148,7 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const userData = normalizeUserInput(await request.json());
+    const userData = normalizeUserInput(await request.json(), { requireJwt: false });
     const user = await UserService.editUser(id, userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,

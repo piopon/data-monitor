@@ -169,24 +169,40 @@ describe("app/api/notifier route", () => {
   });
 
   test("POST without type creates notifier when required origin is provided", async () => {
-    NotifierService.addNotifier.mockResolvedValue({ id: 2, type: "email", origin: "smtp.gmail.com", password: "" });
+    NotifierService.addNotifier.mockResolvedValue({
+      id: 2,
+      type: "email",
+      sender: "alerts@test.com",
+      origin: "smtp.gmail.com",
+      password: "",
+    });
 
     const response = await POST(
-      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", origin: "smtp.gmail.com", password: "PRIVATE" }),
+      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", sender: "alerts@test.com", origin: "smtp.gmail.com", password: "PRIVATE" }),
     );
     const body = await response.json();
 
     expect(NotifierService.addNotifier).toHaveBeenCalledWith({
       user: 7,
       type: "email",
+      sender: "alerts@test.com",
       origin: "smtp.gmail.com",
       password: "",
     });
-    expect(body).toEqual({ id: 2, type: "email", origin: "PRIVATE", password: "" });
+    expect(body).toEqual({ id: 2, type: "email", origin: "PRIVATE", password: "", sender: "alerts@test.com" });
+  });
+
+  test("POST without type returns 400 when sender is missing", async () => {
+    const response = await POST(reqWithUrl("http://test/api/notifier", { user: 7, type: "email", origin: "smtp.gmail.com" }));
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Notifier sender is required");
   });
 
   test("POST without type returns 400 when origin is missing", async () => {
-    const response = await POST(reqWithUrl("http://test/api/notifier", { user: 7, type: "email", password: "secret" }));
+    const response = await POST(reqWithUrl("http://test/api/notifier", { user: 7, type: "email", sender: "alerts@test.com", password: "secret" }));
     const body = await response.json();
 
     expect(NotifierService.addNotifier).not.toHaveBeenCalled();

@@ -79,18 +79,42 @@ function normalizeNotifierInput(notifier, options = {}) {
   if (notifier == null) {
     return notifier;
   }
+  const requireType = options.requireType === true;
+  const sanitizedType = notifier.type != null ? sanitizeNotifierText(notifier.type, 64) : "";
+  if (requireType === true && !sanitizedType) {
+    const error = new Error("Notifier type is required.");
+    error.status = 400;
+    throw error;
+  }
+  if (notifier.type != null && !sanitizedType) {
+    const error = new Error("Invalid notifier type.");
+    error.status = 400;
+    throw error;
+  }
+  const requireSender = options.requireSender === true;
+  const sanitizedSender = notifier.sender != null ? sanitizeNotifierText(notifier.sender, 256) : "";
+  if (requireSender === true && !sanitizedSender) {
+    const error = new Error("Notifier sender is required.");
+    error.status = 400;
+    throw error;
+  }
+  if (notifier.sender != null && !sanitizedSender) {
+    const error = new Error("Invalid notifier sender.");
+    error.status = 400;
+    throw error;
+  }
   const requireOrigin = options.requireOrigin === true;
   const normalizedOrigin = normalizeSensitiveInput(notifier.origin);
-  const normalizedPassword = normalizeSensitiveInput(notifier.password);
   if (requireOrigin && (normalizedOrigin == null || String(normalizedOrigin) === "")) {
     const error = new Error("Notifier origin is required.");
     error.status = 400;
     throw error;
   }
+  const normalizedPassword = normalizeSensitiveInput(notifier.password);
   return {
     ...notifier,
-    ...(notifier.type != null && { type: sanitizeNotifierText(notifier.type, 64) }),
-    ...(notifier.sender != null && { sender: sanitizeNotifierText(notifier.sender, 256) }),
+    ...(notifier.type != null && { type: sanitizedType }),
+    ...(notifier.sender != null && { sender: sanitizedSender }),
     origin: validateNotifierCredential(normalizedOrigin, "notifier origin"),
     password: validateNotifierCredential(normalizedPassword, "notifier password"),
   };
@@ -199,7 +223,11 @@ export async function POST(request) {
       });
     }
     // no 'type' parameter provider hence we want to create new notifier
-    const input = normalizeNotifierInput(await request.json(), { requireOrigin: true });
+    const input = normalizeNotifierInput(await request.json(), {
+      requireType: true,
+      requireSender: true,
+      requireOrigin: true,
+    });
     const authorizedUserId = await authorizeUser(request, input.user);
     const notifier = await NotifierService.addNotifier({
       ...input,
