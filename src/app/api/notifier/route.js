@@ -1,5 +1,6 @@
 import { NotifierService } from "@/model/NotifierService";
 import { authorizeUser } from "@/lib/ApiUserAuth";
+import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
@@ -17,18 +18,107 @@ function normalizeSensitiveInput(value) {
 }
 
 /**
+ * Method used to sanitize notifier text fields at API boundary
+ * @param {unknown} value Raw text input
+ * @param {Number} maxLength Maximum output length
+ * @returns sanitized single-line text value
+ */
+function sanitizeNotifierText(value, maxLength) {
+  return DataSanitizer.sanitizeText(typeof value === "string" ? value : "", maxLength);
+}
+
+/**
+ * Method used to validate sensitive notifier credential fields without mutating value
+ * @param {unknown} value Raw sensitive input
+ * @param {String} fieldName Sensitive field name
+ * @returns validated sensitive value
+ */
+function validateNotifierCredential(value, fieldName) {
+  if (value == null) {
+    return "";
+  }
+  const input = String(value);
+  const hasDisallowedChars =
+    /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF]/.test(input);
+  if (hasDisallowedChars) {
+    const error = new Error(`Invalid ${fieldName}: contains disallowed control characters.`);
+    error.status = 400;
+    throw error;
+  }
+  return input;
+}
+
+/**
+ * Method used to normalize notifier GET query filters
+ * @param {URLSearchParams} searchParams Query parameters object
+ * @returns normalized notifier filter object
+ */
+function normalizeNotifierFilters(searchParams) {
+  const id = searchParams.get("id");
+  const type = sanitizeNotifierText(searchParams.get("type"), 64);
+  const origin = searchParams.get("origin");
+  const sender = sanitizeNotifierText(searchParams.get("sender"), 256);
+  const password = searchParams.get("password");
+  return {
+    ...(id && { id }),
+    ...(type && { type }),
+    ...(origin && { origin }),
+    ...(sender && { sender }),
+    ...(password && { password }),
+  };
+}
+
+/**
  * Method used to normalize incoming notifier payload before save/update operations
  * @param {Object} notifier Input notifier payload from request body
+ * @param {Object} options Normalization behavior flags
+ * @param {Boolean} options.requireType Indicates whether non-empty type is required
+ * @param {Boolean} options.requireSender Indicates whether non-empty sender is required
+ * @param {Boolean} options.requireOrigin Indicates whether non-empty origin is required
  * @returns normalized notifier payload
  */
-function normalizeNotifierInput(notifier) {
+function normalizeNotifierInput(notifier, options = {}) {
   if (notifier == null) {
     return notifier;
   }
+  const requireType = options.requireType === true;
+  const sanitizedType = notifier.type != null ? sanitizeNotifierText(notifier.type, 64) : "";
+  if (requireType && !sanitizedType) {
+    const error = new Error("Notifier type is required.");
+    error.status = 400;
+    throw error;
+  }
+  if (notifier.type != null && !sanitizedType) {
+    const error = new Error("Invalid notifier type.");
+    error.status = 400;
+    throw error;
+  }
+  const requireSender = options.requireSender === true;
+  const sanitizedSender = notifier.sender != null ? sanitizeNotifierText(notifier.sender, 256) : "";
+  if (requireSender && !sanitizedSender) {
+    const error = new Error("Notifier sender is required.");
+    error.status = 400;
+    throw error;
+  }
+  if (notifier.sender != null && !sanitizedSender) {
+    const error = new Error("Invalid notifier sender.");
+    error.status = 400;
+    throw error;
+  }
+  const requireOrigin = options.requireOrigin === true;
+  const normalizedOrigin = normalizeSensitiveInput(notifier.origin);
+  if (requireOrigin && (normalizedOrigin == null || String(normalizedOrigin) === "")) {
+    const error = new Error("Notifier origin is required.");
+    error.status = 400;
+    throw error;
+  }
+  const normalizedPassword = normalizeSensitiveInput(notifier.password);
   return {
     ...notifier,
-    origin: normalizeSensitiveInput(notifier.origin),
-    password: normalizeSensitiveInput(notifier.password),
+    ...(notifier.type != null && { type: sanitizedType }),
+    ...(notifier.sender != null && { sender: sanitizedSender }),
+    origin: validateNotifierCredential(normalizedOrigin, "notifier origin"),
+    password: validateNotifierCredential(normalizedPassword, "notifier password"),
   };
 }
 
@@ -94,17 +184,8 @@ export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const id = searchParams.get("id");
-    const type = searchParams.get("type");
-    const origin = searchParams.get("origin");
-    const sender = searchParams.get("sender");
-    const password = searchParams.get("password");
     const notifiers = await NotifierService.filterNotifiers({
-      ...(id && { id }),
-      ...(type && { type }),
-      ...(origin && { origin }),
-      ...(sender && { sender }),
-      ...(password && { password }),
+      ...normalizeNotifierFilters(searchParams),
       user: authorizedUserId,
     });
     return new Response(JSON.stringify(notifiers.map((notifier) => getSafeNotifier(notifier))), {
@@ -126,7 +207,7 @@ export async function GET(request) {
  * @returns Response object with JSON value containing notification sent result
  */
 export async function POST(request) {
-  const notifierType = request.nextUrl.searchParams.get("type");
+  const notifierType = sanitizeNotifierText(request.nextUrl.searchParams.get("type"), 64);
   try {
     const searchParams = request.nextUrl.searchParams;
     const userFromQuery = searchParams.get("user");
@@ -144,7 +225,11 @@ export async function POST(request) {
       });
     }
     // no 'type' parameter provider hence we want to create new notifier
-    const input = normalizeNotifierInput(await request.json());
+    const input = normalizeNotifierInput(await request.json(), {
+      requireType: true,
+      requireSender: true,
+      requireOrigin: true,
+    });
     const authorizedUserId = await authorizeUser(request, input.user);
     const notifier = await NotifierService.addNotifier({
       ...input,
@@ -174,7 +259,7 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const notifierData = normalizeNotifierInput(await request.json());
+    const notifierData = normalizeNotifierInput(await request.json(), { requireOrigin: false });
     const notifier = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
     if (notifier == null) {
       const error = new Error("Notifier not found for provided user and id.");

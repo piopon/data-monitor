@@ -1,7 +1,86 @@
+import { Monitor } from "@/model/Monitor";
 import { MonitorService } from "@/model/MonitorService";
 import { NotifierService } from "@/model/NotifierService";
 import { authorizeUser } from "@/lib/ApiUserAuth";
+import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
+
+const SUPPORTED_CONDITIONS = new Set(Monitor.CONDITIONS.map((condition) => condition.value));
+
+/**
+ * Method used to sanitize monitor text input values at API boundary
+ * @param {unknown} value Raw monitor text value
+ * @param {Number} maxLength Maximum output length
+ * @returns sanitized monitor text value
+ */
+function sanitizeMonitorText(value, maxLength) {
+  return DataSanitizer.sanitizeText(typeof value === "string" ? value : "", maxLength);
+}
+
+/**
+ * Method used to normalize monitor condition values
+ * @param {unknown} value Raw monitor condition
+ * @returns sanitized condition when valid, empty string otherwise
+ */
+function sanitizeMonitorCondition(value) {
+  const sanitized = sanitizeMonitorText(value, 8);
+  return SUPPORTED_CONDITIONS.has(sanitized) ? sanitized : "";
+}
+
+/**
+ * Method used to normalize query filter values before querying monitor data
+ * @param {URLSearchParams} searchParams Query parameters object
+ * @returns normalized monitor filters object
+ */
+function normalizeMonitorFilters(searchParams) {
+  const id = searchParams.get("id");
+  const parent = sanitizeMonitorText(searchParams.get("parent"), 256);
+  const enabled = searchParams.get("enabled");
+  const threshold = searchParams.get("threshold");
+  const condition = sanitizeMonitorCondition(searchParams.get("condition"));
+  const notifier = searchParams.get("notifier");
+  const interval = searchParams.get("interval");
+  return {
+    ...(id && { id }),
+    ...(parent && { parent }),
+    ...(enabled && { enabled }),
+    ...(threshold && { threshold }),
+    ...(condition && { condition }),
+    ...(notifier && { notifier }),
+    ...(interval && { interval }),
+  };
+}
+
+/**
+ * Method used to normalize monitor payload text fields before save/update operations
+ * @param {Object} monitorData Input monitor payload
+ * @returns normalized monitor payload
+ */
+function normalizeMonitorInput(monitorData) {
+  if (monitorData == null) {
+    return monitorData;
+  }
+  const normalized = { ...monitorData };
+  if (monitorData.parent != null) {
+    const sanitizedParent = sanitizeMonitorText(monitorData.parent, 256);
+    if (!sanitizedParent) {
+      const error = new Error("Invalid monitor parent.");
+      error.status = 400;
+      throw error;
+    }
+    normalized.parent = sanitizedParent;
+  }
+  if (monitorData.condition != null) {
+    const sanitizedCondition = sanitizeMonitorCondition(monitorData.condition);
+    if (!sanitizedCondition) {
+      const error = new Error("Invalid monitor condition.");
+      error.status = 400;
+      throw error;
+    }
+    normalized.condition = sanitizedCondition;
+  }
+  return normalized;
+}
 
 /**
  * Method used to validate notifier ownership for monitor operations
@@ -36,21 +115,8 @@ export async function GET(request) {
     const searchParams = request.nextUrl.searchParams;
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const id = searchParams.get("id");
-    const parent = searchParams.get("parent");
-    const enabled = searchParams.get("enabled");
-    const threshold = searchParams.get("threshold");
-    const condition = searchParams.get("condition");
-    const notifier = searchParams.get("notifier");
-    const interval = searchParams.get("interval");
     const monitors = await MonitorService.filterMonitors({
-      ...(id && { id }),
-      ...(parent && { parent }),
-      ...(enabled && { enabled }),
-      ...(threshold && { threshold }),
-      ...(condition && { condition }),
-      ...(notifier && { notifier }),
-      ...(interval && { interval }),
+      ...normalizeMonitorFilters(searchParams),
       user: authorizedUserId,
     });
     return new Response(JSON.stringify(monitors), {
@@ -73,7 +139,7 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
-    const monitorData = await request.json();
+    const monitorData = normalizeMonitorInput(await request.json());
     const authorizedUserId = await authorizeUser(request, monitorData.user);
     await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
     const monitor = await MonitorService.addMonitor({
@@ -104,7 +170,7 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const monitorData = await request.json();
+    const monitorData = normalizeMonitorInput(await request.json());
     await assertNotifierOwnership(authorizedUserId, monitorData.notifier);
     const monitor = await MonitorService.editMonitorForUser(id, authorizedUserId, monitorData);
     if (monitor == null) {

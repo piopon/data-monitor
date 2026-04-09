@@ -81,6 +81,18 @@ describe("app/api/notifier route", () => {
     });
   });
 
+  test("GET sanitizes notifier query text filters", async () => {
+    NotifierService.filterNotifiers.mockResolvedValue([]);
+
+    await GET(reqWithUrl("http://test/api/notifier?user=7&type=email%0A&sender=bot%0Aname"));
+
+    expect(NotifierService.filterNotifiers).toHaveBeenCalledWith({
+      type: "email",
+      sender: "bot name",
+      user: 7,
+    });
+  });
+
   test("GET preserves null notifiers from service output", async () => {
     NotifierService.filterNotifiers.mockResolvedValue([null]);
 
@@ -156,16 +168,108 @@ describe("app/api/notifier route", () => {
     expect(body.message).toContain("Cannot find configured 'email' notifier.");
   });
 
-  test("POST without type creates notifier and normalizes placeholders", async () => {
-    NotifierService.addNotifier.mockResolvedValue({ id: 2, type: "email", origin: "", password: "" });
+  test("POST without type creates notifier when required origin is provided", async () => {
+    NotifierService.addNotifier.mockResolvedValue({
+      id: 2,
+      type: "email",
+      sender: "alerts@test.com",
+      origin: "smtp.gmail.com",
+      password: "",
+    });
 
     const response = await POST(
-      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", origin: "PRIVATE", password: "PRIVATE" }),
+      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", sender: "alerts@test.com", origin: "smtp.gmail.com", password: "PRIVATE" }),
     );
     const body = await response.json();
 
-    expect(NotifierService.addNotifier).toHaveBeenCalledWith({ user: 7, type: "email", origin: "", password: "" });
-    expect(body).toEqual({ id: 2, type: "email", origin: "", password: "" });
+    expect(NotifierService.addNotifier).toHaveBeenCalledWith({
+      user: 7,
+      type: "email",
+      sender: "alerts@test.com",
+      origin: "smtp.gmail.com",
+      password: "",
+    });
+    expect(body).toEqual({ id: 2, type: "email", origin: "PRIVATE", password: "", sender: "alerts@test.com" });
+  });
+
+  test("POST without type returns 400 when sender is missing", async () => {
+    const response = await POST(reqWithUrl("http://test/api/notifier", { user: 7, type: "email", origin: "smtp.gmail.com" }));
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Notifier sender is required");
+  });
+
+  test("POST without type returns 400 when origin is missing", async () => {
+    const response = await POST(reqWithUrl("http://test/api/notifier", { user: 7, type: "email", sender: "alerts@test.com", password: "secret" }));
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Notifier origin is required");
+  });
+
+  test("POST without type sanitizes non-sensitive fields and preserves credential whitespace", async () => {
+    NotifierService.addNotifier.mockResolvedValue({
+      id: 5,
+      type: "email",
+      sender: "bot name",
+      origin: " smtp.gmail.com ",
+      password: "pa  ss",
+    });
+
+    await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "email\n",
+        sender: "bot\nname",
+        origin: " smtp.gmail.com ",
+        password: "pa  ss",
+      }),
+    );
+
+    expect(NotifierService.addNotifier).toHaveBeenCalledWith({
+      user: 7,
+      type: "email",
+      sender: "bot name",
+      origin: " smtp.gmail.com ",
+      password: "pa  ss",
+    });
+  });
+
+  test("POST without type returns 400 for disallowed control chars in credential fields", async () => {
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "email",
+        sender: "bot",
+        origin: "smtp\n.gmail.com",
+        password: "secret",
+      }),
+    );
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid notifier origin");
+  });
+
+  test("POST without type returns 400 for unicode line separators in credential fields", async () => {
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "email",
+        sender: "bot",
+        origin: "smtp\u2028gmail.com",
+        password: "secret",
+      }),
+    );
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid notifier origin");
   });
 
   test("PUT returns 404 when notifier does not exist", async () => {

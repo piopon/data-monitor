@@ -1,3 +1,5 @@
+import { DataSanitizer } from "./DataSanitizer.js";
+
 export class RequestUtils {
   static #RETRYABLE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
   static #DEFAULT_TIMEOUT = 8_000;
@@ -142,14 +144,20 @@ export class RequestUtils {
 
         await this.#cancelResponseBody(response);
         console.warn(
-          `Request ${method} failed with status ${response.status}. Retrying ${attempt + 1}/${config.retries}...`,
+          DataSanitizer.sanitizeText(
+            `Request ${method} failed with status ${response.status}. Retrying ${attempt + 1}/${config.retries}...`,
+          ),
         );
       } catch (error) {
         if (!canRetry || attempt === config.retries) {
           throw error;
         }
         const message = error.name === "AbortError" ? `Request timeout after ${config.timeout} ms` : error.message;
-        console.warn(`Request ${method} failed: ${message}. Retrying ${attempt + 1}/${config.retries}...`);
+        console.warn(
+          DataSanitizer.sanitizeText(
+            `Request ${method} failed: ${message}. Retrying ${attempt + 1}/${config.retries}...`,
+          ),
+        );
       } finally {
         clearTimeout(timeoutId);
       }

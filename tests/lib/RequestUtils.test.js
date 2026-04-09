@@ -152,6 +152,20 @@ describe("RequestUtils", () => {
     expect(response.status).toBe(200);
   });
 
+  test("sanitizes retry warning log message content", async () => {
+    global.fetch
+      .mockRejectedValueOnce(new Error("temporary\nnetwork\tissue"))
+      .mockResolvedValueOnce(makeResponse({ status: 200, text: "ok" }));
+
+    await RequestUtils.fetchWithRetry("/api/test", {}, { timeout: 50, retries: 1, retryDelay: 0 });
+
+    expect(warnSpy).toHaveBeenCalled();
+    const firstWarnArg = String(warnSpy.mock.calls[0][0]);
+    expect(firstWarnArg).toContain("temporary network issue");
+    expect(firstWarnArg).not.toContain("\n");
+    expect(firstWarnArg).not.toContain("\t");
+  });
+
   test("returns final retryable response when retry budget is exhausted", async () => {
     global.fetch
       .mockResolvedValueOnce(makeResponse({ status: 503, text: "retry-1" }))

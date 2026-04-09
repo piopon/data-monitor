@@ -1,4 +1,7 @@
 export class DataSanitizer {
+  static #LOG_MAX_LENGTH = 512;
+  static #FILE_TOKEN_MAX_LENGTH = 120;
+
   /**
    * Method used to sanitize email into a safe, normalized representation
    * @param {String} email Raw email value
@@ -8,12 +11,16 @@ export class DataSanitizer {
     if (typeof email !== "string") {
       return "";
     }
-    // Normalize and remove non-printable/control chars to prevent injection/spoofing.
-    const normalized = email
-      .normalize("NFKC")
-      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
-      .trim()
-      .replace(/\s+/g, "");
+    const trimmed = email.normalize("NFKC").trim();
+    // Reject addresses containing any whitespace to avoid mutating identity-like values.
+    if (/\s/.test(trimmed)) {
+      return "";
+    }
+    // Remove non-printable/control chars to prevent injection/spoofing.
+    const normalized = trimmed.replace(
+      /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g,
+      "",
+    );
     const atIndex = normalized.indexOf("@");
     const hasSingleAt = atIndex > 0 && atIndex === normalized.lastIndexOf("@") && atIndex < normalized.length - 1;
     if (!hasSingleAt) {
@@ -25,6 +32,50 @@ export class DataSanitizer {
       return "";
     }
     return `${localPart}@${domainPart}`;
+  }
+
+  /**
+   * Method used to sanitize dynamic text before interpolation into logs
+   * @param {String} value Raw dynamic value used in logs
+   * @param {Number} maxLength Maximum output length
+   * @returns single-line log-safe text representation
+   */
+  static sanitizeText(value, maxLength = DataSanitizer.#LOG_MAX_LENGTH) {
+    if (typeof value !== "string") {
+      return "";
+    }
+    const boundedLength = Number.isInteger(maxLength) && maxLength > 0 ? maxLength : DataSanitizer.#LOG_MAX_LENGTH;
+    return value
+      .normalize("NFKC")
+      .replace(/[\r\n\t\u2028\u2029]+/g, " ")
+      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
+      .replace(/\s{2,}/g, " ")
+      .trim()
+      .slice(0, boundedLength);
+  }
+
+  /**
+   * Method used to sanitize user-derived values used in file names
+   * @param {String} value Raw token value
+   * @param {Number} maxLength Maximum output length
+   * @returns file-safe token, or fallback token when input cannot be sanitized
+   */
+  static sanitizeFileToken(value, maxLength = DataSanitizer.#FILE_TOKEN_MAX_LENGTH) {
+    if (typeof value !== "string") {
+      return "unknown";
+    }
+    const boundedLength =
+      Number.isInteger(maxLength) && maxLength > 0 ? maxLength : DataSanitizer.#FILE_TOKEN_MAX_LENGTH;
+    // Bound processing cost for extremely large input while preserving enough characters for cleanup.
+    const boundedInput = value.slice(0, boundedLength * 4);
+    const sanitized = boundedInput
+      .normalize("NFKC")
+      .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
+      .replace(/[^A-Za-z0-9._-]/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^[._-]+|[._-]+$/g, "")
+      .slice(0, boundedLength);
+    return sanitized || "unknown";
   }
 
   /**
