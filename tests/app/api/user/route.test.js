@@ -90,12 +90,13 @@ describe("app/api/user route", () => {
     expect(body).toEqual({ id: 3, email: "c@c.com", jwt: "" });
   });
 
-  test("POST sanitizes email and jwt payload fields", async () => {
-    UserService.addUser.mockResolvedValue({ id: 4, email: "", jwt: "abc def" });
+  test("POST returns 400 for invalid sanitized email payload", async () => {
+    const response = await POST(reqWithUrl("http://test/api/user", { email: "a b@x.com", jwt: "abc\ndef" }));
+    const body = await response.json();
 
-    await POST(reqWithUrl("http://test/api/user", { email: "a b@x.com", jwt: "abc\ndef" }));
-
-    expect(UserService.addUser).toHaveBeenCalledWith({ email: "", jwt: "abc def" });
+    expect(UserService.addUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid user email");
   });
 
   test("POST returns error when payload is null", async () => {
@@ -118,6 +119,15 @@ describe("app/api/user route", () => {
 
     expect(response.status).toBe(200);
     expect(UserService.editUser).toHaveBeenCalledWith("3", { email: "c@c.com", jwt: "" });
+  });
+
+  test("PUT returns 400 for invalid sanitized email payload", async () => {
+    const response = await PUT(reqWithUrl("http://test/api/user?id=3", { email: "bad email", jwt: "x" }));
+    const body = await response.json();
+
+    expect(UserService.editUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid user email");
   });
 
   test("DELETE removes user by id", async () => {

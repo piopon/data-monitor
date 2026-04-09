@@ -58,11 +58,20 @@ function normalizeUserInput(user) {
     return user;
   }
   const normalizedJwt = normalizeSensitiveInput(user.jwt);
-  return {
+  const normalized = {
     ...user,
-    ...(user.email != null && { email: sanitizeUserEmail(user.email) }),
     jwt: sanitizeUserJwt(normalizedJwt),
   };
+  if (user.email != null) {
+    const sanitizedEmail = sanitizeUserEmail(user.email);
+    if (!sanitizedEmail) {
+      const error = new Error("Invalid user email.");
+      error.status = 400;
+      throw error;
+    }
+    normalized.email = sanitizedEmail;
+  }
+  return normalized;
 }
 
 /**

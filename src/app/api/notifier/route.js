@@ -28,6 +28,27 @@ function sanitizeNotifierText(value, maxLength) {
 }
 
 /**
+ * Method used to validate sensitive notifier credential fields without mutating value
+ * @param {unknown} value Raw sensitive input
+ * @param {String} fieldName Sensitive field name
+ * @returns validated sensitive value
+ */
+function validateNotifierCredential(value, fieldName) {
+  if (value == null) {
+    return "";
+  }
+  const input = String(value);
+  const hasDisallowedChars =
+    /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/.test(input);
+  if (hasDisallowedChars) {
+    const error = new Error(`Invalid ${fieldName}: contains disallowed control characters.`);
+    error.status = 400;
+    throw error;
+  }
+  return input;
+}
+
+/**
  * Method used to normalize notifier GET query filters
  * @param {URLSearchParams} searchParams Query parameters object
  * @returns normalized notifier filter object
@@ -35,9 +56,9 @@ function sanitizeNotifierText(value, maxLength) {
 function normalizeNotifierFilters(searchParams) {
   const id = searchParams.get("id");
   const type = sanitizeNotifierText(searchParams.get("type"), 64);
-  const origin = sanitizeNotifierText(searchParams.get("origin"), 512);
+  const origin = searchParams.get("origin");
   const sender = sanitizeNotifierText(searchParams.get("sender"), 256);
-  const password = sanitizeNotifierText(searchParams.get("password"), 512);
+  const password = searchParams.get("password");
   return {
     ...(id && { id }),
     ...(type && { type }),
@@ -62,8 +83,8 @@ function normalizeNotifierInput(notifier) {
     ...notifier,
     ...(notifier.type != null && { type: sanitizeNotifierText(notifier.type, 64) }),
     ...(notifier.sender != null && { sender: sanitizeNotifierText(notifier.sender, 256) }),
-    origin: sanitizeNotifierText(normalizedOrigin, 512),
-    password: sanitizeNotifierText(normalizedPassword, 512),
+    origin: validateNotifierCredential(normalizedOrigin, "notifier origin"),
+    password: validateNotifierCredential(normalizedPassword, "notifier password"),
   };
 }
 
