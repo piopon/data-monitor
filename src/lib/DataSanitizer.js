@@ -47,7 +47,7 @@ export class DataSanitizer {
     const boundedLength = Number.isInteger(maxLength) && maxLength > 0 ? maxLength : DataSanitizer.#LOG_MAX_LENGTH;
     return value
       .normalize("NFKC")
-      .replace(/[\r\n\t]+/g, " ")
+      .replace(/[\r\n\t\u2028\u2029]+/g, " ")
       .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
       .replace(/\s{2,}/g, " ")
       .trim()
