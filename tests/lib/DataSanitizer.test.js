@@ -60,3 +60,9 @@ test("DataSanitizer.sanitizeFileToken returns fallback token when empty", () => 
   expect(DataSanitizer.sanitizeFileToken("...///***")).toBe("unknown");
   expect(DataSanitizer.sanitizeFileToken(null)).toBe("unknown");
 });
+
+test("DataSanitizer.sanitizeFileToken keeps output bounded for large input", () => {
+  const raw = "a".repeat(10_000);
+  const sanitized = DataSanitizer.sanitizeFileToken(raw, 64);
+  expect(sanitized).toHaveLength(64);
+});

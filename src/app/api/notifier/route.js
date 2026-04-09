@@ -39,7 +39,7 @@ function validateNotifierCredential(value, fieldName) {
   }
   const input = String(value);
   const hasDisallowedChars =
-    /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/.test(input);
+    /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF]/.test(input);
   if (hasDisallowedChars) {
     const error = new Error(`Invalid ${fieldName}: contains disallowed control characters.`);
     error.status = 400;

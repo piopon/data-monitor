@@ -225,6 +225,23 @@ describe("app/api/notifier route", () => {
     expect(body.message).toContain("Invalid notifier origin");
   });
 
+  test("POST without type returns 400 for unicode line separators in credential fields", async () => {
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "email",
+        sender: "bot",
+        origin: "smtp\u2028gmail.com",
+        password: "secret",
+      }),
+    );
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid notifier origin");
+  });
+
   test("PUT returns 404 when notifier does not exist", async () => {
     NotifierService.editNotifierForUser.mockResolvedValue(null);
 

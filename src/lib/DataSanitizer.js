@@ -66,7 +66,9 @@ export class DataSanitizer {
     }
     const boundedLength =
       Number.isInteger(maxLength) && maxLength > 0 ? maxLength : DataSanitizer.#FILE_TOKEN_MAX_LENGTH;
-    const sanitized = value
+    // Bound processing cost for extremely large input while preserving enough characters for cleanup.
+    const boundedInput = value.slice(0, boundedLength * 4);
+    const sanitized = boundedInput
       .normalize("NFKC")
       .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "")
       .replace(/[^A-Za-z0-9._-]/g, "_")
