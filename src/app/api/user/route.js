@@ -98,7 +98,7 @@ function normalizeUserInput(user, options = {}) {
   }
   return {
     ...user,
-    email: sanitizedEmail,
+    ...(user.email != null && { email: sanitizedEmail }),
     jwt: sanitizedJwt,
   };
 }
