@@ -72,6 +72,8 @@ function normalizeNotifierFilters(searchParams) {
  * Method used to normalize incoming notifier payload before save/update operations
  * @param {Object} notifier Input notifier payload from request body
  * @param {Object} options Normalization behavior flags
+ * @param {Boolean} options.requireType Indicates whether non-empty type is required
+ * @param {Boolean} options.requireSender Indicates whether non-empty sender is required
  * @param {Boolean} options.requireOrigin Indicates whether non-empty origin is required
  * @returns normalized notifier payload
  */
@@ -81,7 +83,7 @@ function normalizeNotifierInput(notifier, options = {}) {
   }
   const requireType = options.requireType === true;
   const sanitizedType = notifier.type != null ? sanitizeNotifierText(notifier.type, 64) : "";
-  if (requireType === true && !sanitizedType) {
+  if (requireType && !sanitizedType) {
     const error = new Error("Notifier type is required.");
     error.status = 400;
     throw error;
@@ -93,7 +95,7 @@ function normalizeNotifierInput(notifier, options = {}) {
   }
   const requireSender = options.requireSender === true;
   const sanitizedSender = notifier.sender != null ? sanitizeNotifierText(notifier.sender, 256) : "";
-  if (requireSender === true && !sanitizedSender) {
+  if (requireSender && !sanitizedSender) {
     const error = new Error("Notifier sender is required.");
     error.status = 400;
     throw error;

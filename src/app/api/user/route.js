@@ -23,12 +23,23 @@ function sanitizeUserEmail(value) {
 }
 
 /**
- * Method used to sanitize user jwt values at API boundary
+ * Method used to validate user jwt values without mutating credential content
  * @param {unknown} value Raw jwt input
- * @returns single-line sanitized jwt string
+ * @returns validated jwt string
  */
-function sanitizeUserJwt(value) {
-  return DataSanitizer.sanitizeText(typeof value === "string" ? value : "", 2048);
+function validateUserJwt(value) {
+  if (value == null) {
+    return "";
+  }
+  const input = String(value);
+  const hasDisallowedChars =
+    /[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u206F\uFEFF]/.test(input);
+  if (hasDisallowedChars) {
+    const error = new Error("Invalid user JWT: contains disallowed control characters.");
+    error.status = 400;
+    throw error;
+  }
+  return input;
 }
 
 /**
@@ -39,7 +50,7 @@ function sanitizeUserJwt(value) {
 function normalizeUserFilters(searchParams) {
   const id = searchParams.get("id");
   const email = sanitizeUserEmail(searchParams.get("email"));
-  const jwt = sanitizeUserJwt(searchParams.get("jwt"));
+  const jwt = validateUserJwt(searchParams.get("jwt"));
   const hasIndexedFilter = Boolean(id || email);
   return {
     ...(id && { id }),
@@ -51,6 +62,9 @@ function normalizeUserFilters(searchParams) {
 /**
  * Method used to normalize incoming user payload before save/update operations
  * @param {Object} user Input user payload from request body
+ * @param {Object} options Normalization behavior flags
+ * @param {Boolean} options.requireEmail Indicates whether non-empty email is required
+ * @param {Boolean} options.requireJwt Indicates whether non-empty jwt is required
  * @returns normalized user payload
  */
 function normalizeUserInput(user, options = {}) {
@@ -59,7 +73,7 @@ function normalizeUserInput(user, options = {}) {
   }
   const requireJwt = options.requireJwt === true;
   const normalizedJwt = normalizeSensitiveInput(user.jwt);
-  const sanitizedJwt = sanitizeUserJwt(normalizedJwt);
+  const sanitizedJwt = validateUserJwt(normalizedJwt);
   if (requireJwt && !sanitizedJwt) {
     const error = new Error("User JWT is required.");
     error.status = 400;
@@ -70,20 +84,23 @@ function normalizeUserInput(user, options = {}) {
     error.status = 400;
     throw error;
   }
-  const normalized = {
+  const requireEmail = options.requireEmail === true;
+  const sanitizedEmail = user.email != null ? sanitizeUserEmail(user.email) : "";
+  if (requireEmail && !sanitizedEmail) {
+    const error = new Error("User email is required.");
+    error.status = 400;
+    throw error;
+  }
+  if (user.email != null && !sanitizedEmail) {
+    const error = new Error("Invalid user email.");
+    error.status = 400;
+    throw error;
+  }
+  return {
     ...user,
+    email: sanitizedEmail,
     jwt: sanitizedJwt,
   };
-  if (user.email != null) {
-    const sanitizedEmail = sanitizeUserEmail(user.email);
-    if (!sanitizedEmail) {
-      const error = new Error("Invalid user email.");
-      error.status = 400;
-      throw error;
-    }
-    normalized.email = sanitizedEmail;
-  }
-  return normalized;
 }
 
 /**
@@ -129,7 +146,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const userData = normalizeUserInput(await request.json(), { requireJwt: true });
+    const userData = normalizeUserInput(await request.json(), { requireEmail: true, requireJwt: true });
     const user = await UserService.addUser(userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
@@ -148,7 +165,7 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const userData = normalizeUserInput(await request.json(), { requireJwt: false });
+    const userData = normalizeUserInput(await request.json(), { requireEmail: false, requireJwt: false });
     const user = await UserService.editUser(id, userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,

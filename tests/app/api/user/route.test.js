@@ -67,9 +67,18 @@ describe("app/api/user route", () => {
   test("GET drops jwt filter when sanitized id/email filters are missing", async () => {
     UserService.filterUsers.mockResolvedValue([]);
 
-    await GET(reqWithUrl("http://test/api/user?email=user%0A%40example.com&jwt=abc%0Adef"));
+    await GET(reqWithUrl("http://test/api/user?email=user%0A%40example.com&jwt=abcdef"));
 
     expect(UserService.filterUsers).toHaveBeenCalledWith({});
+  });
+
+  test("GET returns 400 for jwt query with disallowed control characters", async () => {
+    const response = await GET(reqWithUrl("http://test/api/user?jwt=abc%0Adef"));
+    const body = await response.json();
+
+    expect(UserService.filterUsers).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid user JWT");
   });
 
   test("GET forwards id/email/jwt query filters together", async () => {
@@ -89,13 +98,22 @@ describe("app/api/user route", () => {
     expect(body.message).toContain("User JWT is required");
   });
 
+  test("POST returns 400 when email is missing", async () => {
+    const response = await POST(reqWithUrl("http://test/api/user", { jwt: "token" }));
+    const body = await response.json();
+
+    expect(UserService.addUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("User email is required");
+  });
+
   test("POST returns 400 for invalid sanitized email payload", async () => {
     const response = await POST(reqWithUrl("http://test/api/user", { email: "a b@x.com", jwt: "abc\ndef" }));
     const body = await response.json();
 
     expect(UserService.addUser).not.toHaveBeenCalled();
     expect(response.status).toBe(400);
-    expect(body.message).toContain("Invalid user email");
+    expect(body.message).toContain("Invalid user JWT");
   });
 
   test("POST returns error when payload is null", async () => {
