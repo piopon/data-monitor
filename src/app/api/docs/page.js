@@ -1,4 +1,4 @@
-import SwaggerDocsClient from "./SwaggerDocsClient";
+import SwaggerDocs from "@/components/SwaggerDocs";
 
 export const metadata = {
   title: "API docs | data-monitor",
@@ -8,7 +8,7 @@ export const metadata = {
 export default function ApiDocsPage() {
   return (
     <section style={{ width: "100%", height: "100%", overflow: "auto", background: "#ffffff" }}>
-      <SwaggerDocsClient />
+      <SwaggerDocs />
     </section>
   );
 }

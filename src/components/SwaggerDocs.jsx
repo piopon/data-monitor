@@ -22,7 +22,7 @@ function initializeSwaggerUi() {
   });
 }
 
-export default function SwaggerDocsClient() {
+export default function SwaggerDocs() {
   useEffect(() => {
     initializeSwaggerUi();
   }, []);
