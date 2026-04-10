@@ -3,7 +3,7 @@ import path from "node:path";
 
 export const runtime = "nodejs";
 
-const OPENAPI_ROOT_PATH = path.join(process.cwd(), "docs", "openapi.json");
+const OPENAPI_ROOT_PATH = path.join(process.cwd(), "openapi", "openapi.json");
 
 /**
  * Resolve a JSON pointer against a document object.
