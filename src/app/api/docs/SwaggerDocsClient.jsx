@@ -1,24 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import Script from "next/script";
+import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-es-bundle";
+import SwaggerUIStandalonePreset from "swagger-ui-dist/swagger-ui-standalone-preset";
 
 function initializeSwaggerUi() {
-  if ("undefined" === typeof window) {
-    return;
-  }
-  if ("function" !== typeof window.SwaggerUIBundle) {
-    return;
-  }
-  if ("undefined" === typeof window.SwaggerUIStandalonePreset) {
-    return;
-  }
+  if ("undefined" === typeof window) return;
   const rootElement = window.document.getElementById("swagger-ui");
-  if (rootElement == null) {
-    return;
-  }
+  if (rootElement == null) return;
 
-  window.SwaggerUIBundle({
+  SwaggerUIBundle({
     url: "/api/docs/openapi.json",
     dom_id: "#swagger-ui",
     deepLinking: true,
@@ -26,7 +17,7 @@ function initializeSwaggerUi() {
     displayRequestDuration: true,
     filter: true,
     supportedSubmitMethods: [],
-    presets: [window.SwaggerUIBundle.presets.apis, window.SwaggerUIStandalonePreset],
+    presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
     layout: "BaseLayout",
   });
 }
@@ -36,20 +27,5 @@ export default function SwaggerDocsClient() {
     initializeSwaggerUi();
   }, []);
 
-  return (
-    <>
-      <link rel="stylesheet" href="/api/docs/swagger-ui.css" />
-      <Script
-        src="/api/docs/swagger-ui-bundle.js"
-        strategy="afterInteractive"
-        onLoad={initializeSwaggerUi}
-      />
-      <Script
-        src="/api/docs/swagger-ui-standalone-preset.js"
-        strategy="afterInteractive"
-        onLoad={initializeSwaggerUi}
-      />
-      <div id="swagger-ui" />
-    </>
-  );
+  return <div id="swagger-ui" />;
 }

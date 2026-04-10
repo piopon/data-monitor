@@ -1,4 +1,5 @@
 import "./index.css";
+import "swagger-ui-dist/swagger-ui.css";
 
 import { ToastContainer } from "react-toastify";
 import PageHeader from "@/components/PageHeader";
