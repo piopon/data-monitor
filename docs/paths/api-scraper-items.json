@@ -1,0 +1,42 @@
+{
+  "get": {
+    "tags": [
+      "scraper"
+    ],
+    "summary": "Proxy item list payload from scraper service",
+    "operationId": "getScraperItems",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "name",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Optional item name filter."
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Scraper response payload.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ScraperResponse"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "500": {
+        "$ref": "#/components/responses/ServerError"
+      }
+    }
+  }
+}

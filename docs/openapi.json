@@ -1,0 +1,145 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Data Monitor API",
+    "description": "OpenAPI source of truth for Data Monitor backend routes.",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current deployment origin"
+    }
+  ],
+  "tags": [
+    {
+      "name": "health"
+    },
+    {
+      "name": "init"
+    },
+    {
+      "name": "users"
+    },
+    {
+      "name": "monitors"
+    },
+    {
+      "name": "notifiers"
+    },
+    {
+      "name": "scraper"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "$ref": "./components/securitySchemes/bearerauth.json"
+      }
+    },
+    "parameters": {
+      "UserQuery": {
+        "$ref": "./components/parameters/userquery.json"
+      },
+      "IdQuery": {
+        "$ref": "./components/parameters/idquery.json"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "$ref": "./components/schemas/errorresponse.json"
+      },
+      "DeleteResponse": {
+        "$ref": "./components/schemas/deleteresponse.json"
+      },
+      "HealthResponse": {
+        "$ref": "./components/schemas/healthresponse.json"
+      },
+      "InitResponse": {
+        "$ref": "./components/schemas/initresponse.json"
+      },
+      "User": {
+        "$ref": "./components/schemas/user.json"
+      },
+      "CreateUserRequest": {
+        "$ref": "./components/schemas/createuserrequest.json"
+      },
+      "UpdateUserRequest": {
+        "$ref": "./components/schemas/updateuserrequest.json"
+      },
+      "Monitor": {
+        "$ref": "./components/schemas/monitor.json"
+      },
+      "CreateMonitorRequest": {
+        "$ref": "./components/schemas/createmonitorrequest.json"
+      },
+      "UpdateMonitorRequest": {
+        "$ref": "./components/schemas/updatemonitorrequest.json"
+      },
+      "Notifier": {
+        "$ref": "./components/schemas/notifier.json"
+      },
+      "CreateNotifierRequest": {
+        "$ref": "./components/schemas/createnotifierrequest.json"
+      },
+      "UpdateNotifierRequest": {
+        "$ref": "./components/schemas/updatenotifierrequest.json"
+      },
+      "NotifierNotifyRequest": {
+        "$ref": "./components/schemas/notifiernotifyrequest.json"
+      },
+      "ScraperAuthRequest": {
+        "$ref": "./components/schemas/scraperauthrequest.json"
+      },
+      "ScraperResponse": {
+        "$ref": "./components/schemas/scraperresponse.json"
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "$ref": "./components/responses/badrequest.json"
+      },
+      "Unauthorized": {
+        "$ref": "./components/responses/unauthorized.json"
+      },
+      "Forbidden": {
+        "$ref": "./components/responses/forbidden.json"
+      },
+      "NotFound": {
+        "$ref": "./components/responses/notfound.json"
+      },
+      "ServerError": {
+        "$ref": "./components/responses/servererror.json"
+      }
+    }
+  },
+  "paths": {
+    "/api/health": {
+      "$ref": "./paths/api-health.json"
+    },
+    "/api/init": {
+      "$ref": "./paths/api-init.json"
+    },
+    "/api/user": {
+      "$ref": "./paths/api-user.json"
+    },
+    "/api/monitor": {
+      "$ref": "./paths/api-monitor.json"
+    },
+    "/api/notifier": {
+      "$ref": "./paths/api-notifier.json"
+    },
+    "/api/scraper/login": {
+      "$ref": "./paths/api-scraper-login.json"
+    },
+    "/api/scraper/logout": {
+      "$ref": "./paths/api-scraper-logout.json"
+    },
+    "/api/scraper/data": {
+      "$ref": "./paths/api-scraper-data.json"
+    },
+    "/api/scraper/items": {
+      "$ref": "./paths/api-scraper-items.json"
+    }
+  }
+}

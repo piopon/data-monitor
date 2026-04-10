@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "email",
+        "discord"
+      ]
+    },
+    "origin": {
+      "type": "string"
+    },
+    "sender": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "password": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

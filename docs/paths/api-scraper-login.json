@@ -1,0 +1,37 @@
+{
+  "post": {
+    "tags": [
+      "scraper"
+    ],
+    "summary": "Proxy login request to scraper service",
+    "operationId": "scraperLogin",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/ScraperAuthRequest"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Scraper response payload.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ScraperResponse"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "500": {
+        "$ref": "#/components/responses/ServerError"
+      }
+    }
+  }
+}

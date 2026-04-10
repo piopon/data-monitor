@@ -1,0 +1,239 @@
+{
+  "get": {
+    "tags": [
+      "monitors"
+    ],
+    "summary": "List or filter monitors for authorized user",
+    "operationId": "getMonitors",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/UserQuery"
+      },
+      {
+        "name": "id",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      {
+        "name": "parent",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "maxLength": 256
+        }
+      },
+      {
+        "name": "enabled",
+        "in": "query",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      {
+        "name": "threshold",
+        "in": "query",
+        "schema": {
+          "type": "number"
+        }
+      },
+      {
+        "name": "condition",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "<",
+            "≤",
+            ">",
+            "≥"
+          ]
+        }
+      },
+      {
+        "name": "notifier",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      {
+        "name": "interval",
+        "in": "query",
+        "schema": {
+          "type": "number"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Monitors list.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Monitor"
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      }
+    }
+  },
+  "post": {
+    "tags": [
+      "monitors"
+    ],
+    "summary": "Create monitor",
+    "operationId": "createMonitor",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/CreateMonitorRequest"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Created monitor.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Monitor"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      }
+    }
+  },
+  "put": {
+    "tags": [
+      "monitors"
+    ],
+    "summary": "Update monitor by id for authorized user",
+    "operationId": "updateMonitor",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/IdQuery"
+      },
+      {
+        "$ref": "#/components/parameters/UserQuery"
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/UpdateMonitorRequest"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Updated monitor.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Monitor"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      },
+      "404": {
+        "$ref": "#/components/responses/NotFound"
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "monitors"
+    ],
+    "summary": "Delete monitor by id for authorized user",
+    "operationId": "deleteMonitor",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/IdQuery"
+      },
+      {
+        "$ref": "#/components/parameters/UserQuery"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Delete summary.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteResponse"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      }
+    }
+  }
+}

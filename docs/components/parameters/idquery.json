@@ -1,0 +1,10 @@
+{
+  "name": "id",
+  "in": "query",
+  "required": true,
+  "schema": {
+    "type": "integer",
+    "minimum": 1
+  },
+  "description": "Resource identifier."
+}

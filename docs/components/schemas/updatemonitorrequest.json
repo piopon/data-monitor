@@ -1,0 +1,35 @@
+{
+  "type": "object",
+  "properties": {
+    "parent": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "interval": {
+      "type": "number"
+    },
+    "threshold": {
+      "type": "number"
+    },
+    "condition": {
+      "type": "string",
+      "enum": [
+        "<",
+        "≤",
+        ">",
+        "≥"
+      ]
+    },
+    "notifier": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    }
+  },
+  "additionalProperties": false
+}

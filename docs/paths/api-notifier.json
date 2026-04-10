@@ -1,0 +1,267 @@
+{
+  "get": {
+    "tags": [
+      "notifiers"
+    ],
+    "summary": "List or filter notifiers for authorized user",
+    "operationId": "getNotifiers",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/UserQuery"
+      },
+      {
+        "name": "id",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      {
+        "name": "type",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "email",
+            "discord"
+          ]
+        }
+      },
+      {
+        "name": "origin",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      {
+        "name": "sender",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "maxLength": 256
+        }
+      },
+      {
+        "name": "password",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Notifiers list.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Notifier"
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      }
+    }
+  },
+  "post": {
+    "tags": [
+      "notifiers"
+    ],
+    "summary": "Create notifier or send notifier test message",
+    "description": "When type query parameter is present, this operation sends a notification instead of creating a notifier.",
+    "operationId": "postNotifier",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "name": "type",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "email",
+            "discord"
+          ]
+        },
+        "description": "If provided, triggers notification send mode."
+      },
+      {
+        "name": "user",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "description": "Required in send mode."
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreateNotifierRequest"
+              },
+              {
+                "$ref": "#/components/schemas/NotifierNotifyRequest"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Created notifier or notifier send info.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Notifier"
+                },
+                {
+                  "type": [
+                    "object",
+                    "string"
+                  ],
+                  "additionalProperties": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      },
+      "500": {
+        "$ref": "#/components/responses/ServerError"
+      }
+    }
+  },
+  "put": {
+    "tags": [
+      "notifiers"
+    ],
+    "summary": "Update notifier by id for authorized user",
+    "operationId": "updateNotifier",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/IdQuery"
+      },
+      {
+        "$ref": "#/components/parameters/UserQuery"
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/UpdateNotifierRequest"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Updated notifier.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Notifier"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      },
+      "404": {
+        "$ref": "#/components/responses/NotFound"
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "notifiers"
+    ],
+    "summary": "Delete notifier by id for authorized user",
+    "operationId": "deleteNotifier",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/IdQuery"
+      },
+      {
+        "$ref": "#/components/parameters/UserQuery"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Delete summary.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteResponse"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      }
+    }
+  }
+}

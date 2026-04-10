@@ -1,0 +1,10 @@
+{
+  "description": "Authorization failed for provided user context.",
+  "content": {
+    "application/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ErrorResponse"
+      }
+    }
+  }
+}

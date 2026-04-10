@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "parent": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "interval": {
+      "type": "number"
+    },
+    "threshold": {
+      "type": "number"
+    },
+    "condition": {
+      "type": "string",
+      "enum": [
+        "<",
+        "≤",
+        ">",
+        "≥"
+      ]
+    },
+    "notifierId": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "userId": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "id",
+    "parent",
+    "enabled",
+    "interval",
+    "threshold",
+    "condition",
+    "userId"
+  ],
+  "additionalProperties": false
+}
