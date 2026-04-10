@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm ci --include=optional
 
+      - name: Validate OpenAPI
+        run: npm run openapi:validate
+
       - name: Run lint
         run: npm run lint
 

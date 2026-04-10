@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "openapi:validate": "node ./scripts/validate-openapi.mjs",
     "test": "jest --config jest.config.cjs",
     "test:coverage": "npm run test -- --coverage"
   },

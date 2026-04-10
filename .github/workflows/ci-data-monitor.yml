@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,6 +38,29 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --include=optional
+
+      - name: Guard API/OpenAPI sync
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+
+          API_ROUTE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^src/app/api/.+/route\.(js|ts|mjs|cjs)$' | grep -Ev '^src/app/api/docs/' || true)
+          OPENAPI_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^openapi/' || true)
+
+          if [ -n "$API_ROUTE_CHANGES" ] && [ -z "$OPENAPI_CHANGES" ]; then
+            echo "API route changes detected without matching OpenAPI updates under openapi/."
+            echo "Changed API route files:"
+            echo "$API_ROUTE_CHANGES"
+            exit 1
+          fi
+
+          echo "API/OpenAPI sync guard passed."
+
+      - name: Validate OpenAPI
+        run: npm run openapi:validate
 
       - name: Run lint
         run: npm run lint
