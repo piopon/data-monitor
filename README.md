@@ -162,6 +162,36 @@ Important behavior note:
 - In Docker Compose, `INIT_ON_START` is forced to `false` for the `web` service, so root-page init is disabled there by design.
 - In local non-Docker runs, `INIT_ON_START` can be enabled when you want convenient auto-init during development.
 
+### OpenAPI and Swagger docs 📘
+
+The API contract is maintained as OpenAPI 3.1 and treated as the source of truth.
+
+- Interactive docs (read-only): `http://localhost:3000/api/docs`
+- Raw bundled OpenAPI JSON: `http://localhost:3000/api/docs/openapi.json`
+
+The docs UI is intentionally configured in read-only mode (`try it out` disabled by default).
+
+### OpenAPI maintenance workflow 🧭
+
+When API behavior changes, update OpenAPI files in the same PR whenever possible.
+
+Recommended sequence:
+
+1. Update contract files under `openapi/`.
+2. Update route implementation under `src/app/api/`.
+3. Validate contract locally:
+
+```bash
+npm run openapi:validate
+```
+
+CI behavior:
+
+- `Lint, Build, Test` is the required quality job.
+- `API/OpenAPI Advisory` is a visible non-blocking job.
+- The advisory job warns when API route files change without matching `openapi/` updates.
+- Add PR label `api-guard-skip` to explicitly acknowledge and skip that advisory guard.
+
 ## Sensitive data encryption key 🔐
 
 To encrypt database fields containing secrets, configure this environment variable before running the app:
@@ -262,9 +292,12 @@ Notes:
 
 ```
 data-monitor/
+├── .github/actions/       # Reusable local GitHub composite actions.
 ├── .github/workflows/     # GitHub CI/CD workflow definitions.
 ├── .vscode/               # VS Code settings related to Tailwind CSS syntax
+├── openapi/               # OpenAPI 3.1 source files (split JSON structure).
 ├── public/                # static assets served by Next.js.
+├── scripts/               # Utility scripts (for example OpenAPI validation).
 ├── src/                   # application source code
 ├── .dockerignore          # List of files ignored by Docker
 ├── .gitignore             # List of files ignored by GIT
