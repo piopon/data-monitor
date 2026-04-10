@@ -88,6 +88,15 @@ section.menu-section button.menu-item-button {
 div.page-content {
   @apply static flex items-center justify-center h-full w-full sm:w-[80%];
   @apply bg-white;
+  min-height: 0;
+}
+
+section.api-docs-page {
+  width: 100%;
+  height: 100%;
+  align-self: stretch;
+  overflow: auto;
+  background: #ffffff;
 }
 
 /****************************** WIDGETS *******************************/

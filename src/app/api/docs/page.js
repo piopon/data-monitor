@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function ApiDocsPage() {
   return (
-    <section style={{ width: "100%", height: "100%", overflow: "auto", background: "#ffffff" }}>
+    <section className="api-docs-page">
       <SwaggerDocs />
     </section>
   );
