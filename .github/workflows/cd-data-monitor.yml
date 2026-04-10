@@ -23,14 +23,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node and install dependencies
+        uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --include=optional
+          node-version: "20"
 
       - name: Validate OpenAPI
         run: npm run openapi:validate
