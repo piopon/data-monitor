@@ -12,7 +12,10 @@
       "type": "number"
     },
     "threshold": {
-      "type": "number"
+      "type": [
+        "string",
+        "number"
+      ]
     },
     "condition": {
       "type": "string",
