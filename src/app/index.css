@@ -110,6 +110,13 @@ div.page-content {
   height: 0;
 }
 
+div.scroll-hint-content {
+  display: flow-root;
+  margin-top: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
 section.api-docs-page {
   background: #ffffff;
 }
@@ -359,8 +366,11 @@ section#notifiers-section {
 
 section#notifiers-section div.notifier-cards-div {
   @apply flex-1 overflow-y-auto;
-  @apply flex flex-col items-start gap-5;
   @apply my-5 sm:my-2 mx-5 sm:mx-0;
+}
+
+section#notifiers-section div.notifier-cards-div > div.scroll-hint-content {
+  @apply flex flex-col items-start gap-5;
 }
 
 section#notifiers-section div.notifier-card {
