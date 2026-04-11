@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-es-bundle";
 import SwaggerUIStandalonePreset from "swagger-ui-dist/swagger-ui-standalone-preset";
 
@@ -9,7 +9,7 @@ function initializeSwaggerUi() {
   const rootElement = window.document.getElementById("swagger-ui");
   if (rootElement == null) return;
 
-  SwaggerUIBundle({
+  return SwaggerUIBundle({
     url: "/api/docs/openapi.json",
     dom_id: "#swagger-ui",
     deepLinking: true,
@@ -24,9 +24,17 @@ function initializeSwaggerUi() {
 
 export default function SwaggerDocs() {
   const [showScrollHint, setShowScrollHint] = useState(false);
+  const swaggerUiRef = useRef(null);
 
   useEffect(() => {
-    initializeSwaggerUi();
+    swaggerUiRef.current = initializeSwaggerUi();
+
+    return () => {
+      if (typeof swaggerUiRef.current?.destroy === "function") {
+        swaggerUiRef.current.destroy();
+      }
+      swaggerUiRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
