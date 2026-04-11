@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "email",
+        "discord"
+      ]
+    },
+    "origin": {
+      "type": "string",
+      "description": "Masked in responses as PRIVATE when stored."
+    },
+    "sender": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "password": {
+      "type": "string",
+      "description": "Masked in responses as PRIVATE when stored."
+    },
+    "user_id": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "required": [
+    "id",
+    "type",
+    "origin",
+    "sender",
+    "password",
+    "user_id"
+  ],
+  "additionalProperties": false
+}

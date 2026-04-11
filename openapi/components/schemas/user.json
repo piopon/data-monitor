@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "jwt": {
+      "type": "string",
+      "description": "Masked in responses as PRIVATE when stored."
+    }
+  },
+  "required": [
+    "id",
+    "email",
+    "jwt"
+  ],
+  "additionalProperties": false
+}

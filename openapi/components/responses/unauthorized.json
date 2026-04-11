@@ -1,0 +1,10 @@
+{
+  "description": "Missing or invalid authorization header.",
+  "content": {
+    "application/json": {
+      "schema": {
+        "$ref": "#/components/schemas/ErrorResponse"
+      }
+    }
+  }
+}

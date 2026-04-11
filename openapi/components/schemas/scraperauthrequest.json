@@ -1,0 +1,5 @@
+{
+  "type": "object",
+  "description": "Pass-through payload to scraper auth endpoints.",
+  "additionalProperties": true
+}

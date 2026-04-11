@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "init": {
+      "type": "boolean"
+    },
+    "message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "init",
+    "message"
+  ],
+  "additionalProperties": true
+}

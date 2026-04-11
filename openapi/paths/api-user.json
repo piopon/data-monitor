@@ -1,0 +1,149 @@
+{
+  "get": {
+    "tags": [
+      "users"
+    ],
+    "summary": "List or filter users",
+    "operationId": "getUsers",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      {
+        "name": "email",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      {
+        "name": "jwt",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Used only with indexed filters by current implementation."
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Users list.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      }
+    }
+  },
+  "post": {
+    "tags": [
+      "users"
+    ],
+    "summary": "Create user",
+    "operationId": "createUser",
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/CreateUserRequest"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Created user.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      }
+    }
+  },
+  "put": {
+    "tags": [
+      "users"
+    ],
+    "summary": "Update user by id",
+    "operationId": "updateUser",
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/IdQuery"
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/UpdateUserRequest"
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Updated user.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      }
+    }
+  },
+  "delete": {
+    "tags": [
+      "users"
+    ],
+    "summary": "Delete user by id",
+    "operationId": "deleteUser",
+    "parameters": [
+      {
+        "$ref": "#/components/parameters/IdQuery"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Delete summary.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeleteResponse"
+            }
+          }
+        }
+      },
+      "400": {
+        "$ref": "#/components/responses/BadRequest"
+      }
+    }
+  }
+}

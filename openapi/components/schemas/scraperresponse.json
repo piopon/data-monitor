@@ -1,0 +1,11 @@
+{
+  "type": [
+    "object",
+    "array",
+    "string",
+    "number",
+    "boolean",
+    "null"
+  ],
+  "description": "Pass-through response from scraper backend."
+}

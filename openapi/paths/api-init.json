@@ -1,0 +1,24 @@
+{
+  "get": {
+    "tags": [
+      "init"
+    ],
+    "summary": "Initialize database and feature metadata",
+    "operationId": "initializeApplication",
+    "responses": {
+      "200": {
+        "description": "Initialization completed.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/InitResponse"
+            }
+          }
+        }
+      },
+      "500": {
+        "$ref": "#/components/responses/ServerError"
+      }
+    }
+  }
+}

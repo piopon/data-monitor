@@ -1,0 +1,5 @@
+{
+  "type": "object",
+  "description": "Notifier-specific notification payload.",
+  "additionalProperties": true
+}

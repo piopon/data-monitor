@@ -28,14 +28,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node and install dependencies
+        uses: ./.github/actions/setup-node-and-install
         with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --include=optional
+          node-version: "20"
 
       - name: Run lint
         run: npm run lint
@@ -52,3 +48,75 @@ jobs:
           name: coverage-report
           path: coverage/
           if-no-files-found: error
+
+  api-openapi-advisory:
+    name: API/OpenAPI Advisory
+    if: ${{ github.event.pull_request.draft == false }}
+    needs: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node and install dependencies
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: "20"
+
+      - name: Guard API/OpenAPI sync
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: |
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+
+          API_ROUTE_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^src/app/api/.+/route\.(js|ts|mjs|cjs)$' | grep -Ev '^src/app/api/docs/' || true)
+          OPENAPI_CHANGES=$(echo "$CHANGED_FILES" | grep -E '^openapi/' || true)
+          SKIP_GUARD=false
+          if echo "$PR_LABELS" | grep -Eq '(^|,)api-guard-skip(,|$)'; then
+            SKIP_GUARD=true
+          fi
+
+          if [ -n "$API_ROUTE_CHANGES" ] && [ -z "$OPENAPI_CHANGES" ]; then
+            if [ "$SKIP_GUARD" = true ]; then
+              echo "::notice::API/OpenAPI sync guard skipped due to 'api-guard-skip' label."
+              {
+                echo "### API/OpenAPI sync guard"
+                echo "Result: skipped by label 'api-guard-skip'."
+                echo ""
+                echo "API route files changed:"
+                echo '```'
+                echo "$API_ROUTE_CHANGES"
+                echo '```'
+              } >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::warning::API route changes detected without matching OpenAPI updates under openapi/."
+              {
+                echo "### API/OpenAPI sync guard"
+                echo "Result: warning (non-blocking)."
+                echo ""
+                echo "API route files changed:"
+                echo '```'
+                echo "$API_ROUTE_CHANGES"
+                echo '```'
+                echo "No files changed under openapi/."
+                echo "Add label 'api-guard-skip' to acknowledge and proceed without contract update."
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          else
+            echo "API/OpenAPI sync guard passed."
+            {
+              echo "### API/OpenAPI sync guard"
+              echo "Result: passed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Validate OpenAPI
+        run: npm run openapi:validate

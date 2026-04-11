@@ -1,0 +1,10 @@
+{
+  "name": "user",
+  "in": "query",
+  "required": true,
+  "schema": {
+    "type": "integer",
+    "minimum": 1
+  },
+  "description": "Authorized user identifier."
+}

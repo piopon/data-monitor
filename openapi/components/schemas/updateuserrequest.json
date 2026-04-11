@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "jwt": {
+      "type": "string",
+      "description": "Use PRIVATE to preserve existing stored secret."
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "additionalProperties": false
+}
