@@ -9,6 +9,7 @@ export default function ScrollHintContainer({
   hintText = "More content below, scroll down",
   hideScrollbar = true,
   threshold = 8,
+  ...rest
 }) {
   const containerRef = useRef(null);
   const [showHint, setShowHint] = useState(false);
@@ -51,7 +52,7 @@ export default function ScrollHintContainer({
   const Root = as;
 
   return (
-    <Root ref={containerRef} className={classes}>
+    <Root ref={containerRef} className={classes} {...rest}>
       {children}
       {showHint ? <div className="scroll-hint-badge">{hintText}</div> : null}
     </Root>
