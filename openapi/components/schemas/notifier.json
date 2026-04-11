@@ -24,7 +24,7 @@
       "type": "string",
       "description": "Masked in responses as PRIVATE when stored."
     },
-    "userId": {
+    "user_id": {
       "type": "integer",
       "minimum": 1
     }
@@ -35,7 +35,7 @@
     "origin",
     "sender",
     "password",
-    "userId"
+    "user_id"
   ],
   "additionalProperties": false
 }

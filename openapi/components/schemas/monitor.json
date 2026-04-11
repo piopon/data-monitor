@@ -13,10 +13,10 @@
       "type": "boolean"
     },
     "interval": {
-      "type": "number"
+      "type": "string"
     },
     "threshold": {
-      "type": "number"
+      "type": "string"
     },
     "condition": {
       "type": "string",
@@ -27,14 +27,14 @@
         "≥"
       ]
     },
-    "notifierId": {
+    "notifier_id": {
       "type": [
         "integer",
         "null"
       ],
       "minimum": 1
     },
-    "userId": {
+    "user_id": {
       "type": "integer",
       "minimum": 1
     }
@@ -46,7 +46,8 @@
     "interval",
     "threshold",
     "condition",
-    "userId"
+    "notifier_id",
+    "user_id"
   ],
   "additionalProperties": false
 }

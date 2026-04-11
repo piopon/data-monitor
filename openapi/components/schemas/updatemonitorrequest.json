@@ -31,5 +31,11 @@
       "minimum": 1
     }
   },
+  "required": [
+    "parent",
+    "interval",
+    "threshold",
+    "condition"
+  ],
   "additionalProperties": false
 }
