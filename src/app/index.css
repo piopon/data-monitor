@@ -91,23 +91,30 @@ div.page-content {
   min-height: 0;
 }
 
-section.api-docs-page {
+section.scroll-hint-container {
   position: relative;
   width: 100%;
   height: 100%;
   align-self: stretch;
   overflow: auto;
   background: #ffffff;
+}
+
+section.scroll-hint-container--hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-section.api-docs-page::-webkit-scrollbar {
+section.scroll-hint-container--hide-scrollbar::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-div.api-docs-scroll-hint {
+section.api-docs-page {
+  background: #ffffff;
+}
+
+div.scroll-hint-badge {
   position: sticky;
   left: 50%;
   bottom: 0.75rem;
