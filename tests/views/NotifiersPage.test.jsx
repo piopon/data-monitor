@@ -73,7 +73,10 @@ describe("NotifiersPage", () => {
       json: async () => [],
     });
 
-    renderWithLogin({ userIdValue: 3, token: "token-3" });
+    const { container } = renderWithLogin({ userIdValue: 3, token: "token-3" });
+
+    const cardsWrapper = container.querySelector("div.notifier-cards-div.scroll-hint-container");
+    expect(cardsWrapper).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("empty-cards")).toHaveTextContent("empty:notifier");

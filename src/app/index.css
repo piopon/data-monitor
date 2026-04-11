@@ -91,23 +91,37 @@ div.page-content {
   min-height: 0;
 }
 
-section.api-docs-page {
+.scroll-hint-container {
   position: relative;
   width: 100%;
   height: 100%;
   align-self: stretch;
   overflow: auto;
   background: #ffffff;
+}
+
+.scroll-hint-container--hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-section.api-docs-page::-webkit-scrollbar {
+.scroll-hint-container--hide-scrollbar::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-div.api-docs-scroll-hint {
+div.scroll-hint-content {
+  display: flow-root;
+  margin-top: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+section.api-docs-page {
+  background: #ffffff;
+}
+
+.scroll-hint-badge {
   position: sticky;
   left: 50%;
   bottom: 0.75rem;
@@ -352,8 +366,11 @@ section#notifiers-section {
 
 section#notifiers-section div.notifier-cards-div {
   @apply flex-1 overflow-y-auto;
-  @apply flex flex-col items-start gap-5;
   @apply my-5 sm:my-2 mx-5 sm:mx-0;
+}
+
+section#notifiers-section div.notifier-cards-div > div.scroll-hint-content {
+  @apply flex flex-col items-start gap-5;
 }
 
 section#notifiers-section div.notifier-card {

@@ -1,4 +1,5 @@
 import SwaggerDocs from "@/components/SwaggerDocs";
+import ScrollHintContainer from "@/components/ScrollHintContainer";
 
 export const metadata = {
   title: "API docs | data-monitor",
@@ -7,8 +8,8 @@ export const metadata = {
 
 export default function ApiDocsPage() {
   return (
-    <section className="api-docs-page">
+    <ScrollHintContainer className="api-docs-page" hintText="More content below, scroll down" hideScrollbar>
       <SwaggerDocs />
-    </section>
+    </ScrollHintContainer>
   );
 }
