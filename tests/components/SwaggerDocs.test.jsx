@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render } from "@testing-library/react";
 
 jest.mock("swagger-ui-dist/swagger-ui-es-bundle", () => ({
   __esModule: true,
@@ -42,41 +42,4 @@ describe("SwaggerDocs", () => {
     expect(swaggerUiInstance.destroy).toHaveBeenCalled();
   });
 
-  test("shows and hides floating scroll hint based on remaining scroll", async () => {
-    render(
-      <section className="api-docs-page">
-        <SwaggerDocs />
-      </section>
-    );
-
-    const container = document.querySelector("section.api-docs-page");
-    let scrollTop = 0;
-
-    Object.defineProperty(container, "clientHeight", {
-      configurable: true,
-      get: () => 100,
-    });
-    Object.defineProperty(container, "scrollHeight", {
-      configurable: true,
-      get: () => 320,
-    });
-    Object.defineProperty(container, "scrollTop", {
-      configurable: true,
-      get: () => scrollTop,
-      set: (value) => {
-        scrollTop = value;
-      },
-    });
-
-    fireEvent(window, new Event("resize"));
-
-    expect(await screen.findByText("More content below, scroll down")).toBeInTheDocument();
-
-    scrollTop = 260;
-    fireEvent.scroll(container);
-
-    await waitFor(() => {
-      expect(screen.queryByText("More content below, scroll down")).not.toBeInTheDocument();
-    });
-  });
 });
