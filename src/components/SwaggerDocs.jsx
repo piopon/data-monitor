@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-es-bundle";
 import SwaggerUIStandalonePreset from "swagger-ui-dist/swagger-ui-standalone-preset";
 
@@ -23,9 +23,39 @@ function initializeSwaggerUi() {
 }
 
 export default function SwaggerDocs() {
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
   useEffect(() => {
     initializeSwaggerUi();
   }, []);
 
-  return <div id="swagger-ui" />;
+  useEffect(() => {
+    const container = document.querySelector("section.api-docs-page");
+    if (container == null) {
+      return;
+    }
+
+    const updateHintVisibility = () => {
+      const remaining = container.scrollHeight - container.clientHeight - container.scrollTop;
+      setShowScrollHint(container.scrollHeight > container.clientHeight && remaining > 8);
+    };
+
+    updateHintVisibility();
+    container.addEventListener("scroll", updateHintVisibility, { passive: true });
+    window.addEventListener("resize", updateHintVisibility);
+    const delayedCheck = window.setTimeout(updateHintVisibility, 250);
+
+    return () => {
+      container.removeEventListener("scroll", updateHintVisibility);
+      window.removeEventListener("resize", updateHintVisibility);
+      window.clearTimeout(delayedCheck);
+    };
+  }, []);
+
+  return (
+    <>
+      <div id="swagger-ui" />
+      {showScrollHint ? <div className="api-docs-scroll-hint">More content below, scroll down</div> : null}
+    </>
+  );
 }
