@@ -106,7 +106,7 @@ const NotifiersPage = () => {
         as="div"
         className="notifier-cards-div"
         hintText="More notifiers below, scroll down"
-        hideScrollbar={false}
+        hideScrollbar={true}
       >
         {getCards()}
       </ScrollHintContainer>

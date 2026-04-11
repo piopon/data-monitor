@@ -19,7 +19,10 @@ jest.mock("@/widgets/Spinner", () => ({
 
 describe("MonitorsPage", () => {
   test("shows spinner when loading", () => {
-    render(<MonitorsPage loading={true} data={[]} />);
+    const { container } = render(<MonitorsPage loading={true} data={[]} />);
+
+    const root = container.querySelector("section#data-section.scroll-hint-container");
+    expect(root).toBeInTheDocument();
 
     expect(screen.getByTestId("spinner")).toBeInTheDocument();
   });
