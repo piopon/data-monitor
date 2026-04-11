@@ -26,13 +26,11 @@ describe("OpenApiBundler", () => {
   });
 
   test("bundleFromFile resolves local and pointer refs", async () => {
-    const rootFile = "D:/repo/openapi/openapi.json";
-    const schemaFile = "D:/repo/openapi/components/schemas/health.json";
-    const pathFile = "D:/repo/openapi/paths/api-health.json";
+    const rootFile = "openapi/openapi.json";
 
     mockReadFile.mockImplementation(async (requestedPath) => {
       const normalized = String(requestedPath).replace(/\\/g, "/");
-      if (normalized === rootFile) {
+      if (normalized.endsWith("openapi/openapi.json")) {
         return JSON.stringify({
           openapi: "3.1.0",
           info: { title: "data-monitor", version: "0.1.0" },
@@ -46,7 +44,7 @@ describe("OpenApiBundler", () => {
           },
         });
       }
-      if (normalized === schemaFile) {
+      if (normalized.endsWith("openapi/components/schemas/health.json")) {
         return JSON.stringify({
           type: "object",
           properties: {
@@ -55,7 +53,7 @@ describe("OpenApiBundler", () => {
           required: ["status"],
         });
       }
-      if (normalized === pathFile) {
+      if (normalized.endsWith("openapi/paths/api-health.json")) {
         return JSON.stringify({
           get: {
             responses: {
@@ -90,7 +88,7 @@ describe("OpenApiBundler", () => {
   });
 
   test("bundleFromFile throws for unsupported ref values", async () => {
-    const rootFile = "D:/repo/openapi/openapi.json";
+    const rootFile = "openapi/openapi.json";
 
     mockReadFile.mockResolvedValueOnce(
       JSON.stringify({
