@@ -12,4 +12,5 @@ README.md
 LICENSE
 VERSION
 public
+openapi
 src
