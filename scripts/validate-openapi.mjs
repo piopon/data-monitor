@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import SwaggerParser from "@apidevtools/swagger-parser";
-import { bundleOpenApiDocumentFromFile, getErrorMessage } from "../src/lib/OpenApiBundle.js";
+import { OpenApiBundler } from "../src/lib/OpenApiBundler.js";
 
 const workspaceRoot = process.cwd();
 const openApiRootDir = path.join(workspaceRoot, "openapi");
@@ -48,12 +48,12 @@ async function main() {
 
     await validateJsonSyntax(jsonFiles);
 
-    const bundledDocument = await bundleOpenApiDocumentFromFile(openApiEntryFile);
+    const bundledDocument = await OpenApiBundler.bundleFromFile(openApiEntryFile);
     await SwaggerParser.validate(bundledDocument);
 
     console.log(`OpenAPI validation passed (${jsonFiles.length} JSON files checked).`);
   } catch (error) {
-    console.error(`OpenAPI validation failed: ${getErrorMessage(error)}`);
+    console.error(`OpenAPI validation failed: ${OpenApiBundler.getErrorMessage(error)}`);
     process.exitCode = 1;
   }
 }
