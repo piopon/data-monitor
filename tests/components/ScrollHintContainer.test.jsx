@@ -14,7 +14,7 @@ describe("ScrollHintContainer", () => {
       </ScrollHintContainer>
     );
 
-    const container = document.querySelector("section.scroll-hint-container");
+    const container = document.querySelector(".scroll-hint-container");
     let scrollTop = 0;
 
     Object.defineProperty(container, "clientHeight", {
@@ -52,7 +52,7 @@ describe("ScrollHintContainer", () => {
       </ScrollHintContainer>
     );
 
-    let container = document.querySelector("section.scroll-hint-container");
+    let container = document.querySelector(".scroll-hint-container");
     expect(container.className).toContain("scroll-hint-container--hide-scrollbar");
     expect(container.className).toContain("custom-wrap");
 
@@ -62,7 +62,18 @@ describe("ScrollHintContainer", () => {
       </ScrollHintContainer>
     );
 
-    container = document.querySelector("section.scroll-hint-container");
+    container = document.querySelector(".scroll-hint-container");
     expect(container.className).not.toContain("scroll-hint-container--hide-scrollbar");
+  });
+
+  test("renders custom root element when `as` is provided", () => {
+    render(
+      <ScrollHintContainer as="div" className="custom-wrap">
+        <div>Child</div>
+      </ScrollHintContainer>
+    );
+
+    const root = document.querySelector("div.scroll-hint-container.custom-wrap");
+    expect(root).toBeInTheDocument();
   });
 });

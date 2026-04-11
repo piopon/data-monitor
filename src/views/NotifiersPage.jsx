@@ -4,6 +4,7 @@ import { LoginContext } from "@/context/Contexts";
 import { RequestUtils } from "@/lib/RequestUtils";
 import NotifierCard from "@/components/NotifierCard";
 import EmptyCards from "@/components/EmptyCards";
+import ScrollHintContainer from "@/components/ScrollHintContainer";
 import { NotifierCatalog } from "@/notifiers/core/NotifierCatalog";
 
 const NotifiersPage = () => {
@@ -101,7 +102,14 @@ const NotifiersPage = () => {
 
   return (
     <section id="notifiers-section">
-      <div className="notifier-cards-div">{getCards()}</div>
+      <ScrollHintContainer
+        as="div"
+        className="notifier-cards-div"
+        hintText="More notifiers below, scroll down"
+        hideScrollbar={false}
+      >
+        {getCards()}
+      </ScrollHintContainer>
       <button className="add-notifier" onClick={addNotifier} disabled={addDisabled}>
         add
       </button>

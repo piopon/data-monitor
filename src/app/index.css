@@ -91,7 +91,7 @@ div.page-content {
   min-height: 0;
 }
 
-section.scroll-hint-container {
+.scroll-hint-container {
   position: relative;
   width: 100%;
   height: 100%;
@@ -100,12 +100,12 @@ section.scroll-hint-container {
   background: #ffffff;
 }
 
-section.scroll-hint-container--hide-scrollbar {
+.scroll-hint-container--hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-section.scroll-hint-container--hide-scrollbar::-webkit-scrollbar {
+.scroll-hint-container--hide-scrollbar::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
@@ -114,7 +114,7 @@ section.api-docs-page {
   background: #ffffff;
 }
 
-div.scroll-hint-badge {
+.scroll-hint-badge {
   position: sticky;
   left: 50%;
   bottom: 0.75rem;

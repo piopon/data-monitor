@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function ScrollHintContainer({
   children,
+  as = "section",
   className = "",
   hintText = "More content below, scroll down",
   hideScrollbar = true,
@@ -47,10 +48,12 @@ export default function ScrollHintContainer({
     .filter(Boolean)
     .join(" ");
 
+  const Root = as;
+
   return (
-    <section ref={containerRef} className={classes}>
+    <Root ref={containerRef} className={classes}>
       {children}
       {showHint ? <div className="scroll-hint-badge">{hintText}</div> : null}
-    </section>
+    </Root>
   );
 }
