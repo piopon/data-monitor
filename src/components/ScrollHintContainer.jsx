@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function ScrollHintContainer({
   children,
@@ -11,39 +11,58 @@ export default function ScrollHintContainer({
   threshold = 8,
   ...rest
 }) {
-  const containerRef = useRef(null);
+  const [containerNode, setContainerNode] = useState(null);
+  const [contentNode, setContentNode] = useState(null);
   const [showHint, setShowHint] = useState(false);
 
+  const handleContainerRef = useCallback((node) => {
+    setContainerNode(node);
+  }, []);
+
+  const handleContentRef = useCallback((node) => {
+    setContentNode(node);
+  }, []);
+
   useEffect(() => {
-    const container = containerRef.current;
-    if (container == null) {
+    if (containerNode == null) {
       return;
     }
 
     const updateHintVisibility = () => {
-      const remaining = container.scrollHeight - container.clientHeight - container.scrollTop;
-      setShowHint(container.scrollHeight > container.clientHeight && remaining > threshold);
+      const remaining = containerNode.scrollHeight - containerNode.clientHeight - containerNode.scrollTop;
+      setShowHint(containerNode.scrollHeight > containerNode.clientHeight && remaining > threshold);
     };
 
     updateHintVisibility();
-    container.addEventListener("scroll", updateHintVisibility, { passive: true });
+    containerNode.addEventListener("scroll", updateHintVisibility, { passive: true });
     window.addEventListener("resize", updateHintVisibility);
 
-    const observer =
+    const resizeObserver =
       typeof ResizeObserver !== "undefined"
         ? new ResizeObserver(updateHintVisibility)
         : null;
-    observer?.observe(container);
+    if (contentNode != null) {
+      resizeObserver?.observe(contentNode);
+    }
+
+    const mutationObserver =
+      typeof MutationObserver !== "undefined"
+        ? new MutationObserver(updateHintVisibility)
+        : null;
+    if (contentNode != null) {
+      mutationObserver?.observe(contentNode, { childList: true, subtree: true, characterData: true });
+    }
 
     const delayedCheck = window.setTimeout(updateHintVisibility, 250);
 
     return () => {
-      container.removeEventListener("scroll", updateHintVisibility);
+      containerNode.removeEventListener("scroll", updateHintVisibility);
       window.removeEventListener("resize", updateHintVisibility);
-      observer?.disconnect();
+      resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
       window.clearTimeout(delayedCheck);
     };
-  }, [threshold]);
+  }, [containerNode, contentNode, threshold]);
 
   const classes = ["scroll-hint-container", hideScrollbar ? "scroll-hint-container--hide-scrollbar" : "", className]
     .filter(Boolean)
@@ -52,8 +71,10 @@ export default function ScrollHintContainer({
   const Root = as;
 
   return (
-    <Root ref={containerRef} className={classes} {...rest}>
-      {children}
+    <Root ref={handleContainerRef} className={classes} {...rest}>
+      <div ref={handleContentRef} className="scroll-hint-content">
+        {children}
+      </div>
       {showHint ? <div className="scroll-hint-badge">{hintText}</div> : null}
     </Root>
   );

@@ -76,4 +76,67 @@ describe("ScrollHintContainer", () => {
     const root = document.querySelector("div.scroll-hint-container.custom-wrap");
     expect(root).toBeInTheDocument();
   });
+
+  test("rebinds behavior when root element changes", async () => {
+    const { rerender } = render(
+      <ScrollHintContainer as="section" hintText="More content below, scroll down" hideScrollbar>
+        <div style={{ height: "400px" }}>Content</div>
+      </ScrollHintContainer>
+    );
+
+    const firstContainer = document.querySelector("section.scroll-hint-container");
+    let firstScrollTop = 0;
+
+    Object.defineProperty(firstContainer, "clientHeight", {
+      configurable: true,
+      get: () => 100,
+    });
+    Object.defineProperty(firstContainer, "scrollHeight", {
+      configurable: true,
+      get: () => 320,
+    });
+    Object.defineProperty(firstContainer, "scrollTop", {
+      configurable: true,
+      get: () => firstScrollTop,
+      set: (value) => {
+        firstScrollTop = value;
+      },
+    });
+
+    fireEvent(window, new Event("resize"));
+    expect(await screen.findByText("More content below, scroll down")).toBeInTheDocument();
+
+    rerender(
+      <ScrollHintContainer as="div" hintText="More content below, scroll down" hideScrollbar>
+        <div style={{ height: "400px" }}>Content</div>
+      </ScrollHintContainer>
+    );
+
+    const nextContainer = document.querySelector("div.scroll-hint-container");
+    expect(document.querySelector("section.scroll-hint-container")).not.toBeInTheDocument();
+    let nextScrollTop = 0;
+
+    Object.defineProperty(nextContainer, "clientHeight", {
+      configurable: true,
+      get: () => 100,
+    });
+    Object.defineProperty(nextContainer, "scrollHeight", {
+      configurable: true,
+      get: () => 320,
+    });
+    Object.defineProperty(nextContainer, "scrollTop", {
+      configurable: true,
+      get: () => nextScrollTop,
+      set: (value) => {
+        nextScrollTop = value;
+      },
+    });
+
+    nextScrollTop = 280;
+    fireEvent.scroll(nextContainer);
+
+    await waitFor(() => {
+      expect(screen.queryByText("More content below, scroll down")).not.toBeInTheDocument();
+    });
+  });
 });
