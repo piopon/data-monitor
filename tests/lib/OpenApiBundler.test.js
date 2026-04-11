@@ -106,4 +106,29 @@ describe("OpenApiBundler", () => {
       "Unsupported $ref value: https://example.com/external.json"
     );
   });
+
+  test("bundleFromFile rejects path traversal refs outside openapi root", async () => {
+    const rootFile = "openapi/openapi.json";
+
+    mockReadFile.mockImplementation(async (requestedPath) => {
+      const normalized = String(requestedPath).replace(/\\/g, "/");
+      if (normalized.endsWith("openapi/openapi.json")) {
+        return JSON.stringify({
+          openapi: "3.1.0",
+          info: { title: "data-monitor", version: "0.1.0" },
+          paths: {
+            "/api/health": {
+              $ref: "./../secrets.json",
+            },
+          },
+        });
+      }
+      throw new Error(`Unexpected readFile path: ${normalized}`);
+    });
+
+    await expect(OpenApiBundler.bundleFromFile(rootFile)).rejects.toThrow(
+      "Unsupported $ref path: ./../secrets.json"
+    );
+    expect(mockReadFile).toHaveBeenCalledTimes(1);
+  });
 });

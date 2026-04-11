@@ -23,9 +23,11 @@ export class OpenApiBundler {
    * @returns {Promise<Object>} Fully resolved OpenAPI document object.
    */
   static async bundleFromFile(openApiEntryFile) {
-    const rawRoot = await fs.readFile(openApiEntryFile, "utf8");
+    const rootFilePath = path.resolve(openApiEntryFile);
+    const openApiRootDir = path.dirname(rootFilePath);
+    const rawRoot = await fs.readFile(rootFilePath, "utf8");
     const rootDocument = JSON.parse(rawRoot);
-    return OpenApiBundler.#resolveNode(rootDocument, openApiEntryFile, rootDocument, openApiEntryFile, new Map());
+    return OpenApiBundler.#resolveNode(rootDocument, rootFilePath, rootDocument, rootFilePath, openApiRootDir, new Map());
   }
 
   /**
@@ -61,14 +63,17 @@ export class OpenApiBundler {
     * @param {String} baseFilePath File path used to resolve relative refs for the current node.
     * @param {Object} rootDocument Parsed root OpenAPI document used for #/ pointer refs.
     * @param {String} rootFilePath File path of the root OpenAPI entry document.
-    * @param {Map<String, unknown>} cache In-memory cache preventing repeated file/ref resolution.
+     * @param {String} openApiRootDir Root directory for the OpenAPI document. Relative refs cannot escape this path.
+     * @param {Map<String, unknown>} cache In-memory cache preventing repeated file/ref resolution.
     * @returns {Promise<unknown>} Resolved node/subtree.
    */
-  static async #resolveNode(node, baseFilePath, rootDocument, rootFilePath, cache) {
+    static async #resolveNode(node, baseFilePath, rootDocument, rootFilePath, openApiRootDir, cache) {
     if (Array.isArray(node)) {
       const resolvedItems = [];
       for (const item of node) {
-        resolvedItems.push(await OpenApiBundler.#resolveNode(item, baseFilePath, rootDocument, rootFilePath, cache));
+          resolvedItems.push(
+            await OpenApiBundler.#resolveNode(item, baseFilePath, rootDocument, rootFilePath, openApiRootDir, cache)
+          );
       }
       return resolvedItems;
     }
@@ -81,18 +86,39 @@ export class OpenApiBundler {
       const ref = node.$ref;
       if (ref.startsWith("#/")) {
         const pointerTarget = OpenApiBundler.#resolveJsonPointer(rootDocument, ref);
-        return OpenApiBundler.#resolveNode(pointerTarget, rootFilePath, rootDocument, rootFilePath, cache);
+        return OpenApiBundler.#resolveNode(
+          pointerTarget,
+          rootFilePath,
+          rootDocument,
+          rootFilePath,
+          openApiRootDir,
+          cache
+        );
       }
 
       if (ref.startsWith("./")) {
         const targetPath = path.resolve(path.dirname(baseFilePath), ref);
+        const relativeToRoot = path.relative(openApiRootDir, targetPath);
+        if (relativeToRoot === "" || relativeToRoot === ".") {
+          throw new Error(`Unsupported $ref path: ${ref}`);
+        }
+        if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
+          throw new Error(`Unsupported $ref path: ${ref}`);
+        }
         const cacheKey = `${baseFilePath}::${ref}`;
         if (cache.has(cacheKey)) {
           return cache.get(cacheKey);
         }
         const raw = await fs.readFile(targetPath, "utf8");
         const targetObject = JSON.parse(raw);
-        const resolvedTarget = await OpenApiBundler.#resolveNode(targetObject, targetPath, rootDocument, rootFilePath, cache);
+        const resolvedTarget = await OpenApiBundler.#resolveNode(
+          targetObject,
+          targetPath,
+          rootDocument,
+          rootFilePath,
+          openApiRootDir,
+          cache
+        );
         cache.set(cacheKey, resolvedTarget);
         return resolvedTarget;
       }
@@ -102,7 +128,14 @@ export class OpenApiBundler {
 
     const output = {};
     for (const [key, value] of Object.entries(node)) {
-      output[key] = await OpenApiBundler.#resolveNode(value, baseFilePath, rootDocument, rootFilePath, cache);
+      output[key] = await OpenApiBundler.#resolveNode(
+        value,
+        baseFilePath,
+        rootDocument,
+        rootFilePath,
+        openApiRootDir,
+        cache
+      );
     }
     return output;
   }
