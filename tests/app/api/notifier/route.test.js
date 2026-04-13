@@ -174,11 +174,11 @@ describe("app/api/notifier route", () => {
       type: "email",
       sender: "alerts@test.com",
       origin: "smtp.gmail.com",
-      password: "",
+      password: "secret",
     });
 
     const response = await POST(
-      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", sender: "alerts@test.com", origin: "smtp.gmail.com", password: "PRIVATE" }),
+      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", sender: "alerts@test.com", origin: "smtp.gmail.com", password: "secret" }),
     );
     const body = await response.json();
 
@@ -187,9 +187,9 @@ describe("app/api/notifier route", () => {
       type: "email",
       sender: "alerts@test.com",
       origin: "smtp.gmail.com",
-      password: "",
+      password: "secret",
     });
-    expect(body).toEqual({ id: 2, type: "email", origin: "PRIVATE", password: "", sender: "alerts@test.com" });
+    expect(body).toEqual({ id: 2, type: "email", origin: "PRIVATE", password: "PRIVATE", sender: "alerts@test.com" });
   });
 
   test("POST without type returns 400 when sender is missing", async () => {
@@ -208,6 +208,45 @@ describe("app/api/notifier route", () => {
     expect(NotifierService.addNotifier).not.toHaveBeenCalled();
     expect(response.status).toBe(400);
     expect(body.message).toContain("Notifier origin is required");
+  });
+
+  test("POST without type returns 400 when email password is missing", async () => {
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", { user: 7, type: "email", sender: "alerts@test.com", origin: "smtp.gmail.com" }),
+    );
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Notifier password is required");
+  });
+
+  test("POST without type allows discord notifier with empty password", async () => {
+    NotifierService.addNotifier.mockResolvedValue({
+      id: 8,
+      type: "discord",
+      sender: "monitor-bot",
+      origin: "https://discord/webhook",
+      password: "",
+    });
+
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "discord",
+        sender: "monitor-bot",
+        origin: "https://discord/webhook",
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(NotifierService.addNotifier).toHaveBeenCalledWith({
+      user: 7,
+      type: "discord",
+      sender: "monitor-bot",
+      origin: "https://discord/webhook",
+      password: "",
+    });
   });
 
   test("POST without type sanitizes non-sensitive fields and preserves credential whitespace", async () => {
