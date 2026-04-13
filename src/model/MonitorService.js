@@ -117,4 +117,18 @@ export class MonitorService {
     ]);
     return rowCount;
   }
+
+  /**
+   * Method used to detach monitors from a notifier for a specific user scope
+   * @param {Number} notifierId notifier identifier to detach from monitors
+   * @param {Number} userId owner identifier used for authorization scope
+   * @returns number of updated monitor object(s)
+   */
+  static async clearNotifierForUser(notifierId, userId) {
+    const { rowCount } = await DatabaseQuery(
+      `UPDATE ${MonitorService.#DB_TABLE_NAME} SET notifier_id = NULL WHERE notifier_id = $1 AND user_id = $2`,
+      [notifierId, userId],
+    );
+    return rowCount;
+  }
 }

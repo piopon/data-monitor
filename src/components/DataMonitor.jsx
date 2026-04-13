@@ -99,9 +99,17 @@ const DataMonitor = ({ parentName }) => {
           toast.error("Error: Received multiple monitor entries...");
           return;
         }
+        // initialize monitor state independently from notifier lookup
+        setId(monitorData[0].id ?? MONITOR_DEFAULTS.id);
+        setEnabled(monitorData[0].enabled ?? MONITOR_DEFAULTS.enabled);
+        setCondition(monitorData[0].condition ?? MONITOR_DEFAULTS.condition);
+        setThreshold(monitorData[0].threshold ?? MONITOR_DEFAULTS.threshold);
+        setInterval(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
         // get notifier name from ID
         const currNotifierId = monitorData[0].notifier_id;
         if (currNotifierId == null) {
+          setNotifierId(-1);
+          setNotifierType(MONITOR_DEFAULTS.notifier);
           return;
         }
         setNotifierId(currNotifierId);
@@ -115,18 +123,15 @@ const DataMonitor = ({ parentName }) => {
           return;
         }
         if (0 === notifierData.length) {
+          setNotifierId(-1);
+          setNotifierType(MONITOR_DEFAULTS.notifier);
           return;
         }
         if (1 !== notifierData.length) {
           toast.error("Error: Received multiple notifier entries...");
           return;
         }
-        // initialize UI with monitor and notifier data
-        setId(monitorData[0].id ?? MONITOR_DEFAULTS.id);
-        setEnabled(monitorData[0].enabled ?? MONITOR_DEFAULTS.enabled);
-        setCondition(monitorData[0].condition ?? MONITOR_DEFAULTS.condition);
-        setThreshold(monitorData[0].threshold ?? MONITOR_DEFAULTS.threshold);
-        setInterval(monitorData[0].interval ?? MONITOR_DEFAULTS.interval);
+        // notifier entry still exists, so bind monitor to resolved notifier option
         if (notifierData[0].type) {
           setNotifierType(`${notifierData[0].type}${OPTION_VALUE_DELIMITER}${currNotifierId}`);
         }

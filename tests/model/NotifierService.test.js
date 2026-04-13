@@ -9,16 +9,24 @@ if (!process.env.CRYPTO_SECRET) {
 
 async function withMockedQuery(handler, callback) {
   const originalQuery = Pool.prototype.query;
+  const originalConnect = Pool.prototype.connect;
   const calls = [];
   Pool.prototype.query = async function query(text, params) {
     calls.push({ text, params });
     return handler(text, params, calls.length - 1);
+  };
+  Pool.prototype.connect = async function connect() {
+    return {
+      query: (text, params) => this.query(text, params),
+      release: jest.fn(),
+    };
   };
 
   try {
     await callback(calls);
   } finally {
     Pool.prototype.query = originalQuery;
+    Pool.prototype.connect = originalConnect;
   }
 }
 
@@ -97,6 +105,12 @@ describe("NotifierService", () => {
           };
         }
         if (callIndex === 4) {
+          return { rows: [] };
+        }
+        if (callIndex === 5) {
+          return { rowCount: 1, rows: [] };
+        }
+        if (callIndex === 6) {
           return { rowCount: 1, rows: [] };
         }
         return { rows: [] };
@@ -137,7 +151,11 @@ describe("NotifierService", () => {
 
         const deleted = await NotifierService.deleteNotifierForUser(2, 3);
         expect(deleted).toBe(1);
-        expect(calls[4].params).toEqual([2, 3]);
+        expect(calls[4].text).toBe("BEGIN");
+        expect(calls[5].text).toMatch(/UPDATE monitors SET notifier_id = NULL/);
+        expect(calls[5].params).toEqual([2, 3]);
+        expect(calls[6].params).toEqual([2, 3]);
+        expect(calls[7].text).toBe("COMMIT");
       },
     );
   });
