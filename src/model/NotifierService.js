@@ -1,6 +1,7 @@
 import { DatabaseQuery } from "../lib/DatabaseQuery.js";
 import { DataCrypto } from "../lib/DataCrypto.js";
 import { Notifier } from "./Notifier.js";
+import { Monitor } from "./Monitor.js";
 
 export class NotifierService {
   static #DB_TABLE_NAME = Notifier.getTableName();
@@ -124,11 +125,20 @@ export class NotifierService {
    * @returns number of deleted notifier object(s)
    */
   static async deleteNotifierForUser(id, userId) {
-    const { rowCount } = await DatabaseQuery(`DELETE FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`, [
-      id,
-      userId,
-    ]);
-    return rowCount;
+    const monitorTableName = Monitor.getTableName();
+    await DatabaseQuery("BEGIN");
+    try {
+      await DatabaseQuery(`UPDATE ${monitorTableName} SET notifier_id = NULL WHERE notifier_id = $1 AND user_id = $2`, [id, userId]);
+      const { rowCount } = await DatabaseQuery(`DELETE FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`, [
+        id,
+        userId,
+      ]);
+      await DatabaseQuery("COMMIT");
+      return rowCount;
+    } catch (error) {
+      await DatabaseQuery("ROLLBACK");
+      throw error;
+    }
   }
 
   /**
