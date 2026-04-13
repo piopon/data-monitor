@@ -75,6 +75,7 @@ function normalizeNotifierFilters(searchParams) {
  * @param {Boolean} options.requireType Indicates whether non-empty type is required
  * @param {Boolean} options.requireSender Indicates whether non-empty sender is required
  * @param {Boolean} options.requireOrigin Indicates whether non-empty origin is required
+ * @param {String[]} options.requirePasswordForTypes Indicates notifier types that require non-empty password
  * @returns normalized notifier payload
  */
 function normalizeNotifierInput(notifier, options = {}) {
@@ -113,6 +114,13 @@ function normalizeNotifierInput(notifier, options = {}) {
     throw error;
   }
   const normalizedPassword = normalizeSensitiveInput(notifier.password);
+  const passwordRequiredTypes = Array.isArray(options.requirePasswordForTypes) ? options.requirePasswordForTypes : [];
+  const isPasswordRequiredType = passwordRequiredTypes.includes(sanitizedType);
+  if (isPasswordRequiredType && (normalizedPassword == null || String(normalizedPassword) === "")) {
+    const error = new Error("Notifier password is required.");
+    error.status = 400;
+    throw error;
+  }
   return {
     ...notifier,
     ...(notifier.type != null && { type: sanitizedType }),
@@ -229,6 +237,7 @@ export async function POST(request) {
       requireType: true,
       requireSender: true,
       requireOrigin: true,
+      requirePasswordForTypes: ["email"],
     });
     const authorizedUserId = await authorizeUser(request, input.user);
     const notifier = await NotifierService.addNotifier({
