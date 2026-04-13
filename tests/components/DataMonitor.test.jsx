@@ -203,6 +203,25 @@ describe("DataMonitor", () => {
     });
   });
 
+  test("keeps monitor settings when monitor has no notifier configured", async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: true, json: async () => [] })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [{ id: 21, enabled: true, condition: ">", threshold: "10", interval: 600000, notifier_id: null }],
+      });
+
+    renderWithLogin({ isDemo: false, userId: () => 7, email: "u@test.com", token: "jwt" });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(screen.getByRole("button", { name: "enabled:true" })).toBeInTheDocument();
+      expect(screen.getByPlaceholderText("threshold")).toHaveValue("10");
+      expect(screen.getByLabelText("select")).toHaveValue(">");
+      expect(screen.getByLabelText("notifier")).toHaveValue("config@-1");
+    });
+  });
+
   test("shows multiple notifier entries error", async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: 2, type: "email" }] })
