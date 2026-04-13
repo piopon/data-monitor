@@ -80,6 +80,11 @@ test("MonitorService methods build expected SQL interactions", async () => {
       const deletedCount = await MonitorService.deleteMonitorForUser(9, 7);
       expect(deletedCount).toBe(1);
       expect(calls[4].params).toEqual([9, 7]);
+
+      const detachedCount = await MonitorService.clearNotifierForUser(2, 7);
+      expect(detachedCount).toBe(1);
+      expect(calls[5].text).toMatch(/UPDATE monitors SET notifier_id = NULL/);
+      expect(calls[5].params).toEqual([2, 7]);
     },
   );
 });
