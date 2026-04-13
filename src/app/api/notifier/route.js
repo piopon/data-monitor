@@ -7,6 +7,9 @@ import { NotifierRegistry } from "@/notifiers/core/NotifierRegistry";
 import { AppConfig } from "@/config/AppConfig";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
+const POST_TYPES_REQUIRING_SENDER = ["email", "discord"];
+const POST_TYPES_REQUIRING_ORIGIN = ["email", "discord"];
+const POST_TYPES_REQUIRING_PASSWORD = ["email"];
 
 /**
  * Method used to normalize placeholder values before persisting sensitive fields
@@ -73,8 +76,8 @@ function normalizeNotifierFilters(searchParams) {
  * @param {Object} notifier Input notifier payload from request body
  * @param {Object} options Normalization behavior flags
  * @param {Boolean} options.requireType Indicates whether non-empty type is required
- * @param {Boolean} options.requireSender Indicates whether non-empty sender is required
- * @param {Boolean} options.requireOrigin Indicates whether non-empty origin is required
+ * @param {String[]} options.requireSenderForTypes Indicates notifier types that require non-empty sender
+ * @param {String[]} options.requireOriginForTypes Indicates notifier types that require non-empty origin
  * @param {String[]} options.requirePasswordForTypes Indicates notifier types that require non-empty password
  * @returns normalized notifier payload
  */
@@ -94,9 +97,10 @@ function normalizeNotifierInput(notifier, options = {}) {
     error.status = 400;
     throw error;
   }
-  const requireSender = options.requireSender === true;
   const sanitizedSender = notifier.sender != null ? sanitizeNotifierText(notifier.sender, 256) : "";
-  if (requireSender && !sanitizedSender) {
+  const senderRequiredTypes = Array.isArray(options.requireSenderForTypes) ? options.requireSenderForTypes : [];
+  const isSenderRequiredType = senderRequiredTypes.includes(sanitizedType);
+  if (isSenderRequiredType && !sanitizedSender) {
     const error = new Error("Notifier sender is required.");
     error.status = 400;
     throw error;
@@ -106,9 +110,10 @@ function normalizeNotifierInput(notifier, options = {}) {
     error.status = 400;
     throw error;
   }
-  const requireOrigin = options.requireOrigin === true;
   const normalizedOrigin = normalizeSensitiveInput(notifier.origin);
-  if (requireOrigin && (normalizedOrigin == null || String(normalizedOrigin) === "")) {
+  const originRequiredTypes = Array.isArray(options.requireOriginForTypes) ? options.requireOriginForTypes : [];
+  const isOriginRequiredType = originRequiredTypes.includes(sanitizedType);
+  if (isOriginRequiredType && (normalizedOrigin == null || String(normalizedOrigin) === "")) {
     const error = new Error("Notifier origin is required.");
     error.status = 400;
     throw error;
@@ -235,9 +240,9 @@ export async function POST(request) {
     // no 'type' parameter provider hence we want to create new notifier
     const input = normalizeNotifierInput(await request.json(), {
       requireType: true,
-      requireSender: true,
-      requireOrigin: true,
-      requirePasswordForTypes: ["email"],
+      requireSenderForTypes: POST_TYPES_REQUIRING_SENDER,
+      requireOriginForTypes: POST_TYPES_REQUIRING_ORIGIN,
+      requirePasswordForTypes: POST_TYPES_REQUIRING_PASSWORD,
     });
     const authorizedUserId = await authorizeUser(request, input.user);
     const notifier = await NotifierService.addNotifier({
@@ -268,7 +273,7 @@ export async function PUT(request) {
     const id = searchParams.get("id");
     const user = searchParams.get("user");
     const authorizedUserId = await authorizeUser(request, user);
-    const notifierData = normalizeNotifierInput(await request.json(), { requireOrigin: false });
+    const notifierData = normalizeNotifierInput(await request.json());
     const notifier = await NotifierService.editNotifierForUser(id, authorizedUserId, notifierData);
     if (notifier == null) {
       const error = new Error("Notifier not found for provided user and id.");

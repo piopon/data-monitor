@@ -249,6 +249,36 @@ describe("app/api/notifier route", () => {
     });
   });
 
+  test("POST without type returns 400 when discord sender is missing", async () => {
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "discord",
+        origin: "https://discord/webhook",
+      }),
+    );
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Notifier sender is required");
+  });
+
+  test("POST without type returns 400 when discord origin is missing", async () => {
+    const response = await POST(
+      reqWithUrl("http://test/api/notifier", {
+        user: 7,
+        type: "discord",
+        sender: "monitor-bot",
+      }),
+    );
+    const body = await response.json();
+
+    expect(NotifierService.addNotifier).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Notifier origin is required");
+  });
+
   test("POST without type sanitizes non-sensitive fields and preserves credential whitespace", async () => {
     NotifierService.addNotifier.mockResolvedValue({
       id: 5,
