@@ -15,3 +15,20 @@ const pool = new Pool({
 });
 
 export const DatabaseQuery = (text, params) => pool.query(text, params);
+
+/**
+ * Method used to execute callback in a database transaction scope
+ * @param {Function} operation async operation executed between BEGIN and COMMIT
+ * @returns operation result when transaction commits successfully
+ */
+export const DatabaseTransaction = async (operation) => {
+  await DatabaseQuery("BEGIN");
+  try {
+    const result = await operation();
+    await DatabaseQuery("COMMIT");
+    return result;
+  } catch (error) {
+    await DatabaseQuery("ROLLBACK");
+    throw error;
+  }
+};

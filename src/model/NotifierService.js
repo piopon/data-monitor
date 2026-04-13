@@ -1,4 +1,4 @@
-import { DatabaseQuery } from "../lib/DatabaseQuery.js";
+import { DatabaseQuery, DatabaseTransaction } from "../lib/DatabaseQuery.js";
 import { DataCrypto } from "../lib/DataCrypto.js";
 import { Notifier } from "./Notifier.js";
 import { MonitorService } from "./MonitorService.js";
@@ -125,19 +125,14 @@ export class NotifierService {
    * @returns number of deleted notifier object(s)
    */
   static async deleteNotifierForUser(id, userId) {
-    await DatabaseQuery("BEGIN");
-    try {
+    return DatabaseTransaction(async () => {
       await MonitorService.clearNotifierForUser(id, userId);
       const { rowCount } = await DatabaseQuery(`DELETE FROM ${NotifierService.#DB_TABLE_NAME} WHERE id = $1 AND user_id = $2`, [
         id,
         userId,
       ]);
-      await DatabaseQuery("COMMIT");
       return rowCount;
-    } catch (error) {
-      await DatabaseQuery("ROLLBACK");
-      throw error;
-    }
+    });
   }
 
   /**
