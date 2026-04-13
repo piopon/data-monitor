@@ -9,16 +9,24 @@ if (!process.env.CRYPTO_SECRET) {
 
 async function withMockedQuery(handler, callback) {
   const originalQuery = Pool.prototype.query;
+  const originalConnect = Pool.prototype.connect;
   const calls = [];
   Pool.prototype.query = async function query(text, params) {
     calls.push({ text, params });
     return handler(text, params, calls.length - 1);
+  };
+  Pool.prototype.connect = async function connect() {
+    return {
+      query: (text, params) => this.query(text, params),
+      release: jest.fn(),
+    };
   };
 
   try {
     await callback(calls);
   } finally {
     Pool.prototype.query = originalQuery;
+    Pool.prototype.connect = originalConnect;
   }
 }
 

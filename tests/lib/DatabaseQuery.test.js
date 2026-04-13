@@ -50,7 +50,9 @@ describe("DatabaseQuery", () => {
 
   test("DatabaseTransaction commits and returns operation result", async () => {
     const queryMock = jest.fn().mockResolvedValue({ rows: [] });
-    const poolMock = jest.fn().mockImplementation(() => ({ query: queryMock }));
+    const releaseMock = jest.fn();
+    const connectMock = jest.fn().mockResolvedValue({ query: queryMock, release: releaseMock });
+    const poolMock = jest.fn().mockImplementation(() => ({ query: jest.fn(), connect: connectMock }));
 
     jest.doMock("pg", () => ({ Pool: poolMock }));
     jest.doMock("dotenv", () => ({ __esModule: true, default: { config: jest.fn() } }));
@@ -77,14 +79,18 @@ describe("DatabaseQuery", () => {
     });
 
     expect(result).toBe(123);
-    expect(queryMock).toHaveBeenNthCalledWith(1, "BEGIN", undefined);
+    expect(connectMock).toHaveBeenCalledTimes(1);
+    expect(queryMock).toHaveBeenNthCalledWith(1, "BEGIN");
     expect(queryMock).toHaveBeenNthCalledWith(2, "UPDATE x SET y = $1", [1]);
-    expect(queryMock).toHaveBeenNthCalledWith(3, "COMMIT", undefined);
+    expect(queryMock).toHaveBeenNthCalledWith(3, "COMMIT");
+    expect(releaseMock).toHaveBeenCalledTimes(1);
   });
 
   test("DatabaseTransaction rolls back when operation fails", async () => {
     const queryMock = jest.fn().mockResolvedValue({ rows: [] });
-    const poolMock = jest.fn().mockImplementation(() => ({ query: queryMock }));
+    const releaseMock = jest.fn();
+    const connectMock = jest.fn().mockResolvedValue({ query: queryMock, release: releaseMock });
+    const poolMock = jest.fn().mockImplementation(() => ({ query: jest.fn(), connect: connectMock }));
 
     jest.doMock("pg", () => ({ Pool: poolMock }));
     jest.doMock("dotenv", () => ({ __esModule: true, default: { config: jest.fn() } }));
@@ -112,8 +118,10 @@ describe("DatabaseQuery", () => {
       }),
     ).rejects.toThrow("boom");
 
-    expect(queryMock).toHaveBeenNthCalledWith(1, "BEGIN", undefined);
+    expect(connectMock).toHaveBeenCalledTimes(1);
+    expect(queryMock).toHaveBeenNthCalledWith(1, "BEGIN");
     expect(queryMock).toHaveBeenNthCalledWith(2, "UPDATE x SET y = $1", [2]);
-    expect(queryMock).toHaveBeenNthCalledWith(3, "ROLLBACK", undefined);
+    expect(queryMock).toHaveBeenNthCalledWith(3, "ROLLBACK");
+    expect(releaseMock).toHaveBeenCalledTimes(1);
   });
 });
