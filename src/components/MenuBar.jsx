@@ -36,7 +36,7 @@ const MenuBar = () => {
     const logoutResponse = await fetch("/api/scraper/logout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ "demo-user": "user", "demo-pass": "pass" }),
+      body: JSON.stringify({ "demo-user": "u", "demo-pass": "p" }),
     });
     if (!logoutResponse.ok) {
       return { ok: false, cause: "Issues on backend side" };
