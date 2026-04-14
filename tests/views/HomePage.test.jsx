@@ -279,4 +279,29 @@ describe("HomePage", () => {
       expect(toastSuccessMock).toHaveBeenCalledWith("Login successful!");
     });
   });
+
+  test("fails demo login gracefully when scraper response has no token", async () => {
+    const demoMock = jest.fn();
+
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ challenge: "demo-challenge" }),
+    });
+
+    render(
+      <LoginContext.Provider value={{ demo: demoMock, login: jest.fn(), logout: jest.fn() }}>
+        <HomePage demoEnabled={true} initError={undefined} />
+      </LoginContext.Provider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "see" }));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Demo login response is missing token.");
+      expect(demoMock).not.toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(toastSuccessMock).not.toHaveBeenCalled();
+    });
+  });
 });

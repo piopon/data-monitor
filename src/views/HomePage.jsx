@@ -84,8 +84,13 @@ export default function HomePage({ demoEnabled, initError }) {
   const demoLogin = async (event) => {
     event.preventDefault();
     const demoLoginAction = async (loginData) => {
-      const demoEmail = getEmailFromJwt(loginData?.token) || "base@demo.com";
-      const saveResult = await userSave({ email: demoEmail, jwt: loginData.token });
+      const demoToken = loginData?.token;
+      if (!demoToken) {
+        toast.error("Demo login response is missing token.");
+        return false;
+      }
+      const demoEmail = getEmailFromJwt(demoToken) || "base@demo.com";
+      const saveResult = await userSave({ email: demoEmail, jwt: demoToken });
       if (saveResult.id == null) {
         toast.error(saveResult.message);
         return false;
