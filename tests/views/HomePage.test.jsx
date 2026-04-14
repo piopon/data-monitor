@@ -69,6 +69,10 @@ describe("HomePage", () => {
       })
       .mockResolvedValueOnce({
         ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ id: 7 }),
       });
 
@@ -81,6 +85,13 @@ describe("HomePage", () => {
       expect(replaceMock).toHaveBeenCalledWith("/monitors");
       expect(toastSuccessMock).toHaveBeenCalledWith("Login successful!");
     });
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/user?"),
+    );
+    expect(global.fetch.mock.calls[1][0]).toContain("email=user%40example.com");
+    expect(global.fetch.mock.calls[1][0]).toContain("jwt=jwt-token");
   });
 
   test("handles failed credentials login and logs out", async () => {
@@ -126,6 +137,37 @@ describe("HomePage", () => {
     });
   });
 
+  test("falls back to email-only lookup when exact email+jwt match does not exist", async () => {
+    const loginMock = jest.fn();
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ token: "jwt-token" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [{ id: 9 }],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 9 }),
+      });
+
+    renderWithContext({ demo: jest.fn(), login: loginMock, logout: jest.fn() });
+
+    submitCredentials();
+
+    await waitFor(() => {
+      expect(loginMock).toHaveBeenCalledWith(9, "user@example.com", { token: "jwt-token" });
+      expect(replaceMock).toHaveBeenCalledWith("/monitors");
+    });
+  });
+
   test("shows fetch exception when scraper login request throws", async () => {
     global.fetch.mockRejectedValueOnce(new Error("network down"));
 
@@ -153,6 +195,10 @@ describe("HomePage", () => {
         json: async () => [],
       })
       .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
         ok: false,
         text: async () => '{"message":"create failed"}',
       });
@@ -163,7 +209,7 @@ describe("HomePage", () => {
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenNthCalledWith(
-        3,
+        4,
         "/api/user",
         expect.objectContaining({ method: "POST" }),
       );
@@ -247,6 +293,10 @@ describe("HomePage", () => {
       })
       .mockResolvedValueOnce({
         ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
         json: async () => ({ id: 77 }),
       });
 
@@ -261,8 +311,9 @@ describe("HomePage", () => {
     await waitFor(() => {
       expect(global.fetch).toHaveBeenNthCalledWith(
         2,
-        "/api/user?email=demo@example.com",
+        expect.stringContaining("/api/user?"),
       );
+      expect(global.fetch.mock.calls[1][0]).toContain("email=demo%40example.com");
       expect(demoMock).toHaveBeenCalledWith(
         77,
         "demo@example.com",
