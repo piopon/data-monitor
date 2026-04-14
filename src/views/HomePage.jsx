@@ -36,28 +36,16 @@ export default function HomePage({ demoEnabled, initError }) {
   }, [initError]);
 
   const userSave = async (userData) => {
-    const getExactUserUrl = RequestUtils.buildUrl("/api/user", { email: userData.email, jwt: userData.jwt });
-    const getExactUserResponse = await fetch(getExactUserUrl);
-    if (!getExactUserResponse.ok) {
-      return { id: undefined, message: await RequestUtils.getResponseMessage(getExactUserResponse) };
+    const getEmailUserUrl = RequestUtils.buildUrl("/api/user", { email: userData.email });
+    const getEmailUserResponse = await fetch(getEmailUserUrl);
+    if (!getEmailUserResponse.ok) {
+      return { id: undefined, message: await RequestUtils.getResponseMessage(getEmailUserResponse) };
     }
-    const exactUsers = await getExactUserResponse.json();
-    if (exactUsers.length > 1) {
+    const emailUsers = await getEmailUserResponse.json();
+    if (emailUsers.length > 1) {
       return { id: undefined, message: "Error: Received multiple user entries." };
     }
-    let existingUser = exactUsers[0];
-    if (!existingUser) {
-      const getEmailUserUrl = RequestUtils.buildUrl("/api/user", { email: userData.email });
-      const getEmailUserResponse = await fetch(getEmailUserUrl);
-      if (!getEmailUserResponse.ok) {
-        return { id: undefined, message: await RequestUtils.getResponseMessage(getEmailUserResponse) };
-      }
-      const emailUsers = await getEmailUserResponse.json();
-      if (emailUsers.length > 1) {
-        return { id: undefined, message: "Error: Received multiple user entries." };
-      }
-      existingUser = emailUsers[0];
-    }
+    const existingUser = emailUsers[0];
     const exists = existingUser != null;
     const idFilter = exists ? `?id=${existingUser.id}` : ``;
     const addUserResponse = await fetch(`/api/user${idFilter}`, {

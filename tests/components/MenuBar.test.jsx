@@ -142,7 +142,7 @@ describe("MenuBar", () => {
       expect(global.fetch).toHaveBeenCalledTimes(2);
       expect(logoutMock).toHaveBeenCalled();
       expect(replaceMock).toHaveBeenCalledWith("/");
-      expect(toastWarnMock).toHaveBeenCalledWith("Logout successful, with problems on backend side...");
+      expect(toastWarnMock).toHaveBeenCalledWith("Logout successful. Warning: Cannot remove demo user");
     });
   });
 });
