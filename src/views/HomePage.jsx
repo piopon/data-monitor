@@ -4,30 +4,14 @@ import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
+import { getEmailFromJwt } from "@/lib/AuthTokenUtils";
 import { RequestUtils } from "@/lib/RequestUtils";
 
 export default function HomePage({ demoEnabled, initError }) {
-  const DEMO_FALLBACK_EMAIL = "demo.user@data-monitor.local";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { demo, login, logout } = useContext(LoginContext);
   const router = useRouter();
-
-  const getEmailFromJwt = (token) => {
-    try {
-      const payloadRaw = String(token).split(".")[1];
-      if (!payloadRaw) {
-        return null;
-      }
-      const payloadBase64 = payloadRaw.replace(/-/g, "+").replace(/_/g, "/");
-      const json = atob(payloadBase64);
-      const payload = JSON.parse(json);
-      const jwtEmail = typeof payload?.email === "string" ? payload.email.trim() : "";
-      return jwtEmail || null;
-    } catch {
-      return null;
-    }
-  };
 
   useEffect(() => {
     if (initError) {
@@ -100,7 +84,7 @@ export default function HomePage({ demoEnabled, initError }) {
   const demoLogin = async (event) => {
     event.preventDefault();
     const demoLoginAction = async (loginData) => {
-      const demoEmail = getEmailFromJwt(loginData?.token) || DEMO_FALLBACK_EMAIL;
+      const demoEmail = getEmailFromJwt(loginData?.token) || "base@demo.com";
       const saveResult = await userSave({ email: demoEmail, jwt: loginData.token });
       if (saveResult.id == null) {
         toast.error(saveResult.message);
