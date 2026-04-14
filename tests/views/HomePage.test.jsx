@@ -232,4 +232,44 @@ describe("HomePage", () => {
       expect(toastSuccessMock).not.toHaveBeenCalled();
     });
   });
+
+  test("persists demo user and logs in demo with saved user id", async () => {
+    const demoMock = jest.fn();
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ token: "header.eyJlbWFpbCI6ImRlbW9AZXhhbXBsZS5jb20ifQ.signature", challenge: "demo-challenge" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 77 }),
+      });
+
+    render(
+      <LoginContext.Provider value={{ demo: demoMock, login: jest.fn(), logout: jest.fn() }}>
+        <HomePage demoEnabled={true} initError={undefined} />
+      </LoginContext.Provider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "see" }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        "/api/user?email=demo@example.com",
+      );
+      expect(demoMock).toHaveBeenCalledWith(
+        77,
+        "demo@example.com",
+        expect.objectContaining({ token: expect.any(String) }),
+      );
+      expect(replaceMock).toHaveBeenCalledWith("/monitors");
+      expect(toastSuccessMock).toHaveBeenCalledWith("Login successful!");
+    });
+  });
 });

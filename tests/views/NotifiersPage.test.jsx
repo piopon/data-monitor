@@ -39,13 +39,27 @@ describe("NotifiersPage", () => {
     global.fetch = originalFetch;
   });
 
-  function renderWithLogin({ userIdValue = 1, token = "token-1" } = {}) {
+  function renderWithLogin({ userIdValue = 1, token = "token-1", isDemo = false } = {}) {
     return render(
-      <LoginContext.Provider value={{ userId: () => userIdValue, token }}>
+      <LoginContext.Provider value={{ isDemo, userId: () => userIdValue, token }}>
         <NotifiersPage />
       </LoginContext.Provider>,
     );
   }
+
+  test("fetches notifiers in demo mode using regular auth flow", async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => [],
+    });
+
+    renderWithLogin({ userIdValue: 7357, token: "demo-token", isDemo: true });
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole("button", { name: "add" })).not.toBeDisabled();
+    });
+  });
 
   test("shows error when user id is missing", async () => {
     renderWithLogin({ userIdValue: "", token: "token-1" });

@@ -29,7 +29,7 @@ function LoginConsumer() {
       </button>
       <button
         onClick={() =>
-          ctx.demo({
+          ctx.demo(21, "demo.user@data-monitor.local", {
             token: "demo-token",
             challenge: "demo-challenge",
           })
@@ -94,9 +94,9 @@ describe("LoginProvider", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("is-demo")).toHaveTextContent("true");
-      expect(screen.getByTestId("user-id")).toHaveTextContent("7357");
+      expect(screen.getByTestId("user-id")).toHaveTextContent("21");
       expect(screen.getByTestId("token")).toHaveTextContent("demo-token");
-      expect(screen.getByTestId("email")).toHaveTextContent("");
+      expect(screen.getByTestId("email")).toHaveTextContent("demo.user@data-monitor.local");
     });
   });
 
