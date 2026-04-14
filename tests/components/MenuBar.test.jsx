@@ -58,7 +58,7 @@ describe("MenuBar", () => {
 
   test("shows notifiers button on monitors page", () => {
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: jest.fn() },
+      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11 },
       page: { pageId: "monitors" },
     });
 
@@ -67,7 +67,7 @@ describe("MenuBar", () => {
 
   test("shows monitors button on notifiers page", () => {
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: jest.fn() },
+      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11 },
       page: { pageId: "notifiers" },
     });
 
@@ -76,7 +76,7 @@ describe("MenuBar", () => {
 
   test("navigates to scraper config with challenge", () => {
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: jest.fn() },
+      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11 },
       page: { pageId: "monitors" },
     });
 
@@ -89,7 +89,7 @@ describe("MenuBar", () => {
     const logoutMock = jest.fn();
 
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: logoutMock },
+      login: { isDemo: false, challenge: "abc", logout: logoutMock, userId: () => 11 },
       page: { pageId: "monitors" },
     });
 
@@ -103,22 +103,46 @@ describe("MenuBar", () => {
     });
   });
 
-  test("demo logout calls backend and warns on backend issue", async () => {
-    global.fetch.mockResolvedValueOnce({ ok: false });
+  test("demo logout calls scraper logout and user cleanup", async () => {
+    global.fetch.mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ ok: true });
     const logoutMock = jest.fn();
 
     renderWithContexts({
-      login: { isDemo: true, challenge: "abc", logout: logoutMock },
+      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357 },
       page: { pageId: "monitors" },
     });
 
     fireEvent.click(screen.getByRole("button", { name: "logout" }));
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        "/api/user?id=7357",
+        expect.objectContaining({ method: "DELETE" }),
+      );
       expect(logoutMock).toHaveBeenCalled();
       expect(replaceMock).toHaveBeenCalledWith("/");
-      expect(toastWarnMock).toHaveBeenCalledWith("Logout successful, with problems on backend side...");
+      expect(toastSuccessMock).toHaveBeenCalledWith("Logout successful!");
+    });
+  });
+
+  test("demo logout warns on cleanup issue", async () => {
+    global.fetch.mockResolvedValueOnce({ ok: true }).mockResolvedValueOnce({ ok: false });
+    const logoutMock = jest.fn();
+
+    renderWithContexts({
+      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357 },
+      page: { pageId: "monitors" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "logout" }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(logoutMock).toHaveBeenCalled();
+      expect(replaceMock).toHaveBeenCalledWith("/");
+      expect(toastWarnMock).toHaveBeenCalledWith("Logout successful. Warning: Cannot remove demo user");
     });
   });
 });

@@ -81,6 +81,12 @@ describe("HomePage", () => {
       expect(replaceMock).toHaveBeenCalledWith("/monitors");
       expect(toastSuccessMock).toHaveBeenCalledWith("Login successful!");
     });
+
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("/api/user?"),
+    );
+    expect(global.fetch.mock.calls[1][0]).toContain("email=user%40example.com");
   });
 
   test("handles failed credentials login and logs out", async () => {
@@ -228,6 +234,72 @@ describe("HomePage", () => {
     await waitFor(() => {
       expect(toastErrorMock).toHaveBeenCalledWith("lookup failed");
       expect(loginMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(toastSuccessMock).not.toHaveBeenCalled();
+    });
+  });
+
+  test("persists demo user and logs in demo with saved user id", async () => {
+    const demoMock = jest.fn();
+
+    global.fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ token: "header.eyJlbWFpbCI6ImRlbW9AZXhhbXBsZS5jb20ifQ.signature", challenge: "demo-challenge" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 77 }),
+      });
+
+    render(
+      <LoginContext.Provider value={{ demo: demoMock, login: jest.fn(), logout: jest.fn() }}>
+        <HomePage demoEnabled={true} initError={undefined} />
+      </LoginContext.Provider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "see" }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining("/api/user?"),
+      );
+      expect(global.fetch.mock.calls[1][0]).toContain("email=demo%40example.com");
+      expect(demoMock).toHaveBeenCalledWith(
+        77,
+        "demo@example.com",
+        expect.objectContaining({ token: expect.any(String) }),
+      );
+      expect(replaceMock).toHaveBeenCalledWith("/monitors");
+      expect(toastSuccessMock).toHaveBeenCalledWith("Login successful!");
+    });
+  });
+
+  test("fails demo login gracefully when scraper response has no token", async () => {
+    const demoMock = jest.fn();
+
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ challenge: "demo-challenge" }),
+    });
+
+    render(
+      <LoginContext.Provider value={{ demo: demoMock, login: jest.fn(), logout: jest.fn() }}>
+        <HomePage demoEnabled={true} initError={undefined} />
+      </LoginContext.Provider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "see" }));
+
+    await waitFor(() => {
+      expect(toastErrorMock).toHaveBeenCalledWith("Demo login response is missing token.");
+      expect(demoMock).not.toHaveBeenCalled();
+      expect(global.fetch).toHaveBeenCalledTimes(1);
       expect(replaceMock).not.toHaveBeenCalled();
       expect(toastSuccessMock).not.toHaveBeenCalled();
     });

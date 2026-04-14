@@ -4,6 +4,7 @@ import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { LoginContext } from "@/context/Contexts";
+import { getEmailFromJwt } from "@/lib/AuthTokenUtils";
 import { RequestUtils } from "@/lib/RequestUtils";
 
 export default function HomePage({ demoEnabled, initError }) {
@@ -19,16 +20,18 @@ export default function HomePage({ demoEnabled, initError }) {
   }, [initError]);
 
   const userSave = async (userData) => {
-    const getUserResponse = await fetch(`/api/user?email=${userData.email}`);
-    if (!getUserResponse.ok) {
-      return { id: undefined, message: await RequestUtils.getResponseMessage(getUserResponse) };
+    const getEmailUserUrl = RequestUtils.buildUrl("/api/user", { email: userData.email });
+    const getEmailUserResponse = await fetch(getEmailUserUrl);
+    if (!getEmailUserResponse.ok) {
+      return { id: undefined, message: await RequestUtils.getResponseMessage(getEmailUserResponse) };
     }
-    const getUserData = await getUserResponse.json();
-    if (getUserData.length > 1) {
+    const emailUsers = await getEmailUserResponse.json();
+    if (emailUsers.length > 1) {
       return { id: undefined, message: "Error: Received multiple user entries." };
     }
-    const exists = getUserData.length === 1;
-    const idFilter = exists ? `?id=${getUserData[0].id}` : ``;
+    const existingUser = emailUsers[0];
+    const exists = existingUser != null;
+    const idFilter = exists ? `?id=${existingUser.id}` : ``;
     const addUserResponse = await fetch(`/api/user${idFilter}`, {
       method: exists ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +84,18 @@ export default function HomePage({ demoEnabled, initError }) {
   const demoLogin = async (event) => {
     event.preventDefault();
     const demoLoginAction = async (loginData) => {
-      demo(loginData);
+      const demoToken = loginData?.token;
+      if (!demoToken) {
+        toast.error("Demo login response is missing token.");
+        return false;
+      }
+      const demoEmail = getEmailFromJwt(demoToken) || "base@demo.com";
+      const saveResult = await userSave({ email: demoEmail, jwt: demoToken });
+      if (saveResult.id == null) {
+        toast.error(saveResult.message);
+        return false;
+      }
+      demo(saveResult.id, demoEmail, loginData);
       return true;
     };
     await doLogin(demoLoginAction, { "demo-user": "u", "demo-pass": "p" });

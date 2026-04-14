@@ -148,7 +148,9 @@ describe("DataMonitor", () => {
   });
 
   test("shows demo warning when saving in demo mode", async () => {
-    global.fetch.mockResolvedValue({ ok: true, json: async () => [] });
+    global.fetch
+      .mockResolvedValueOnce({ ok: true, json: async () => [] })
+      .mockResolvedValueOnce({ ok: true, json: async () => [] });
 
     renderWithLogin({ isDemo: true, userId: () => 7, email: "u@test.com", token: "jwt" });
 
@@ -158,7 +160,10 @@ describe("DataMonitor", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "save" }));
 
-    expect(toastWarnMock).toHaveBeenCalledWith("Notifications are disabled for demo session.");
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(2);
+      expect(toastWarnMock).toHaveBeenCalledWith("Notifications are disabled for demo session.");
+    });
   });
 
   test("shows missing token error in initializer", async () => {
