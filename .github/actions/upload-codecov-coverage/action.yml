@@ -1,0 +1,34 @@
+name: Upload coverage to Codecov
+description: Upload lcov coverage to Codecov with token-first strategy and fork PR fallback.
+
+inputs:
+  token:
+    description: Codecov token. Leave empty to enable tokenless fork PR fallback.
+    required: false
+    default: ""
+  files:
+    description: Coverage files path(s) to upload.
+    required: false
+    default: ./coverage/lcov.info
+  fail-ci-if-error:
+    description: Whether to fail workflow if Codecov upload fails.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Upload coverage with token
+      if: ${{ inputs.token != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ inputs.token }}
+        files: ${{ inputs.files }}
+        fail_ci_if_error: ${{ inputs.fail-ci-if-error }}
+
+    - name: Upload coverage without token
+      if: ${{ inputs.token == '' && github.event_name == 'pull_request' }}
+      uses: codecov/codecov-action@v5
+      with:
+        files: ${{ inputs.files }}
+        fail_ci_if_error: ${{ inputs.fail-ci-if-error }}
