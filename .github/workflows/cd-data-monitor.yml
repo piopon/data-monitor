@@ -40,6 +40,13 @@ jobs:
       - name: Run unit tests with coverage gate
         run: npm run test:coverage
 
+      - name: Upload coverage to Codecov
+        uses: ./.github/actions/upload-codecov-coverage
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail-ci-if-error: "false"
+
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:

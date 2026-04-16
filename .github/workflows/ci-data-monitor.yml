@@ -1,6 +1,9 @@
 name: CI data-monitor
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -20,7 +23,7 @@ concurrency:
 jobs:
   quality:
     name: Lint, Build, Test
-    if: ${{ github.event.pull_request.draft == false }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -42,6 +45,13 @@ jobs:
       - name: Run unit tests with coverage gate
         run: npm run test:coverage
 
+      - name: Upload coverage to Codecov
+        uses: ./.github/actions/upload-codecov-coverage
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          fail-ci-if-error: "false"
+
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -51,7 +61,7 @@ jobs:
 
   api-openapi-advisory:
     name: API/OpenAPI Advisory
-    if: ${{ github.event.pull_request.draft == false }}
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == false }}
     needs: quality
     runs-on: ubuntu-latest
     timeout-minutes: 20
