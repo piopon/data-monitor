@@ -1,5 +1,8 @@
 # data-monitor
 
+[![CI data-monitor](https://github.com/piopon/data-monitor/actions/workflows/ci-data-monitor.yml/badge.svg?branch=main)](https://github.com/piopon/data-monitor/actions/workflows/ci-data-monitor.yml)
+[![CD data-monitor](https://github.com/piopon/data-monitor/actions/workflows/cd-data-monitor.yml/badge.svg)](https://github.com/piopon/data-monitor/actions/workflows/cd-data-monitor.yml)
+
 Data Monitor is a Next.js application for tracking external data sources (for example data from the [scraper backend service](https://github.com/piopon/web-scraper)), defining threshold-based monitors, and sending notifications when configured conditions are met.
 
 The project combines:
