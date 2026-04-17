@@ -49,7 +49,7 @@ export async function GET(request) {
       message: `Cannot load OpenAPI specification: ${OpenApiBundler.getErrorMessage(error)}`,
     };
     return new Response(JSON.stringify(output), {
-      status: RequestUtils.getErrorStatus(error),
+      status: RequestUtils.getErrorStatus(error, 500),
       headers: {
         "Content-Type": "application/json; charset=utf-8",
         "Cache-Control": "no-store",

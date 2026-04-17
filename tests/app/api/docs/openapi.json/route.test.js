@@ -7,9 +7,19 @@ jest.mock("node:fs/promises", () => ({
 }));
 
 import fs from "node:fs/promises";
+import { authorizeUser } from "@/lib/ApiUserAuth";
 import { GET } from "../../../../../src/app/api/docs/openapi.json/route.js";
 
+jest.mock("@/lib/ApiUserAuth", () => ({ authorizeUser: jest.fn() }));
+
 const mockReadFile = fs.readFile;
+
+const reqWithUrl = (url) => ({
+  nextUrl: new URL(url),
+  headers: {
+    get: jest.fn(() => null),
+  },
+});
 
 class MockResponse {
   constructor(body, init = {}) {
@@ -46,6 +56,7 @@ describe("app/api/docs/openapi.json route", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    authorizeUser.mockResolvedValue(1);
   });
 
   test("GET returns bundled OpenAPI document", async () => {
@@ -58,7 +69,7 @@ describe("app/api/docs/openapi.json route", () => {
       })
     );
 
-    const response = await GET();
+    const response = await GET(reqWithUrl("http://test/api/docs/openapi.json?user=1"));
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -69,7 +80,7 @@ describe("app/api/docs/openapi.json route", () => {
   test("GET returns 500 with stable error payload when OpenAPI cannot be parsed", async () => {
     mockReadFile.mockResolvedValueOnce("{ invalid-json }");
 
-    const response = await GET();
+    const response = await GET(reqWithUrl("http://test/api/docs/openapi.json?user=1"));
     const body = await response.json();
 
     expect(response.status).toBe(500);
@@ -80,7 +91,7 @@ describe("app/api/docs/openapi.json route", () => {
   test("GET normalizes non-Error thrown values", async () => {
     mockReadFile.mockRejectedValueOnce(null);
 
-    const response = await GET();
+    const response = await GET(reqWithUrl("http://test/api/docs/openapi.json?user=1"));
     const body = await response.json();
 
     expect(response.status).toBe(500);
