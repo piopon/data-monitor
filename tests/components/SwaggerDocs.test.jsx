@@ -14,6 +14,7 @@ jest.mock("swagger-ui-dist/swagger-ui-standalone-preset", () => ({
 
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-es-bundle";
 import SwaggerDocs from "../../src/components/SwaggerDocs.jsx";
+import { LoginContext, PageContext } from "../../src/context/Contexts.jsx";
 
 describe("SwaggerDocs", () => {
   beforeEach(() => {
@@ -21,19 +22,26 @@ describe("SwaggerDocs", () => {
   });
 
   test("initializes Swagger UI and disposes instance on unmount", () => {
+    const setPageId = jest.fn();
     const { unmount } = render(
-      <section className="api-docs-page">
-        <SwaggerDocs />
-      </section>
+      <LoginContext.Provider value={{ token: "abc-token", userId: () => 7 }}>
+        <PageContext.Provider value={{ setPageId }}>
+          <section className="api-docs-page">
+            <SwaggerDocs />
+          </section>
+        </PageContext.Provider>
+      </LoginContext.Provider>
     );
 
     expect(SwaggerUIBundle).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: "/api/docs/openapi.json",
+        url: "/api/docs/openapi.json?user=7",
         dom_id: "#swagger-ui",
         supportedSubmitMethods: [],
       })
     );
+
+    expect(setPageId).toHaveBeenCalledWith("docs");
 
     const swaggerUiInstance = SwaggerUIBundle.mock.results[0].value;
 

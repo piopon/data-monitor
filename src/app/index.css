@@ -41,6 +41,10 @@ div.page-head-logo-div {
   @apply flex w-full sm:w-[80%] mt-2 sm:mt-5 mb-2 sm:mb-5;
 }
 
+div.page-head-logo-unit {
+  @apply flex flex-shrink-0 items-center ml-1 sm:ml-0;
+}
+
 div.page-head-menu-div {
   @apply flex items-center justify-evenly sm:justify-end flex-row;
   @apply w-full sm:w-[80%] mb-2;
@@ -48,7 +52,11 @@ div.page-head-menu-div {
 }
 
 a.page-head-logo-link {
-  @apply flex flex-shrink-0 items-center ml-1 sm:ml-0;
+  @apply flex flex-shrink-0 items-center;
+}
+
+a.page-head-logo-title-link {
+  @apply text-inherit no-underline;
 }
 
 img.page-head-logo-img {
@@ -59,12 +67,26 @@ span.page-head-logo-text-wrap {
   @apply flex flex-col ml-2 leading-tight;
 }
 
+span.page-head-logo-meta {
+  @apply flex items-center gap-x-1;
+}
+
 span.page-head-logo-text {
   @apply md:block text-white text-2xl font-bold;
 }
 
 span.page-head-logo-version {
   @apply text-indigo-100 text-[0.62rem] sm:text-xs font-medium tracking-wide;
+}
+
+span.page-head-logo-separator {
+  @apply text-indigo-200 text-[0.62rem] sm:text-xs;
+}
+
+a.page-head-logo-docs-link {
+  @apply text-indigo-100 text-[0.62rem] sm:text-xs font-semibold tracking-wide;
+  @apply underline-offset-2 hover:underline rounded-sm;
+  @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-100;
 }
 
 section.menu-section {

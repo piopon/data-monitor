@@ -13,13 +13,25 @@ const PageHeader = ({ appVersion }) => {
   return (
     <nav className="page-head">
       <div className="page-head-logo-div">
-        <Link className="page-head-logo-link" href="/" title={appVersion}>
-          <Image className="page-head-logo-img" src={logo} alt="data-monitor logo" />
+        <div className="page-head-logo-unit">
+          <Link className="page-head-logo-link" href="/" title={appVersion}>
+            <Image className="page-head-logo-img" src={logo} alt="data-monitor logo" />
+          </Link>
           <span className="page-head-logo-text-wrap">
-            <span className="page-head-logo-text">data-monitor</span>
-            <span className="page-head-logo-version">{appVersion}</span>
+            <Link className="page-head-logo-title-link" href="/" title={appVersion}>
+              <span className="page-head-logo-text">data-monitor</span>
+            </Link>
+            <span className="page-head-logo-meta">
+              <span className="page-head-logo-version">{appVersion}</span>
+              <span className="page-head-logo-separator" aria-hidden="true">
+                |
+              </span>
+              <Link className="page-head-logo-docs-link" href="/api/docs" title="Open API docs">
+                docs
+              </Link>
+            </span>
           </span>
-        </Link>
+        </div>
       </div>
       {userLogged && <MenuBar />}
     </nav>
