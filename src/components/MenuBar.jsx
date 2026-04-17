@@ -79,7 +79,7 @@ const MenuBar = () => {
           </form>
         </section>
       )}
-      {"notifiers" === pageId && (
+      {("notifiers" === pageId || "docs" === pageId) && (
         <section className="menu-section">
           <form className="menu-item-form" onSubmit={viewMonitors}>
             <div className="menu-item-div">
@@ -90,7 +90,7 @@ const MenuBar = () => {
           </form>
         </section>
       )}
-      {config.scraper.public && challenge && (
+      {config.scraper.public && challenge && "docs" !== pageId && (
         <section className="menu-section">
           <form className="menu-item-form" onSubmit={viewConfig}>
             <div className="menu-item-div">

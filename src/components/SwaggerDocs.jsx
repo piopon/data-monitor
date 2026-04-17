@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-es-bundle";
 import SwaggerUIStandalonePreset from "swagger-ui-dist/swagger-ui-standalone-preset";
+import { PageContext } from "@/context/Contexts";
 
 function initializeSwaggerUi() {
   if ("undefined" === typeof window) return;
@@ -24,6 +25,11 @@ function initializeSwaggerUi() {
 
 export default function SwaggerDocs() {
   const swaggerUiRef = useRef(null);
+  const { setPageId } = useContext(PageContext);
+
+  useEffect(() => {
+    setPageId("docs");
+  }, [setPageId]);
 
   useEffect(() => {
     swaggerUiRef.current = initializeSwaggerUi();
