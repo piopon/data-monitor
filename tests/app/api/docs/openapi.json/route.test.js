@@ -97,4 +97,16 @@ describe("app/api/docs/openapi.json route", () => {
     expect(response.status).toBe(500);
     expect(body.message).toBe("Cannot load OpenAPI specification: Unknown error");
   });
+
+  test("GET returns auth error message directly for authorization failures", async () => {
+    const error = new Error("Missing or invalid authorization header.");
+    error.status = 401;
+    authorizeUser.mockRejectedValueOnce(error);
+
+    const response = await GET(reqWithUrl("http://test/api/docs/openapi.json?user=1"));
+    const body = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(body.message).toBe("Missing or invalid authorization header.");
+  });
 });

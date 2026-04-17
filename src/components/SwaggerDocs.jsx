@@ -36,13 +36,14 @@ export default function SwaggerDocs() {
   const swaggerUiRef = useRef(null);
   const { setPageId } = useContext(PageContext);
   const { token, userId } = useContext(LoginContext);
+  const resolvedUserId = typeof userId === "function" ? userId() : null;
 
   useEffect(() => {
     setPageId("docs");
   }, [setPageId]);
 
   useEffect(() => {
-    swaggerUiRef.current = initializeSwaggerUi(token, userId());
+    swaggerUiRef.current = initializeSwaggerUi(token, resolvedUserId);
 
     return () => {
       if (typeof swaggerUiRef.current?.destroy === "function") {
@@ -50,7 +51,7 @@ export default function SwaggerDocs() {
       }
       swaggerUiRef.current = null;
     };
-  }, [token, userId]);
+  }, [token, resolvedUserId]);
 
   return <div id="swagger-ui" />;
 }
