@@ -111,7 +111,7 @@ export class UserService {
    */
   static async deleteUser(id) {
     const { rowCount } = await DatabaseQuery(`DELETE FROM ${UserService.#DB_TABLE_NAME} WHERE id = $1`, [id]);
-    return rowCount > 0;
+    return rowCount;
   }
 
   /**

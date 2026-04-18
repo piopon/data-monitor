@@ -50,7 +50,13 @@ function validateUserJwt(value) {
  */
 function normalizeUserFilters(searchParams) {
   const id = searchParams.get("id");
-  const email = sanitizeUserEmail(searchParams.get("email"));
+  const rawEmail = searchParams.get("email");
+  const email = sanitizeUserEmail(rawEmail);
+  if (searchParams.has("email") && !email) {
+    const error = new Error("Invalid user email filter.");
+    error.status = 400;
+    throw error;
+  }
   return {
     ...(id && { id }),
     ...(email && { email }),
@@ -91,13 +97,13 @@ function normalizeUserInput(user, options = {}) {
   }
   const requireEmail = options.requireEmail === true;
   const sanitizedEmail = user.email != null ? sanitizeUserEmail(user.email) : "";
-  if (requireEmail && !sanitizedEmail) {
-    const error = new Error("User email is required.");
+  if (user.email != null && !sanitizedEmail) {
+    const error = new Error("Invalid user email.");
     error.status = 400;
     throw error;
   }
-  if (user.email != null && !sanitizedEmail) {
-    const error = new Error("Invalid user email.");
+  if (requireEmail && !sanitizedEmail) {
+    const error = new Error("User email is required.");
     error.status = 400;
     throw error;
   }
@@ -180,7 +186,7 @@ export async function PUT(request) {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
     const authorizedUserId = await authorizeUser(request, id);
-    const userData = normalizeUserInput(await request.json(), { requireEmail: false, requireJwt: false });
+    const userData = normalizeUserInput(await request.json(), { requireEmail: true, requireJwt: false });
     const user = await UserService.editUser(authorizedUserId, userData);
     if (user == null) {
       const error = new Error("User not found.");
