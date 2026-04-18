@@ -1,6 +1,6 @@
 import { GET, POST, PUT, DELETE } from "../../../../src/app/api/user/route.js";
 import { UserService } from "@/model/UserService";
-import { authorizeUser } from "@/lib/ApiUserAuth";
+import { authorizeUser, requireBearerToken } from "@/lib/ApiUserAuth";
 import { RequestUtils } from "@/lib/RequestUtils";
 
 jest.mock("@/model/UserService", () => ({
@@ -12,7 +12,7 @@ jest.mock("@/model/UserService", () => ({
     deleteUser: jest.fn(),
   },
 }));
-jest.mock("@/lib/ApiUserAuth", () => ({ authorizeUser: jest.fn() }));
+jest.mock("@/lib/ApiUserAuth", () => ({ authorizeUser: jest.fn(), requireBearerToken: jest.fn() }));
 jest.mock("@/lib/RequestUtils", () => ({ RequestUtils: { getErrorStatus: jest.fn() } }));
 
 class MockResponse {
@@ -52,6 +52,21 @@ describe("app/api/user route", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     authorizeUser.mockImplementation(async (_request, userInput) => Number.parseInt(String(userInput), 10));
+    requireBearerToken.mockImplementation((request) => {
+      const authorization = request.headers?.get("authorization") || "";
+      if (!authorization.toLowerCase().startsWith("bearer ")) {
+        const error = new Error("Missing or invalid authorization header.");
+        error.status = 401;
+        throw error;
+      }
+      const token = authorization.substring(7).trim();
+      if (!token) {
+        const error = new Error("Missing or invalid authorization header.");
+        error.status = 401;
+        throw error;
+      }
+      return token;
+    });
     RequestUtils.getErrorStatus.mockImplementation((error, fallbackStatus = 400) => error?.status ?? fallbackStatus);
   });
 
@@ -73,11 +88,11 @@ describe("app/api/user route", () => {
     UserService.filterUsers.mockResolvedValue([{ id: 2, email: "b@b.com", jwt: "t" }]);
 
     const response = await GET(
-      reqWithUrl("http://test/api/user?email=b%40b.com", undefined, { authorization: "Bearer token" }),
+      reqWithUrl("http://test/api/user?email=user%40example.com", undefined, { authorization: "Bearer token" }),
     );
     const body = await response.json();
 
-    expect(UserService.filterUsers).toHaveBeenCalledWith({ email: "b@b.com", jwt: "token" });
+    expect(UserService.filterUsers).toHaveBeenCalledWith({ email: "user@example.com", jwt: "token" });
     expect(body).toEqual([{ id: 2, email: "b@b.com", jwt: "PRIVATE" }]);
   });
 
@@ -91,12 +106,21 @@ describe("app/api/user route", () => {
   });
 
   test("GET returns 401 when bearer token is missing for email lookup", async () => {
-    const response = await GET(reqWithUrl("http://test/api/user?email=a%40a.com"));
+    const response = await GET(reqWithUrl("http://test/api/user?email=user%40example.com"));
     const body = await response.json();
 
     expect(UserService.filterUsers).not.toHaveBeenCalled();
     expect(response.status).toBe(401);
     expect(body.message).toContain("Missing or invalid authorization header");
+  });
+
+  test("GET returns 400 for invalid email filter", async () => {
+    const response = await GET(reqWithUrl("http://test/api/user?email=not-an-email", undefined, { authorization: "Bearer t" }));
+    const body = await response.json();
+
+    expect(UserService.filterUsers).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("Invalid user email filter");
   });
 
   test("POST returns 400 when jwt is missing via PRIVATE placeholder", async () => {
@@ -143,7 +167,7 @@ describe("app/api/user route", () => {
 
   test("POST returns 403 when bearer token does not match payload jwt", async () => {
     const response = await POST(
-      reqWithUrl("http://test/api/user", { email: "c@c.com", jwt: "token-a" }, { authorization: "Bearer token-b" }),
+      reqWithUrl("http://test/api/user", { email: "user@example.com", jwt: "token-a" }, { authorization: "Bearer token-b" }),
     );
     const body = await response.json();
 
@@ -173,6 +197,17 @@ describe("app/api/user route", () => {
     expect(UserService.editUser).not.toHaveBeenCalled();
     expect(response.status).toBe(400);
     expect(body.message).toContain("Invalid user JWT");
+  });
+
+  test("PUT returns 400 when email is missing", async () => {
+    const response = await PUT(
+      reqWithUrl("http://test/api/user?id=3", { jwt: "x" }, { authorization: "Bearer x" }),
+    );
+    const body = await response.json();
+
+    expect(UserService.editUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    expect(body.message).toContain("User email is required");
   });
 
   test("PUT returns 400 for invalid sanitized email payload", async () => {
@@ -212,7 +247,7 @@ describe("app/api/user route", () => {
     UserService.addUser.mockRejectedValueOnce(Object.assign(new Error("bad payload"), { status: 422 }));
 
     const response = await POST(
-      reqWithUrl("http://test/api/user", { email: "a@a.com", jwt: "x" }, { authorization: "Bearer x" }),
+      reqWithUrl("http://test/api/user", { email: "user@example.com", jwt: "x" }, { authorization: "Bearer x" }),
     );
     const body = await response.json();
 
