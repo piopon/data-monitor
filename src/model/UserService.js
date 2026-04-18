@@ -65,15 +65,19 @@ export class UserService {
   }
 
   /**
-   * Method used to add provided user data to database
-   * @param {Object} data user object which we want to add to database
-   * @returns added user object
+   * Method used to add provided user data to database or update jwt when user email already exists
+   * @param {Object} data user object containing email and jwt values
+   * @returns added or updated user object
    */
   static async addUser(data) {
     const { email, jwt } = data;
     const encryptedJwt = DataCrypto.encrypt(jwt);
     const { rows } = await DatabaseQuery(
-      `INSERT INTO ${UserService.#DB_TABLE_NAME} (email, jwt) VALUES ($1, $2) RETURNING *`,
+      `INSERT INTO ${UserService.#DB_TABLE_NAME} (email, jwt)
+       VALUES ($1, $2)
+       ON CONFLICT (email)
+       DO UPDATE SET jwt = EXCLUDED.jwt
+       RETURNING *`,
       [email, encryptedJwt]
     );
     return UserService.#toPublicUser(rows[0]);
