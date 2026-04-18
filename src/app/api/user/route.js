@@ -1,8 +1,13 @@
 import { UserService } from "@/model/UserService";
+import { authorizeUser, requireBearerToken } from "@/lib/ApiUserAuth";
+import { getEmailFromJwt } from "@/lib/AuthTokenUtils";
+import { ScraperRequest } from "@/lib/ScraperRequest";
+import { AppConfig } from "@/config/AppConfig";
 import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
+const TOKEN_VALIDATION_PROBE_ITEM = "__token_validation_probe__";
 
 /**
  * Method used to normalize placeholder values before persisting sensitive fields
@@ -49,13 +54,16 @@ function validateUserJwt(value) {
  */
 function normalizeUserFilters(searchParams) {
   const id = searchParams.get("id");
-  const email = sanitizeUserEmail(searchParams.get("email"));
-  const jwt = validateUserJwt(searchParams.get("jwt"));
-  const hasIndexedFilter = Boolean(id || email);
+  const rawEmail = searchParams.get("email");
+  const email = sanitizeUserEmail(rawEmail);
+  if (searchParams.has("email") && !email) {
+    const error = new Error("Invalid user email filter.");
+    error.status = 400;
+    throw error;
+  }
   return {
     ...(id && { id }),
     ...(email && { email }),
-    ...(hasIndexedFilter && jwt && { jwt }),
   };
 }
 
@@ -69,7 +77,14 @@ function normalizeUserFilters(searchParams) {
  */
 function normalizeUserInput(user, options = {}) {
   if (user == null) {
-    return user;
+    const error = new Error("Invalid user payload.");
+    error.status = 400;
+    throw error;
+  }
+  if (typeof user !== "object") {
+    const error = new Error("Invalid user payload.");
+    error.status = 400;
+    throw error;
   }
   const requireJwt = options.requireJwt === true;
   const normalizedJwt = normalizeSensitiveInput(user.jwt);
@@ -79,20 +94,15 @@ function normalizeUserInput(user, options = {}) {
     error.status = 400;
     throw error;
   }
-  if (user.jwt != null && normalizedJwt !== "" && !sanitizedJwt) {
-    const error = new Error("Invalid user JWT.");
-    error.status = 400;
-    throw error;
-  }
   const requireEmail = options.requireEmail === true;
   const sanitizedEmail = user.email != null ? sanitizeUserEmail(user.email) : "";
-  if (requireEmail && !sanitizedEmail) {
-    const error = new Error("User email is required.");
+  if (user.email != null && !sanitizedEmail) {
+    const error = new Error("Invalid user email.");
     error.status = 400;
     throw error;
   }
-  if (user.email != null && !sanitizedEmail) {
-    const error = new Error("Invalid user email.");
+  if (requireEmail && !sanitizedEmail) {
+    const error = new Error("User email is required.");
     error.status = 400;
     throw error;
   }
@@ -118,19 +128,50 @@ function getSafeUser(user) {
   };
 }
 
+/**
+ * Method used to verify that provided token belongs to provided email and is accepted by scraper backend
+ * @param {String} token Bearer token value
+ * @param {String} expectedEmail Sanitized email expected for token owner
+ */
+async function assertAuthorizedTokenForEmail(token, expectedEmail) {
+  const tokenEmail = sanitizeUserEmail(getEmailFromJwt(token));
+  if (!tokenEmail || tokenEmail !== expectedEmail) {
+    const error = new Error("User authorization failed.");
+    error.status = 403;
+    throw error;
+  }
+
+  const validateTokenResponse = await ScraperRequest.GET(
+    `${AppConfig.getConfig().scraper.endpoints.items}?name=${encodeURIComponent(TOKEN_VALIDATION_PROBE_ITEM)}`,
+    { Authorization: `Bearer ${token}` },
+  );
+  if (!validateTokenResponse.ok) {
+    const error = new Error(
+      validateTokenResponse.status >= 500
+        ? "Cannot validate user token with scraper backend."
+        : "User authorization failed.",
+    );
+    error.status = validateTokenResponse.status >= 500 ? 503 : 403;
+    throw error;
+  }
+}
+
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    if (0 === searchParams.size) {
-      const users = await UserService.getUsers();
-      return new Response(JSON.stringify(users.map((user) => getSafeUser(user))), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+    const filters = normalizeUserFilters(searchParams);
+    if (filters.id) {
+      const authorizedUserId = await authorizeUser(request, filters.id);
+      filters.id = String(authorizedUserId);
+    } else if (filters.email) {
+      const token = requireBearerToken(request);
+      filters.jwt = validateUserJwt(token);
+    } else {
+      const error = new Error("User GET requires either 'id' or 'email' filter.");
+      error.status = 400;
+      throw error;
     }
-    const users = await UserService.filterUsers({
-      ...normalizeUserFilters(searchParams),
-    });
+    const users = await UserService.filterUsers(filters);
     return new Response(JSON.stringify(users.map((user) => getSafeUser(user))), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -147,6 +188,13 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const userData = normalizeUserInput(await request.json(), { requireEmail: true, requireJwt: true });
+    const token = requireBearerToken(request);
+    if (token !== userData.jwt) {
+      const error = new Error("User authorization failed.");
+      error.status = 403;
+      throw error;
+    }
+    await assertAuthorizedTokenForEmail(token, userData.email);
     const user = await UserService.addUser(userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
@@ -165,8 +213,14 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const userData = normalizeUserInput(await request.json(), { requireEmail: false, requireJwt: false });
-    const user = await UserService.editUser(id, userData);
+    const authorizedUserId = await authorizeUser(request, id);
+    const userData = normalizeUserInput(await request.json(), { requireEmail: true, requireJwt: false });
+    const user = await UserService.editUser(authorizedUserId, userData);
+    if (user == null) {
+      const error = new Error("User not found.");
+      error.status = 404;
+      throw error;
+    }
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -184,7 +238,8 @@ export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const deletedNo = await UserService.deleteUser(id);
+    const authorizedUserId = await authorizeUser(request, id);
+    const deletedNo = await UserService.deleteUser(authorizedUserId);
     const response = { message: `Deleted ${deletedNo} user(s)` };
     return new Response(JSON.stringify(response), {
       status: 200,

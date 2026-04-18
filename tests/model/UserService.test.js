@@ -87,7 +87,7 @@ describe("UserService", () => {
         expect(edited.jwt).toBe("current-jwt");
 
         const deleted = await UserService.deleteUser(2);
-        expect(deleted).toBe(true);
+        expect(deleted).toBe(1);
         expect(calls[4].params).toEqual([2]);
       },
     );

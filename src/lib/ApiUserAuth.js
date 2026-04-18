@@ -5,13 +5,28 @@ import { UserService } from "@/model/UserService";
  * @param {Object} request Request object received from frontend
  * @returns token string if present, otherwise null
  */
-function getBearerToken(request) {
+export function getBearerToken(request) {
   const authorizationHeader = request.headers.get("authorization") || "";
   if (!authorizationHeader.toLowerCase().startsWith("bearer ")) {
     return null;
   }
   const token = authorizationHeader.substring(7).trim();
   return token === "" ? null : token;
+}
+
+/**
+ * Method used to require bearer token from request authorization header
+ * @param {Object} request Request object received from frontend
+ * @returns token string
+ */
+export function requireBearerToken(request) {
+  const token = getBearerToken(request);
+  if (token == null) {
+    const error = new Error("Missing or invalid authorization header.");
+    error.status = 401;
+    throw error;
+  }
+  return token;
 }
 
 /**
@@ -37,12 +52,7 @@ function parseUserId(userInput) {
  */
 export async function authorizeUser(request, userInput) {
   const userId = parseUserId(userInput);
-  const token = getBearerToken(request);
-  if (token == null) {
-    const error = new Error("Missing or invalid authorization header.");
-    error.status = 401;
-    throw error;
-  }
+  const token = requireBearerToken(request);
   const users = await UserService.filterUsers({ id: userId, jwt: token });
   if (users.length !== 1) {
     const error = new Error("User authorization failed.");

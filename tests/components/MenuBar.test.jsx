@@ -58,7 +58,7 @@ describe("MenuBar", () => {
 
   test("shows notifiers button on monitors page", () => {
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11 },
+      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11, token: "tkn" },
       page: { pageId: "monitors" },
     });
 
@@ -67,7 +67,7 @@ describe("MenuBar", () => {
 
   test("shows monitors button on notifiers page", () => {
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11 },
+      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11, token: "tkn" },
       page: { pageId: "notifiers" },
     });
 
@@ -76,7 +76,7 @@ describe("MenuBar", () => {
 
   test("navigates to scraper config with challenge", () => {
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11 },
+      login: { isDemo: false, challenge: "abc", logout: jest.fn(), userId: () => 11, token: "tkn" },
       page: { pageId: "monitors" },
     });
 
@@ -89,7 +89,7 @@ describe("MenuBar", () => {
     const logoutMock = jest.fn();
 
     renderWithContexts({
-      login: { isDemo: false, challenge: "abc", logout: logoutMock, userId: () => 11 },
+      login: { isDemo: false, challenge: "abc", logout: logoutMock, userId: () => 11, token: "tkn" },
       page: { pageId: "monitors" },
     });
 
@@ -108,7 +108,7 @@ describe("MenuBar", () => {
     const logoutMock = jest.fn();
 
     renderWithContexts({
-      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357 },
+      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357, token: "demo-token" },
       page: { pageId: "monitors" },
     });
 
@@ -119,7 +119,10 @@ describe("MenuBar", () => {
       expect(global.fetch).toHaveBeenNthCalledWith(
         2,
         "/api/user?id=7357",
-        expect.objectContaining({ method: "DELETE" }),
+        expect.objectContaining({
+          method: "DELETE",
+          headers: expect.objectContaining({ Authorization: "Bearer demo-token" }),
+        }),
       );
       expect(logoutMock).toHaveBeenCalled();
       expect(replaceMock).toHaveBeenCalledWith("/");
@@ -132,7 +135,7 @@ describe("MenuBar", () => {
     const logoutMock = jest.fn();
 
     renderWithContexts({
-      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357 },
+      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357, token: "demo-token" },
       page: { pageId: "monitors" },
     });
 
@@ -143,6 +146,25 @@ describe("MenuBar", () => {
       expect(logoutMock).toHaveBeenCalled();
       expect(replaceMock).toHaveBeenCalledWith("/");
       expect(toastWarnMock).toHaveBeenCalledWith("Logout successful. Warning: Cannot remove demo user");
+    });
+  });
+
+  test("demo logout warns when token is missing before cleanup call", async () => {
+    global.fetch.mockResolvedValueOnce({ ok: true });
+    const logoutMock = jest.fn();
+
+    renderWithContexts({
+      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357, token: null },
+      page: { pageId: "monitors" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "logout" }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(logoutMock).toHaveBeenCalled();
+      expect(replaceMock).toHaveBeenCalledWith("/");
+      expect(toastWarnMock).toHaveBeenCalledWith("Logout successful. Warning: Missing user token");
     });
   });
 });

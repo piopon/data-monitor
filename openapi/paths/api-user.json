@@ -3,12 +3,19 @@
     "tags": [
       "users"
     ],
-    "summary": "List or filter users",
+    "summary": "Filter users for authorized session",
+    "description": "Requires bearer authentication. Query must include either id or email. When email is used, results are restricted to the authenticated token owner.",
     "operationId": "getUsers",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
     "parameters": [
       {
         "name": "id",
         "in": "query",
+        "description": "User id to retrieve. Must belong to authenticated session.",
         "schema": {
           "type": "integer",
           "minimum": 1
@@ -17,18 +24,11 @@
       {
         "name": "email",
         "in": "query",
+        "description": "User email to retrieve for authenticated token.",
         "schema": {
           "type": "string",
           "format": "email"
         }
-      },
-      {
-        "name": "jwt",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Used only with indexed filters by current implementation."
       }
     ],
     "responses": {
@@ -47,6 +47,12 @@
       },
       "400": {
         "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
       }
     }
   },
@@ -54,8 +60,14 @@
     "tags": [
       "users"
     ],
-    "summary": "Create user",
+    "summary": "Create or refresh user session",
+    "description": "Requires bearer authentication. Request body jwt must match bearer token. Token email claim must match request email and token must be accepted by scraper backend. If email already exists, jwt is refreshed for that user.",
     "operationId": "createUser",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
     "requestBody": {
       "required": true,
       "content": {
@@ -79,6 +91,15 @@
       },
       "400": {
         "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      },
+      "503": {
+        "$ref": "#/components/responses/ServerError"
       }
     }
   },
@@ -88,6 +109,11 @@
     ],
     "summary": "Update user by id",
     "operationId": "updateUser",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
     "parameters": [
       {
         "$ref": "#/components/parameters/IdQuery"
@@ -116,6 +142,15 @@
       },
       "400": {
         "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
+      },
+      "404": {
+        "$ref": "#/components/responses/NotFound"
       }
     }
   },
@@ -125,6 +160,11 @@
     ],
     "summary": "Delete user by id",
     "operationId": "deleteUser",
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
     "parameters": [
       {
         "$ref": "#/components/parameters/IdQuery"
@@ -143,6 +183,12 @@
       },
       "400": {
         "$ref": "#/components/responses/BadRequest"
+      },
+      "401": {
+        "$ref": "#/components/responses/Unauthorized"
+      },
+      "403": {
+        "$ref": "#/components/responses/Forbidden"
       }
     }
   }

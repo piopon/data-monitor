@@ -85,6 +85,9 @@ describe("HomePage", () => {
     expect(global.fetch).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining("/api/user?"),
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer jwt-token" }),
+      }),
     );
     expect(global.fetch.mock.calls[1][0]).toContain("email=user%40example.com");
   });
@@ -171,7 +174,10 @@ describe("HomePage", () => {
       expect(global.fetch).toHaveBeenNthCalledWith(
         3,
         "/api/user",
-        expect.objectContaining({ method: "POST" }),
+        expect.objectContaining({
+          method: "POST",
+          headers: expect.objectContaining({ Authorization: "Bearer jwt-token" }),
+        }),
       );
       expect(toastErrorMock).toHaveBeenCalledWith("create failed");
       expect(loginMock).not.toHaveBeenCalled();
@@ -205,7 +211,10 @@ describe("HomePage", () => {
       expect(global.fetch).toHaveBeenNthCalledWith(
         3,
         "/api/user?id=42",
-        expect.objectContaining({ method: "PUT" }),
+        expect.objectContaining({
+          method: "PUT",
+          headers: expect.objectContaining({ Authorization: "Bearer jwt-token" }),
+        }),
       );
       expect(toastErrorMock).toHaveBeenCalledWith("update failed");
       expect(loginMock).not.toHaveBeenCalled();
@@ -268,6 +277,12 @@ describe("HomePage", () => {
       expect(global.fetch).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining("/api/user?"),
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Authorization:
+              "Bearer header.eyJlbWFpbCI6ImRlbW9AZXhhbXBsZS5jb20ifQ.signature",
+          }),
+        }),
       );
       expect(global.fetch.mock.calls[1][0]).toContain("email=demo%40example.com");
       expect(demoMock).toHaveBeenCalledWith(
