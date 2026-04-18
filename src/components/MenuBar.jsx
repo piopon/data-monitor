@@ -9,7 +9,7 @@ import { LoginContext, PageContext } from "@/context/Contexts";
 const MenuBar = () => {
   const config = AppConfig.getConfig();
   const router = useRouter();
-  const { isDemo, challenge, logout, userId } = useContext(LoginContext);
+  const { isDemo, challenge, logout, userId, token } = useContext(LoginContext);
   const { pageId } = useContext(PageContext);
 
   const getValidUserId = () => {
@@ -47,6 +47,7 @@ const MenuBar = () => {
     }
     const cleanupResponse = await fetch(`/api/user?id=${currentUserId}`, {
       method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!cleanupResponse.ok) {
       return { ok: false, cause: "Cannot remove demo user" };

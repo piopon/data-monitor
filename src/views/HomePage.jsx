@@ -19,9 +19,14 @@ export default function HomePage({ demoEnabled, initError }) {
     }
   }, [initError]);
 
+  const getAuthHeaders = (jwt) => ({
+    Authorization: `Bearer ${jwt}`,
+  });
+
   const userSave = async (userData) => {
+    const authHeaders = getAuthHeaders(userData.jwt);
     const getEmailUserUrl = RequestUtils.buildUrl("/api/user", { email: userData.email });
-    const getEmailUserResponse = await fetch(getEmailUserUrl);
+    const getEmailUserResponse = await fetch(getEmailUserUrl, { headers: authHeaders });
     if (!getEmailUserResponse.ok) {
       return { id: undefined, message: await RequestUtils.getResponseMessage(getEmailUserResponse) };
     }
@@ -34,7 +39,7 @@ export default function HomePage({ demoEnabled, initError }) {
     const idFilter = exists ? `?id=${existingUser.id}` : ``;
     const addUserResponse = await fetch(`/api/user${idFilter}`, {
       method: exists ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...authHeaders },
       body: JSON.stringify(userData),
     });
     if (!addUserResponse.ok) {
