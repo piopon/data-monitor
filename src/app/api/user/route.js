@@ -7,6 +7,7 @@ import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 
 const PRIVATE_PLACEHOLDER = "PRIVATE";
+const TOKEN_VALIDATION_PROBE_ITEM = "__token_validation_probe__";
 
 /**
  * Method used to normalize placeholder values before persisting sensitive fields
@@ -93,11 +94,6 @@ function normalizeUserInput(user, options = {}) {
     error.status = 400;
     throw error;
   }
-  if (user.jwt != null && normalizedJwt !== "" && !sanitizedJwt) {
-    const error = new Error("Invalid user JWT.");
-    error.status = 400;
-    throw error;
-  }
   const requireEmail = options.requireEmail === true;
   const sanitizedEmail = user.email != null ? sanitizeUserEmail(user.email) : "";
   if (user.email != null && !sanitizedEmail) {
@@ -146,7 +142,7 @@ async function assertAuthorizedTokenForEmail(token, expectedEmail) {
   }
 
   const validateTokenResponse = await ScraperRequest.GET(
-    AppConfig.getConfig().scraper.endpoints.data,
+    `${AppConfig.getConfig().scraper.endpoints.items}?name=${encodeURIComponent(TOKEN_VALIDATION_PROBE_ITEM)}`,
     { Authorization: `Bearer ${token}` },
   );
   if (!validateTokenResponse.ok) {

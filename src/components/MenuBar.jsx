@@ -45,6 +45,9 @@ const MenuBar = () => {
     if (currentUserId == null) {
       return { ok: false, cause: "Invalid user ID" };
     }
+    if (token == null || String(token).trim() === "") {
+      return { ok: false, cause: "Missing user token" };
+    }
     const cleanupResponse = await fetch(`/api/user?id=${currentUserId}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },

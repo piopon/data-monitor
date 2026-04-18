@@ -213,6 +213,19 @@ describe("app/api/user route", () => {
     expect(body.message).toContain("User authorization failed");
   });
 
+  test("POST validates token using lightweight scraper items probe", async () => {
+    UserService.addUser.mockResolvedValueOnce({ id: 7, email: "user@example.com", jwt: "token" });
+
+    await POST(
+      reqWithUrl("http://test/api/user", { email: "user@example.com", jwt: "token" }, { authorization: "Bearer token" }),
+    );
+
+    expect(ScraperRequest.GET).toHaveBeenCalledWith(
+      expect.stringContaining("/api/v1/data/items?name=__token_validation_probe__"),
+      { Authorization: "Bearer token" },
+    );
+  });
+
   test("POST returns 503 when scraper backend cannot validate token", async () => {
     ScraperRequest.GET.mockResolvedValueOnce({ ok: false, status: 500 });
 

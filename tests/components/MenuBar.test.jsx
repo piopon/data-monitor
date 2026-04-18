@@ -148,4 +148,23 @@ describe("MenuBar", () => {
       expect(toastWarnMock).toHaveBeenCalledWith("Logout successful. Warning: Cannot remove demo user");
     });
   });
+
+  test("demo logout warns when token is missing before cleanup call", async () => {
+    global.fetch.mockResolvedValueOnce({ ok: true });
+    const logoutMock = jest.fn();
+
+    renderWithContexts({
+      login: { isDemo: true, challenge: "abc", logout: logoutMock, userId: () => 7357, token: null },
+      page: { pageId: "monitors" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "logout" }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(logoutMock).toHaveBeenCalled();
+      expect(replaceMock).toHaveBeenCalledWith("/");
+      expect(toastWarnMock).toHaveBeenCalledWith("Logout successful. Warning: Missing user token");
+    });
+  });
 });
