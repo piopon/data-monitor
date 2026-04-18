@@ -1,5 +1,8 @@
 import { UserService } from "@/model/UserService";
 import { authorizeUser, requireBearerToken } from "@/lib/ApiUserAuth";
+import { getEmailFromJwt } from "@/lib/AuthTokenUtils";
+import { ScraperRequest } from "@/lib/ScraperRequest";
+import { AppConfig } from "@/config/AppConfig";
 import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 
@@ -129,6 +132,34 @@ function getSafeUser(user) {
   };
 }
 
+/**
+ * Method used to verify that provided token belongs to provided email and is accepted by scraper backend
+ * @param {String} token Bearer token value
+ * @param {String} expectedEmail Sanitized email expected for token owner
+ */
+async function assertAuthorizedTokenForEmail(token, expectedEmail) {
+  const tokenEmail = sanitizeUserEmail(getEmailFromJwt(token));
+  if (!tokenEmail || tokenEmail !== expectedEmail) {
+    const error = new Error("User authorization failed.");
+    error.status = 403;
+    throw error;
+  }
+
+  const validateTokenResponse = await ScraperRequest.GET(
+    AppConfig.getConfig().scraper.endpoints.data,
+    { Authorization: `Bearer ${token}` },
+  );
+  if (!validateTokenResponse.ok) {
+    const error = new Error(
+      validateTokenResponse.status >= 500
+        ? "Cannot validate user token with scraper backend."
+        : "User authorization failed.",
+    );
+    error.status = validateTokenResponse.status >= 500 ? 503 : 403;
+    throw error;
+  }
+}
+
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -167,6 +198,7 @@ export async function POST(request) {
       error.status = 403;
       throw error;
     }
+    await assertAuthorizedTokenForEmail(token, userData.email);
     const user = await UserService.addUser(userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,

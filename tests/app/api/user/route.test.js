@@ -1,6 +1,8 @@
 import { GET, POST, PUT, DELETE } from "../../../../src/app/api/user/route.js";
 import { UserService } from "@/model/UserService";
 import { authorizeUser, requireBearerToken } from "@/lib/ApiUserAuth";
+import { getEmailFromJwt } from "@/lib/AuthTokenUtils";
+import { ScraperRequest } from "@/lib/ScraperRequest";
 import { RequestUtils } from "@/lib/RequestUtils";
 
 jest.mock("@/model/UserService", () => ({
@@ -13,6 +15,12 @@ jest.mock("@/model/UserService", () => ({
   },
 }));
 jest.mock("@/lib/ApiUserAuth", () => ({ authorizeUser: jest.fn(), requireBearerToken: jest.fn() }));
+jest.mock("@/lib/AuthTokenUtils", () => ({ getEmailFromJwt: jest.fn() }));
+jest.mock("@/lib/ScraperRequest", () => ({
+  ScraperRequest: {
+    GET: jest.fn(),
+  },
+}));
 jest.mock("@/lib/RequestUtils", () => ({ RequestUtils: { getErrorStatus: jest.fn() } }));
 
 class MockResponse {
@@ -67,6 +75,8 @@ describe("app/api/user route", () => {
       }
       return token;
     });
+    getEmailFromJwt.mockReturnValue("user@example.com");
+    ScraperRequest.GET.mockResolvedValue({ ok: true, status: 200 });
     RequestUtils.getErrorStatus.mockImplementation((error, fallbackStatus = 400) => error?.status ?? fallbackStatus);
   });
 
@@ -174,6 +184,46 @@ describe("app/api/user route", () => {
     expect(UserService.addUser).not.toHaveBeenCalled();
     expect(response.status).toBe(403);
     expect(body.message).toContain("User authorization failed");
+  });
+
+  test("POST returns 403 when token email does not match payload email", async () => {
+    getEmailFromJwt.mockReturnValueOnce("attacker@example.com");
+
+    const response = await POST(
+      reqWithUrl("http://test/api/user", { email: "user@example.com", jwt: "token" }, { authorization: "Bearer token" }),
+    );
+    const body = await response.json();
+
+    expect(ScraperRequest.GET).not.toHaveBeenCalled();
+    expect(UserService.addUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(403);
+    expect(body.message).toContain("User authorization failed");
+  });
+
+  test("POST returns 403 when scraper token validation fails", async () => {
+    ScraperRequest.GET.mockResolvedValueOnce({ ok: false, status: 401 });
+
+    const response = await POST(
+      reqWithUrl("http://test/api/user", { email: "user@example.com", jwt: "token" }, { authorization: "Bearer token" }),
+    );
+    const body = await response.json();
+
+    expect(UserService.addUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(403);
+    expect(body.message).toContain("User authorization failed");
+  });
+
+  test("POST returns 503 when scraper backend cannot validate token", async () => {
+    ScraperRequest.GET.mockResolvedValueOnce({ ok: false, status: 500 });
+
+    const response = await POST(
+      reqWithUrl("http://test/api/user", { email: "user@example.com", jwt: "token" }, { authorization: "Bearer token" }),
+    );
+    const body = await response.json();
+
+    expect(UserService.addUser).not.toHaveBeenCalled();
+    expect(response.status).toBe(503);
+    expect(body.message).toContain("Cannot validate user token with scraper backend");
   });
 
   test("PUT updates user by id", async () => {

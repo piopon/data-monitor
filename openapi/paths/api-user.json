@@ -61,7 +61,7 @@
       "users"
     ],
     "summary": "Create or refresh user session",
-    "description": "Requires bearer authentication. Request body jwt must match bearer token. If email already exists, jwt is refreshed for that user.",
+    "description": "Requires bearer authentication. Request body jwt must match bearer token. Token email claim must match request email and token must be accepted by scraper backend. If email already exists, jwt is refreshed for that user.",
     "operationId": "createUser",
     "security": [
       {
@@ -97,6 +97,9 @@
       },
       "403": {
         "$ref": "#/components/responses/Forbidden"
+      },
+      "503": {
+        "$ref": "#/components/responses/ServerError"
       }
     }
   },
