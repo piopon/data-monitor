@@ -1,5 +1,5 @@
 import { UserService } from "@/model/UserService";
-import { authorizeUser } from "@/lib/ApiUserAuth";
+import { authorizeUser, requireBearerToken } from "@/lib/ApiUserAuth";
 import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 
@@ -41,35 +41,6 @@ function validateUserJwt(value) {
     throw error;
   }
   return input;
-}
-
-/**
- * Method used to parse bearer token from request authorization header
- * @param {Object} request Request object received from frontend
- * @returns token string when present, otherwise null
- */
-function getBearerToken(request) {
-  const authorizationHeader = request.headers?.get("authorization") || "";
-  if (!authorizationHeader.toLowerCase().startsWith("bearer ")) {
-    return null;
-  }
-  const token = authorizationHeader.substring(7).trim();
-  return token === "" ? null : token;
-}
-
-/**
- * Method used to verify bearer token availability in request
- * @param {Object} request Request object received from frontend
- * @returns bearer token string
- */
-function requireBearerToken(request) {
-  const token = getBearerToken(request);
-  if (token == null) {
-    const error = new Error("Missing or invalid authorization header.");
-    error.status = 401;
-    throw error;
-  }
-  return token;
 }
 
 /**
