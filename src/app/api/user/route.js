@@ -1,4 +1,5 @@
 import { UserService } from "@/model/UserService";
+import { authorizeUser } from "@/lib/ApiUserAuth";
 import { DataSanitizer } from "@/lib/DataSanitizer";
 import { RequestUtils } from "@/lib/RequestUtils";
 
@@ -43,6 +44,35 @@ function validateUserJwt(value) {
 }
 
 /**
+ * Method used to parse bearer token from request authorization header
+ * @param {Object} request Request object received from frontend
+ * @returns token string when present, otherwise null
+ */
+function getBearerToken(request) {
+  const authorizationHeader = request.headers?.get("authorization") || "";
+  if (!authorizationHeader.toLowerCase().startsWith("bearer ")) {
+    return null;
+  }
+  const token = authorizationHeader.substring(7).trim();
+  return token === "" ? null : token;
+}
+
+/**
+ * Method used to verify bearer token availability in request
+ * @param {Object} request Request object received from frontend
+ * @returns bearer token string
+ */
+function requireBearerToken(request) {
+  const token = getBearerToken(request);
+  if (token == null) {
+    const error = new Error("Missing or invalid authorization header.");
+    error.status = 401;
+    throw error;
+  }
+  return token;
+}
+
+/**
  * Method used to normalize GET query filters for user route
  * @param {URLSearchParams} searchParams User query parameters
  * @returns normalized filter object
@@ -50,12 +80,9 @@ function validateUserJwt(value) {
 function normalizeUserFilters(searchParams) {
   const id = searchParams.get("id");
   const email = sanitizeUserEmail(searchParams.get("email"));
-  const jwt = validateUserJwt(searchParams.get("jwt"));
-  const hasIndexedFilter = Boolean(id || email);
   return {
     ...(id && { id }),
     ...(email && { email }),
-    ...(hasIndexedFilter && jwt && { jwt }),
   };
 }
 
@@ -69,7 +96,14 @@ function normalizeUserFilters(searchParams) {
  */
 function normalizeUserInput(user, options = {}) {
   if (user == null) {
-    return user;
+    const error = new Error("Invalid user payload.");
+    error.status = 400;
+    throw error;
+  }
+  if (typeof user !== "object") {
+    const error = new Error("Invalid user payload.");
+    error.status = 400;
+    throw error;
   }
   const requireJwt = options.requireJwt === true;
   const normalizedJwt = normalizeSensitiveInput(user.jwt);
@@ -121,16 +155,19 @@ function getSafeUser(user) {
 export async function GET(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    if (0 === searchParams.size) {
-      const users = await UserService.getUsers();
-      return new Response(JSON.stringify(users.map((user) => getSafeUser(user))), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+    const filters = normalizeUserFilters(searchParams);
+    if (filters.id) {
+      const authorizedUserId = await authorizeUser(request, filters.id);
+      filters.id = String(authorizedUserId);
+    } else if (filters.email) {
+      const token = requireBearerToken(request);
+      filters.jwt = validateUserJwt(token);
+    } else {
+      const error = new Error("User GET requires either 'id' or 'email' filter.");
+      error.status = 400;
+      throw error;
     }
-    const users = await UserService.filterUsers({
-      ...normalizeUserFilters(searchParams),
-    });
+    const users = await UserService.filterUsers(filters);
     return new Response(JSON.stringify(users.map((user) => getSafeUser(user))), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -147,6 +184,12 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const userData = normalizeUserInput(await request.json(), { requireEmail: true, requireJwt: true });
+    const token = requireBearerToken(request);
+    if (token !== userData.jwt) {
+      const error = new Error("User authorization failed.");
+      error.status = 403;
+      throw error;
+    }
     const user = await UserService.addUser(userData);
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
@@ -165,8 +208,14 @@ export async function PUT(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
+    const authorizedUserId = await authorizeUser(request, id);
     const userData = normalizeUserInput(await request.json(), { requireEmail: false, requireJwt: false });
-    const user = await UserService.editUser(id, userData);
+    const user = await UserService.editUser(authorizedUserId, userData);
+    if (user == null) {
+      const error = new Error("User not found.");
+      error.status = 404;
+      throw error;
+    }
     return new Response(JSON.stringify(getSafeUser(user)), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -184,7 +233,8 @@ export async function DELETE(request) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const id = searchParams.get("id");
-    const deletedNo = await UserService.deleteUser(id);
+    const authorizedUserId = await authorizeUser(request, id);
+    const deletedNo = await UserService.deleteUser(authorizedUserId);
     const response = { message: `Deleted ${deletedNo} user(s)` };
     return new Response(JSON.stringify(response), {
       status: 200,
