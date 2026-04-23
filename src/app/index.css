@@ -152,14 +152,22 @@ section.api-docs-page {
 
 .scroll-hint-badge {
   position: sticky;
-  left: 50%;
+  left: 0.5rem;
+  right: 0.5rem;
   bottom: 0.75rem;
-  transform: translateX(-50%);
+  margin-left: auto;
+  margin-right: auto;
+  transform: none;
   width: fit-content;
+  max-width: calc(100% - 1rem);
+  box-sizing: border-box;
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
   color: #eef2ff;
   background: rgba(79, 70, 229, 0.94);
   border: 1px solid #818cf8;
