@@ -38,16 +38,16 @@ nav.page-head {
 }
 
 div.page-head-logo-div {
-  @apply flex w-full sm:w-[80%] px-3 sm:px-0 mt-2 sm:mt-5 mb-2 sm:mb-5;
+  @apply flex w-full px-3 sm:px-4 lg:px-10 mt-2 sm:mt-5 mb-2 sm:mb-5;
 }
 
 div.page-head-logo-unit {
-  @apply flex flex-shrink-0 items-center ml-1 sm:ml-0;
+  @apply flex flex-shrink-0 items-center ml-0;
 }
 
 div.page-head-menu-div {
   @apply flex items-center justify-evenly sm:justify-end flex-row;
-  @apply w-full sm:w-[80%] mb-2;
+  @apply w-full px-3 sm:px-4 lg:px-10 mb-2;
   @apply animate-menu-drop-down;
 }
 
