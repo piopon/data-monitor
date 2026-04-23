@@ -164,15 +164,15 @@ section.api-docs-page {
 /****************************** WIDGETS *******************************/
 
 div.data-card-monitor .select-small .react-select__control {
-  @apply min-w-16;
+  @apply min-w-0 sm:min-w-16;
 }
 
 div.data-card-monitor .select-big .react-select__control {
-  @apply min-w-32;
+  @apply min-w-0 sm:min-w-32;
 }
 
 div.data-card-monitor .react-select__control {
-  @apply m-1 px-1.5 py-2 relative;
+  @apply px-1.5 py-2 relative;
   @apply rounded-lg text-sm bg-white border-0;
 }
 
@@ -205,7 +205,7 @@ div.data-card-monitor .react-select__menu {
 }
 
 div.data-time-select {
-  @apply m-1 w-full flex rounded-lg  bg-white;
+  @apply w-full min-w-0 flex rounded-lg bg-white;
   @apply focus-within:ring-2 focus-within:ring-black;
 }
 
@@ -221,7 +221,7 @@ input.data-time-value {
 select.data-time-unit {
   @apply px-2 py-3 text-sm rounded-r-lg border-l border-gray-200 bg-gray-100;
   @apply focus:outline-none;
-  width: 4.5rem;
+  width: 4rem;
 }
 
 /***************************** LOGIN PAGE *****************************/
@@ -310,16 +310,16 @@ section#data-section p.spinner-loading {
 }
 
 section#data-section div.data-cards-div {
-  @apply grid grid-cols-1 xl:grid-cols-2 gap-10;
-  @apply my-5 sm:my-2 mx-5 sm:mx-0;
+  @apply grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 xl:gap-8;
+  @apply px-3 sm:px-0 my-3 sm:my-2;
 }
 
 section#data-section div.data-card {
-  @apply bg-gray-200 p-5 rounded-xl shadow-lg relative;
+  @apply bg-gray-200 p-3 sm:p-5 rounded-xl shadow-lg relative;
 }
 
 section#data-section h3.data-card-title {
-  @apply text-center text-lg sm:text-2xl uppercase font-bold my-2;
+  @apply text-center text-base sm:text-2xl uppercase font-bold my-2 break-words;
 }
 
 section#data-section div.data-card-items {
@@ -327,16 +327,16 @@ section#data-section div.data-card-items {
 }
 
 section#data-section div.data-card-item {
-  @apply flex flex-row justify-start items-center;
-  @apply mt-7;
+  @apply flex flex-row flex-wrap sm:flex-nowrap justify-start items-start sm:items-center;
+  @apply gap-2 sm:gap-0 mt-5 sm:mt-7;
 }
 
 section#data-section div.data-card-item img {
-  @apply h-[50px] w-[50px] rounded-2xl mr-3;
+  @apply h-10 w-10 sm:h-[50px] sm:w-[50px] rounded-2xl mr-2 sm:mr-3;
 }
 
 section#data-section div.data-card-item p {
-  @apply sm:text-lg;
+  @apply text-sm sm:text-lg break-words;
 }
 
 section#data-section div.data-card-item span.data-card-name {
@@ -344,27 +344,29 @@ section#data-section div.data-card-item span.data-card-name {
 }
 
 div.data-card-content {
-  @apply w-full;
+  @apply w-full min-w-0;
 }
 
 div.data-card-monitor form {
-  @apply flex flex-row w-full;
+  @apply mt-2;
+  @apply grid w-full grid-cols-1 gap-2;
+  @apply sm:grid-cols-[auto_auto_1fr_1fr_auto_auto] sm:items-center;
 }
 
 div.data-card-monitor input.data-threshold {
-  @apply m-1 px-4 py-3 w-full rounded-lg text-sm;
+  @apply px-3 py-2.5 w-full min-w-0 rounded-lg text-sm;
   @apply disabled:opacity-50 disabled:pointer-events-none;
   @apply bg-white border-black;
 }
 
 div.data-card-monitor button.save-monitor {
-  @apply m-1 px-4 py-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg;
+  @apply px-4 py-2.5 w-full sm:w-auto inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg;
   @apply disabled:opacity-50 disabled:pointer-events-none;
   @apply bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-hidden focus:bg-indigo-600;
 }
 
 div.data-card-monitor button.test-monitor {
-  @apply m-1 px-4 py-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg;
+  @apply px-4 py-2.5 w-full sm:w-auto inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-lg;
   @apply disabled:opacity-50 disabled:pointer-events-none;
   @apply bg-green-500 text-white hover:bg-green-600 focus:outline-hidden focus:bg-green-600;
 }
