@@ -350,7 +350,7 @@ div.data-card-content {
 div.data-card-monitor form {
   @apply mt-2;
   @apply grid w-full grid-cols-1 gap-2;
-  @apply md:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-center;
+  @apply md:grid-cols-[auto_minmax(0,4rem)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-center;
 }
 
 div.data-card-monitor form > * {
@@ -363,6 +363,14 @@ div.data-card-monitor form > div.toggle {
 
 div.data-card-monitor form > div[class*="select-"] {
   @apply w-full min-w-0;
+}
+
+div.data-card-monitor form > div.select-small {
+  @apply md:max-w-[4rem];
+}
+
+div.data-card-monitor .select-small .react-select__control {
+  @apply px-1;
 }
 
 div.data-card-monitor input.data-threshold {
