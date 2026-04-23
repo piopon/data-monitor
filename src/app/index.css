@@ -477,20 +477,20 @@ div#empty-cards-placeholder span.empty-footer {
 /***************************** NOTIFIER PAGE ********************************/
 
 section#notifiers-section {
-  @apply w-full h-[calc(100dvh-125px)] flex flex-col;
+  @apply w-full h-full flex flex-col;
 }
 
 section#notifiers-section div.notifier-cards-div {
-  @apply flex-1 overflow-y-auto;
-  @apply my-5 sm:my-2 mx-5 sm:mx-0;
+  @apply flex-1 min-h-0 overflow-y-auto;
+  @apply px-3 sm:px-4 lg:px-10 my-3 sm:my-2;
 }
 
 section#notifiers-section div.notifier-cards-div > div.scroll-hint-content {
-  @apply flex flex-col items-start gap-5;
+  @apply flex flex-col items-start gap-3 sm:gap-5;
 }
 
 section#notifiers-section div.notifier-card {
-  @apply w-full mt-2 p-5;
+  @apply w-full mt-2 p-3 sm:p-5;
   @apply rounded-xl shadow-lg relative;
   @apply bg-gray-200;
 }
@@ -500,11 +500,19 @@ section#notifiers-section h3.notifier-card-title {
 }
 
 section#notifiers-section div.notifier-card-items {
-  @apply my-2;
+  @apply my-2 grid grid-cols-1 gap-3;
+}
+
+section#notifiers-section div.notifier-card-items > div[class^="notifier-card-"] {
+  @apply grid gap-1;
+}
+
+section#notifiers-section div.notifier-card-items p.card-label {
+  @apply text-xs font-semibold uppercase tracking-wide text-gray-600;
 }
 
 section#notifiers-section button.add-notifier {
-  @apply sticky bottom-5 w-full h-12 my-5;
+  @apply sticky bottom-5 h-12 my-3 sm:my-5 mx-3 sm:mx-4 lg:mx-10;
   @apply rounded-xl shadow-lg;
   @apply bg-indigo-600 text-white hover:bg-indigo-500 hover:cursor-pointer;
   @apply disabled:bg-gray-500 disabled:opacity-50 disabled:pointer-events-none;
@@ -532,13 +540,13 @@ input.notifier-pass {
 }
 
 button.notifier-save-btn {
-  @apply w-50 mt-7 py-3 font-medium rounded-sm bg-green-600 text-white;
+  @apply w-full sm:w-50 mt-3 sm:mt-7 py-3 font-medium rounded-sm bg-green-600 text-white;
   @apply hover:bg-green-500 hover:cursor-pointer focus:outline-hidden focus:bg-green-600;
   @apply disabled:opacity-50 disabled:pointer-events-none;
 }
 
 button.notifier-delete-btn {
-  @apply w-50 mt-7 ml-3 py-3 font-medium rounded-sm bg-red-600 text-white;
+  @apply w-full sm:w-50 mt-3 sm:mt-7 ml-0 sm:ml-3 py-3 font-medium rounded-sm bg-red-600 text-white;
   @apply hover:bg-red-500 hover:cursor-pointer focus:outline-hidden focus:bg-red-600;
   @apply disabled:opacity-50 disabled:pointer-events-none;
 }
