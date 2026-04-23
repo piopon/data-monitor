@@ -164,11 +164,11 @@ section.api-docs-page {
 /****************************** WIDGETS *******************************/
 
 div.data-card-monitor .select-small .react-select__control {
-  @apply min-w-0 sm:min-w-16;
+  @apply min-w-0;
 }
 
 div.data-card-monitor .select-big .react-select__control {
-  @apply min-w-0 sm:min-w-32;
+  @apply min-w-0;
 }
 
 div.data-card-monitor .react-select__control {
