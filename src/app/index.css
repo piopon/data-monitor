@@ -214,14 +214,13 @@ div.data-time-select.is-disabled {
 }
 
 input.data-time-value {
-  @apply w-0 flex-1 min-w-0 px-4 py-3 text-sm rounded-l-lg border-0 bg-transparent;
+  @apply w-0 flex-[1_1_0%] min-w-[2.5rem] px-4 py-3 text-sm rounded-l-lg border-0 bg-transparent;
   @apply focus:outline-none;
 }
 
 select.data-time-unit {
-  @apply shrink-0 px-2 py-3 text-sm rounded-r-lg border-l border-gray-200 bg-gray-100;
+  @apply w-10 shrink-0 px-1.5 py-3 text-[0.8rem] sm:w-15 sm:px-2 sm:text-sm rounded-r-lg border-l border-gray-200 bg-gray-100;
   @apply focus:outline-none;
-  width: 4rem;
 }
 
 /***************************** LOGIN PAGE *****************************/
