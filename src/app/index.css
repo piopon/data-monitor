@@ -248,11 +248,15 @@ section#login-section h2.login-title {
 }
 
 section#login-section form.login-form {
-  @apply flex items-center justify-center;
+  @apply flex w-full items-center justify-center;
+}
+
+section#login-section form.login-form > div {
+  @apply w-full min-w-0;
 }
 
 section#login-section div.login-field-div {
-  @apply flex items-center rounded-md my-3 pl-3;
+  @apply flex w-full min-w-0 items-center rounded-md my-3 pl-3;
   @apply outline-1 -outline-offset-1 outline-gray-300 focus-within:outline-2 focus-within:outline-indigo-600;
 }
 
