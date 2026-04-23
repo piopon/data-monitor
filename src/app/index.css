@@ -311,7 +311,7 @@ section#data-section p.spinner-loading {
 
 section#data-section div.data-cards-div {
   @apply grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 xl:gap-8;
-  @apply px-3 sm:px-0 my-3 sm:my-2;
+  @apply px-3 sm:px-4 lg:px-6 my-3 sm:my-2;
 }
 
 section#data-section div.data-card {
@@ -349,8 +349,29 @@ div.data-card-content {
 
 div.data-card-monitor form {
   @apply mt-2;
-  @apply grid w-full grid-cols-1 gap-2;
-  @apply sm:grid-cols-[auto_auto_1fr_1fr_auto_auto] sm:items-center;
+  @apply flex w-full flex-col gap-2;
+  @apply sm:flex-row sm:flex-wrap sm:items-center;
+}
+
+div.data-card-monitor form > div.toggle {
+  @apply w-full sm:w-auto;
+}
+
+div.data-card-monitor form > div[class*="select-"] {
+  @apply w-full min-w-0 sm:flex-1;
+}
+
+div.data-card-monitor input.data-threshold {
+  @apply sm:flex-1;
+}
+
+div.data-card-monitor form > div.data-time-select {
+  @apply sm:flex-1;
+}
+
+div.data-card-monitor div.monitor-actions {
+  @apply flex w-full flex-col gap-2;
+  @apply sm:w-auto sm:flex-row sm:ml-auto;
 }
 
 div.data-card-monitor input.data-threshold {

@@ -278,12 +278,14 @@ const DataMonitor = ({ parentName }) => {
           setter={notifierSelected}
         />
         <TimeSelect milliseconds={interval} disabled={!enabled} setter={setInterval} />
-        <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
-          test
-        </button>
-        <button className="save-monitor" type="submit">
-          save
-        </button>
+        <div className="monitor-actions">
+          <button className="test-monitor" type="button" disabled={!enabled} onClick={testMonitor}>
+            test
+          </button>
+          <button className="save-monitor" type="submit">
+            save
+          </button>
+        </div>
       </form>
     </div>
   );
