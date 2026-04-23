@@ -227,7 +227,7 @@ select.data-time-unit {
 /***************************** LOGIN PAGE *****************************/
 
 section#login-section {
-  @apply absolute inset-0;
+  @apply fixed inset-0 z-50;
   @apply flex h-full w-full items-center justify-center;
   @apply px-4 py-6 sm:px-6 sm:py-10;
   @apply bg-black/30;
