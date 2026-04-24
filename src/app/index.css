@@ -446,7 +446,7 @@ section#notifiers-section div.notifier-cards-div > div.scroll-hint-container > d
   @apply flex flex-col items-start gap-3 sm:gap-5 min-h-full mt-0;
 }
 
-section#notifiers-section div.notifier-cards-div.is-empty > div.scroll-hint-container > div.scroll-hint-content {
+section#notifiers-section div.notifier-cards-div.center-all > div.scroll-hint-container > div.scroll-hint-content {
   @apply h-full justify-center items-center;
 }
 

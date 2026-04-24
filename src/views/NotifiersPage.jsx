@@ -104,7 +104,7 @@ const NotifiersPage = () => {
     <section id="notifiers-section">
       <ScrollHintContainer
         as="div"
-        className={`notifier-cards-div${notifiers.length !== 0 ? " is-empty" : ""}`}
+        className={`notifier-cards-div center-all`}
         hintText="More notifiers below, scroll down"
         hideScrollbar={true}
       >
