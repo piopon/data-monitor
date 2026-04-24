@@ -306,6 +306,10 @@ section#data-section {
   @apply w-full h-full;
 }
 
+section#data-section > div.scroll-hint-content {
+  @apply h-full min-h-full mt-0;
+}
+
 section#data-section p.spinner-loading {
   @apply mt-1;
   @apply text-sm font-semibold text-indigo-600;
