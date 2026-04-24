@@ -446,6 +446,10 @@ section#notifiers-section div.notifier-cards-div > div.scroll-hint-content {
   @apply flex flex-col items-start gap-3 sm:gap-5;
 }
 
+section#notifiers-section div#empty-cards-placeholder {
+  @apply flex flex-col justify-center items-center w-full h-full;
+}
+
 section#notifiers-section div.notifier-card {
   @apply w-full mt-2 p-3 sm:p-5;
   @apply rounded-xl shadow-lg relative;
