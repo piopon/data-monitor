@@ -5,6 +5,7 @@ body {
   @apply h-full m-0 overflow-hidden;
 }
 
+/* Tailwind v4 theme tokens: custom animation variables and keyframes used by animate-* utilities. */
 @theme {
   --animate-menu-drop-down: menu-drop-down 0.3s ease-in-out;
   @keyframes menu-drop-down {
@@ -121,11 +122,13 @@ div.page-content {
   @apply relative w-full h-full self-stretch overflow-auto bg-white;
 }
 
+/* Vendor scrollbar APIs (Firefox/legacy Edge) are not covered by Tailwind utilities. */
 .scroll-hint-container--hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
+/* WebKit pseudo-element requires raw CSS; Tailwind has no core utility for this selector. */
 .scroll-hint-container--hide-scrollbar::-webkit-scrollbar {
   width: 0;
   height: 0;
