@@ -6,7 +6,7 @@ import Spinner from "@/widgets/Spinner";
 const MonitorsPage = ({ loading, data }) => {
   return (
     <ScrollHintContainer id="data-section" hintText="More monitors below, scroll down" hideScrollbar={true}>
-      {loading ? <Spinner /> : data.length > 0 ? <DataCards data={data} /> : <EmptyCards whatToAdd={"monitor"} />}
+      {loading ? <Spinner loading={loading} /> : data.length > 0 ? <DataCards data={data} /> : <EmptyCards whatToAdd={"monitor"} />}
     </ScrollHintContainer>
   );
 };

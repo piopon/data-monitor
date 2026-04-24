@@ -64,16 +64,20 @@ export default function ScrollHintContainer({
     };
   }, [containerNode, contentNode, threshold]);
 
-  const classes = ["scroll-hint-container", hideScrollbar ? "scroll-hint-container--hide-scrollbar" : "", className]
+  const scrollAreaClasses = ["scroll-hint-container", hideScrollbar ? "scroll-hint-container--hide-scrollbar" : ""]
     .filter(Boolean)
     .join(" ");
+
+  const rootClasses = ["relative h-full w-full min-h-0", className].filter(Boolean).join(" ");
 
   const Root = as;
 
   return (
-    <Root ref={handleContainerRef} className={classes} {...rest}>
-      <div ref={handleContentRef} className="scroll-hint-content">
-        {children}
+    <Root className={rootClasses} {...rest}>
+      <div ref={handleContainerRef} className={scrollAreaClasses}>
+        <div ref={handleContentRef} className="scroll-hint-content">
+          {children}
+        </div>
       </div>
       {showHint ? <div className="scroll-hint-badge">{hintText}</div> : null}
     </Root>

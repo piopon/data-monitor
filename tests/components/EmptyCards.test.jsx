@@ -8,14 +8,14 @@ describe("EmptyCards", () => {
 
     expect(screen.getByText("ah, fresh start, clean vibes...")).toBeInTheDocument();
     expect(screen.getByText(/add your first monitor/)).toBeInTheDocument();
-    expect(screen.getByText(/config button will show you the way/)).toBeInTheDocument();
+    expect(screen.getByText(/scraper button will show you the way/)).toBeInTheDocument();
   });
 
   test("supports hiding title and footer", () => {
     render(<EmptyCards whatToAdd="notifier" showTitle={false} showFooter={false} />);
 
     expect(screen.queryByText("ah, fresh start, clean vibes...")).not.toBeInTheDocument();
-    expect(screen.queryByText(/config button will show you the way/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/scraper button will show you the way/)).not.toBeInTheDocument();
     expect(screen.getByText(/add your first notifier/)).toBeInTheDocument();
   });
 });
