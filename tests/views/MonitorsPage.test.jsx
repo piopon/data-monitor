@@ -21,8 +21,9 @@ describe("MonitorsPage", () => {
   test("shows spinner when loading", () => {
     const { container } = render(<MonitorsPage loading={true} data={[]} />);
 
-    const root = container.querySelector("section#data-section.scroll-hint-container");
+    const root = container.querySelector("section#data-section");
     expect(root).toBeInTheDocument();
+    expect(root.querySelector(".scroll-hint-container")).toBeInTheDocument();
 
     expect(screen.getByTestId("spinner")).toBeInTheDocument();
   });

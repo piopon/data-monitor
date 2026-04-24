@@ -52,9 +52,11 @@ describe("ScrollHintContainer", () => {
       </ScrollHintContainer>
     );
 
+    const root = document.querySelector(".custom-wrap");
+    expect(root).toBeInTheDocument();
+
     let container = document.querySelector(".scroll-hint-container");
     expect(container.className).toContain("scroll-hint-container--hide-scrollbar");
-    expect(container.className).toContain("custom-wrap");
 
     rerender(
       <ScrollHintContainer hideScrollbar={false} className="custom-wrap">
@@ -73,8 +75,9 @@ describe("ScrollHintContainer", () => {
       </ScrollHintContainer>
     );
 
-    const root = document.querySelector("div.scroll-hint-container.custom-wrap");
+    const root = document.querySelector("div.custom-wrap");
     expect(root).toBeInTheDocument();
+    expect(root.querySelector(".scroll-hint-container")).toBeInTheDocument();
   });
 
   test("rebinds behavior when root element changes", async () => {
@@ -84,7 +87,8 @@ describe("ScrollHintContainer", () => {
       </ScrollHintContainer>
     );
 
-    const firstContainer = document.querySelector("section.scroll-hint-container");
+    const firstRoot = document.querySelector("section");
+    const firstContainer = firstRoot.querySelector(".scroll-hint-container");
     let firstScrollTop = 0;
 
     Object.defineProperty(firstContainer, "clientHeight", {
@@ -112,8 +116,9 @@ describe("ScrollHintContainer", () => {
       </ScrollHintContainer>
     );
 
-    const nextContainer = document.querySelector("div.scroll-hint-container");
-    expect(document.querySelector("section.scroll-hint-container")).not.toBeInTheDocument();
+    const nextRoot = document.querySelector("div");
+    const nextContainer = nextRoot.querySelector(".scroll-hint-container");
+    expect(document.querySelector("section")).not.toBeInTheDocument();
     let nextScrollTop = 0;
 
     Object.defineProperty(nextContainer, "clientHeight", {
