@@ -3,7 +3,7 @@
   "info": {
     "title": "Data Monitor API",
     "description": "OpenAPI source of truth for Data Monitor backend routes.",
-    "version": "0.1.0"
+    "version": "1.0.0"
   },
   "servers": [
     {
