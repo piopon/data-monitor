@@ -63,7 +63,7 @@ describe("app/api/docs/openapi.json route", () => {
     mockReadFile.mockResolvedValueOnce(
       JSON.stringify({
         openapi: "3.1.0",
-        info: { title: "data-monitor", version: "0.1.0" },
+        info: { title: "data-monitor", version: "1.0.0" },
         paths: {},
         components: {},
       })
