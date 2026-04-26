@@ -285,9 +285,9 @@ Resolution order:
 
 Examples:
 
-- `0.1.0+abc123def456`
-- `0.1.0+unknown`
-- `0.1.0`
+- `1.0.0+abc123def456`
+- `1.0.0+unknown`
+- `1.0.0`
 
 Notes:
 

@@ -33,7 +33,7 @@ describe("OpenApiBundler", () => {
       if (normalized.endsWith("openapi/openapi.json")) {
         return JSON.stringify({
           openapi: "3.1.0",
-          info: { title: "data-monitor", version: "0.1.0" },
+          info: { title: "data-monitor", version: "1.0.0" },
           components: {
             schemas: {
               HealthResponse: { $ref: "./components/schemas/health.json" },
@@ -93,7 +93,7 @@ describe("OpenApiBundler", () => {
     mockReadFile.mockResolvedValueOnce(
       JSON.stringify({
         openapi: "3.1.0",
-        info: { title: "data-monitor", version: "0.1.0" },
+        info: { title: "data-monitor", version: "1.0.0" },
         paths: {
           "/api/health": {
             $ref: "https://example.com/external.json",
@@ -115,7 +115,7 @@ describe("OpenApiBundler", () => {
       if (normalized.endsWith("openapi/openapi.json")) {
         return JSON.stringify({
           openapi: "3.1.0",
-          info: { title: "data-monitor", version: "0.1.0" },
+          info: { title: "data-monitor", version: "1.0.0" },
           paths: {
             "/api/health": {
               $ref: "./../secrets.json",
